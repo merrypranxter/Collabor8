@@ -57,17 +57,17 @@ export default function ConversationsMenu({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
-            className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
+            className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
             data-testid="conversations-menu-button"
           >
             <MessageSquare className="w-4 h-4 inline mr-2" />
             History
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-80 bg-[#0D1020] border-r border-[rgba(255,255,255,0.06)]" data-testid="conversations-sheet">
+        <SheetContent side="left" className="w-80 bg-[#141414] border-r border-[rgba(255,255,255,0.08)]" data-testid="conversations-sheet">
           <SheetHeader>
-            <SheetTitle className="font-display text-2xl font-normal text-[#EAE6DF]">Conversations</SheetTitle>
-            <SheetDescription className="text-[#9A9AA3] font-light">
+            <SheetTitle className="font-display text-2xl font-normal text-[#F5F5F5]">Conversations</SheetTitle>
+            <SheetDescription className="text-[#A1A1A1] font-light">
               Your saved symposiums
             </SheetDescription>
           </SheetHeader>
@@ -78,7 +78,7 @@ export default function ConversationsMenu({
                 onNewConversation();
                 setOpen(false);
               }}
-              className="w-full py-3 text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
+              className="w-full py-3 text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
               data-testid="new-conversation-button"
             >
               + New Symposium
