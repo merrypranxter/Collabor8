@@ -125,14 +125,23 @@ export default function Arena() {
     }
   };
 
-  const togglePersona = (personaId) => {
-    setActivePersonas(prev => {
-      if (prev.includes(personaId)) {
-        return prev.filter(id => id !== personaId);
-      } else {
-        return [...prev, personaId];
+  const togglePersona = async (personaId) => {
+    const newActivePersonas = activePersonas.includes(personaId)
+      ? activePersonas.filter(id => id !== personaId)
+      : [...activePersonas, personaId];
+    
+    setActivePersonas(newActivePersonas);
+    
+    // Update the conversation in the backend with new active personas
+    if (currentConversation?.id) {
+      try {
+        await axios.put(`${API_URL}/api/conversations/${currentConversation.id}`, {
+          active_personas: newActivePersonas
+        });
+      } catch (error) {
+        console.error('Failed to update active personas:', error);
       }
-    });
+    }
   };
 
   const handleFileUpload = (event) => {
