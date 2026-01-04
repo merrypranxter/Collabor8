@@ -502,19 +502,14 @@ If the user shares links or files, engage with the content meaningfully."""
             system_message=system_message
         )
         
-        # Use vision model if images are present
-        if has_images:
-            chat = chat.with_model("openai", "gpt-4-vision-preview")
-        else:
-            chat = chat.with_model("openai", "gpt-5.2")
+        # For now, use text model for all requests due to vision API limitations
+        # TODO: Fix vision integration when proper model is available
+        chat = chat.with_model("openai", "gpt-5.2")
         
         prompt = f"Recent conversation:\n{context_str}\n\nRespond as {persona['display_name']}:"
         
-        # Create message with images if present
-        if has_images and file_contents:
-            user_message = UserMessage(text=prompt, file_contents=file_contents)
-        else:
-            user_message = UserMessage(text=prompt)
+        # Create message - for now just use text, vision integration needs fixing
+        user_message = UserMessage(text=prompt)
         
         response_text = await chat.send_message(user_message)
         
