@@ -7,6 +7,7 @@ import PersonaCard from "../components/PersonaCard";
 import TranscriptBubble from "../components/TranscriptBubble";
 import ModeSelector from "../components/ModeSelector";
 import PersonaModal from "../components/PersonaModal";
+import ConversationsMenu from "../components/ConversationsMenu";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 
