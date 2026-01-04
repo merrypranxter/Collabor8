@@ -126,23 +126,29 @@ export default function Arena() {
   };
 
   const togglePersona = async (personaId) => {
+    console.log('togglePersona called for:', personaId);
     const newActivePersonas = activePersonas.includes(personaId)
       ? activePersonas.filter(id => id !== personaId)
       : [...activePersonas, personaId];
     
+    console.log('New active personas:', newActivePersonas);
     setActivePersonas(newActivePersonas);
     
     // Update the conversation in the backend with new active personas
     if (conversation?.id) {
       try {
-        console.log('Updating active personas:', newActivePersonas);
-        await axios.put(`${API}/conversations/${conversation.id}`, {
+        console.log('Updating conversation:', conversation.id);
+        console.log('Setting active personas to:', newActivePersonas);
+        const response = await axios.put(`${API}/conversations/${conversation.id}`, {
           active_personas: newActivePersonas
         });
-        console.log('✅ Active personas updated in backend');
+        console.log('✅ Active personas updated in backend:', response.data);
       } catch (error) {
-        console.error('Failed to update active personas:', error);
+        console.error('❌ Failed to update active personas:', error);
+        console.error('Error details:', error.response?.data);
       }
+    } else {
+      console.log('⚠️ No conversation ID available');
     }
   };
 
