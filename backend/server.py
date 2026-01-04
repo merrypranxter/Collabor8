@@ -103,6 +103,7 @@ class MessageCreate(BaseModel):
     content: str
     persona_id: Optional[str] = None
     is_user: bool = False
+    attachments: Optional[List[Dict[str, Any]]] = None
 
 class PersonaLookupRequest(BaseModel):
     name: str
@@ -110,6 +111,7 @@ class PersonaLookupRequest(BaseModel):
 class ChatGenerateRequest(BaseModel):
     conversation_id: str
     user_message: str
+    attachments: Optional[List[Dict[str, Any]]] = None
 
 @api_router.get("/")
 async def root():
