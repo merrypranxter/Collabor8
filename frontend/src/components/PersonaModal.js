@@ -42,14 +42,13 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] glass-panel border-white/20" data-testid="persona-modal">
+      <DialogContent className="sm:max-w-[500px] bg-[#0D1020] border border-[rgba(255,255,255,0.06)]" data-testid="persona-modal">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" />
+          <DialogTitle className="font-display text-2xl font-normal text-[#EAE6DF]">
             Summon a Persona
           </DialogTitle>
-          <DialogDescription>
-            Enter a name of a real or fictional character. The AI will automatically fill in their details.
+          <DialogDescription className="text-[#9A9AA3] font-light">
+            Enter a name. The archive will provide their essence.
           </DialogDescription>
         </DialogHeader>
         
