@@ -87,7 +87,7 @@ export default function ConversationsMenu({
             <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)] scroll-area">
               <div className="space-y-2">
                 {conversations.length === 0 ? (
-                  <div className="text-center py-8 text-[#9A9AA3] font-light text-sm">
+                  <div className="text-center py-8 text-[#A1A1A1] font-light text-sm">
                     No conversations yet
                   </div>
                 ) : (
@@ -100,8 +100,8 @@ export default function ConversationsMenu({
                         relative group rounded-lg border p-3 cursor-pointer
                         transition-all duration-200
                         ${currentConversationId === conv.id
-                          ? "bg-[rgba(184,115,51,0.06)] border-[rgba(184,115,51,0.2)]"
-                          : "bg-[rgba(255,255,255,0.01)] border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.06)]"
+                          ? "bg-[rgba(255,255,255,0.08)] border-[rgba(255,255,255,0.15)]"
+                          : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.08)]"
                         }
                       `}
                       onClick={() => {
@@ -112,23 +112,23 @@ export default function ConversationsMenu({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-light text-sm truncate text-[#EAE6DF]" data-testid={`conversation-title-${conv.id}`}>
+                          <h4 className="font-light text-sm truncate text-[#F5F5F5]" data-testid={`conversation-title-${conv.id}`}>
                             {conv.title}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-[#9A9AA3] font-light uppercase" style={{ letterSpacing: '0.05em' }}>
+                            <span className="text-xs text-[#A1A1A1] font-light uppercase" style={{ letterSpacing: '0.05em' }}>
                               {conv.mode}
                             </span>
-                            <span className="text-xs text-[#9A9AA3]">
+                            <span className="text-xs text-[#A1A1A1]">
                               •
                             </span>
-                            <span className="text-xs text-[#9A9AA3] font-light">
+                            <span className="text-xs text-[#A1A1A1] font-light">
                               {formatDate(conv.updated_at)}
                             </span>
                           </div>
                         </div>
                         <button
-                          className="opacity-0 group-hover:opacity-100 text-[#C55A4A] hover:text-[#D28C4C] transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 text-[#DC2626] hover:text-[#EF4444] transition-opacity"
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteId(conv.id);
@@ -148,18 +148,18 @@ export default function ConversationsMenu({
       </Sheet>
 
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-[#0D1020] border border-[rgba(255,255,255,0.06)]">
+        <AlertDialogContent className="bg-[#141414] border border-[rgba(255,255,255,0.08)]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-[#EAE6DF] font-display font-normal">Delete Conversation?</AlertDialogTitle>
-            <AlertDialogDescription className="text-[#9A9AA3] font-light">
+            <AlertDialogTitle className="text-[#F5F5F5] font-display font-normal">Delete Conversation?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#A1A1A1] font-light">
               This action cannot be undone. The conversation will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] hover:bg-[rgba(255,255,255,0.04)]">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] hover:bg-[rgba(255,255,255,0.04)]">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleDelete(deleteId)}
-              className="bg-[rgba(197,90,74,0.15)] border border-[rgba(197,90,74,0.3)] text-[#C55A4A] hover:bg-[rgba(197,90,74,0.25)]"
+              className="bg-[rgba(220,38,38,0.15)] border border-[rgba(220,38,38,0.3)] text-[#DC2626] hover:bg-[rgba(220,38,38,0.25)]"
             >
               Delete
             </AlertDialogAction>
