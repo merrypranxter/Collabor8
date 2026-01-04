@@ -192,12 +192,13 @@ export default function Arena() {
         const response = await axios.post(`${API}/conversations`, {
           mode,
           topic: null,
-          active_personas: activePersonas
+          active_personas: activePersonas,
+          user_id: user?.id
         });
         setConversation(response.data);
       }
       
-      await loadConversations();
+      await loadConversations(user?.id);
       toast.success("Conversation deleted");
     } catch (error) {
       console.error("Failed to delete conversation:", error);
