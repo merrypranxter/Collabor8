@@ -260,13 +260,30 @@ export default function Arena() {
                 A symposium across time
               </p>
             </div>
-            <ConversationsMenu
-              conversations={conversations}
-              currentConversationId={conversation?.id}
-              onSelectConversation={loadConversation}
-              onDeleteConversation={deleteConversation}
-              onNewConversation={startNewConversation}
-            />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
+                data-testid="expand-button"
+              >
+                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)] flex items-center gap-2"
+                data-testid="user-button"
+              >
+                <User className="w-4 h-4" />
+                {user?.display_name || "Guest"}
+              </button>
+              <ConversationsMenu
+                conversations={conversations}
+                currentConversationId={conversation?.id}
+                onSelectConversation={loadConversation}
+                onDeleteConversation={deleteConversation}
+                onNewConversation={startNewConversation}
+              />
+            </div>
           </motion.div>
 
           <div className="card-subtle p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
