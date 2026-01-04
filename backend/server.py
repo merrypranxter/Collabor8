@@ -293,9 +293,10 @@ async def delete_persona(persona_id: str):
     return {"message": "Persona deleted"}
 
 @api_router.post("/conversations", response_model=Conversation)
-async def create_conversation(conv: ConversationCreate):
+async def create_conversation(conv: ConversationCreate, user_id: Optional[str] = None):
     conversation = Conversation(
         session_id=str(uuid.uuid4()),
+        user_id=user_id,
         mode=conv.mode,
         topic=conv.topic,
         active_personas=conv.active_personas,
@@ -310,8 +311,9 @@ async def create_conversation(conv: ConversationCreate):
     return conversation
 
 @api_router.get("/conversations", response_model=List[Conversation])
-async def get_conversations():
-    convs = await db.conversations.find({}, {"_id": 0}).sort("updated_at", -1).to_list(50)
+async def get_conversations(user_id: Optional[str] = None):
+    query = {"user_id": user_id} if user_id else {}
+    convs = await db.conversations.find(query, {"_id": 0}).sort("updated_at", -1).to_list(50)
     
     for conv in convs:
         if isinstance(conv['created_at'], str):
