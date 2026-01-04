@@ -239,13 +239,12 @@ export default function Arena() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex items-center justify-center h-full text-muted-foreground"
+                    className="flex items-center justify-center h-full text-[#9A9AA3]"
                     data-testid="empty-state"
                   >
-                    <div className="text-center space-y-4">
-                      <Sparkles className="w-16 h-16 mx-auto opacity-50" />
-                      <p className="text-xl">Begin the conversation...</p>
-                      <p className="text-sm">Ask a question or share a thought</p>
+                    <div className="text-center space-y-3">
+                      <p className="text-lg font-light tracking-wide">The table awaits...</p>
+                      <p className="text-sm font-light">Address the symposium</p>
                     </div>
                   </motion.div>
                 ) : (
@@ -255,14 +254,16 @@ export default function Arena() {
                     ))}
                     {isGenerating && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-muted-foreground"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center gap-2 text-[#9A9AA3] px-4"
                         data-testid="generating-indicator"
                       >
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">
-                          Personas are thinking...
+                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" />
+                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" style={{ animationDelay: '0.4s' }} />
+                        <span className="text-sm font-light ml-2">
+                          Contemplating...
                         </span>
                       </motion.div>
                     )}
@@ -273,7 +274,7 @@ export default function Arena() {
 
             <div className="mt-6 flex gap-3" data-testid="input-container">
               <textarea
-                placeholder="Speak to the symposium... (Type @PersonaName or 'hey PersonaName' to address specific personas)"
+                placeholder="Address the symposium..."
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -282,29 +283,33 @@ export default function Arena() {
                     sendMessage();
                   }
                 }}
-                className="flex-1 bg-white/5 border border-white/10 focus:border-primary rounded-lg p-4 text-lg resize-none h-24 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="flex-1 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] focus:border-[#B87333] rounded-lg p-4 text-base font-light resize-none h-24 focus:outline-none focus:ring-1 focus:ring-[#B87333] text-[#EAE6DF] placeholder:text-[#9A9AA3] placeholder:font-light transition-all duration-200"
                 disabled={isLoading || isGenerating}
                 data-testid="message-input"
               />
-              <Button
+              <button
                 onClick={sendMessage}
                 disabled={isLoading || isGenerating || !userInput.trim()}
-                className="px-8 h-24 text-lg"
+                className="px-6 h-24 rounded-lg bg-[rgba(184,115,51,0.08)] border border-[rgba(184,115,51,0.2)] text-[#B87333] hover:bg-[rgba(184,115,51,0.12)] hover:border-[rgba(184,115,51,0.3)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                 data-testid="send-button"
               >
-                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
-              </Button>
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-[#B87333] border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="col-span-1 lg:col-span-3 flex flex-col gap-4 h-full z-20 overflow-hidden" data-testid="controls-panel">
-          <div className="glass-panel rounded-2xl p-3 shrink-0">
-            <h3 className="font-display text-lg font-bold mb-2" data-testid="mode-title">Mode</h3>
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
+          <div className="card-subtle p-5 shrink-0">
+            <h3 className="font-display text-lg font-normal mb-4 text-[#EAE6DF] tracking-wide" data-testid="mode-title">Mode</h3>
             <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 flex-[4] overflow-hidden flex flex-col min-h-0">
+          <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="font-display text-2xl font-bold" data-testid="personas-title">Personas</h3>
               <Button
