@@ -319,17 +319,35 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     
     personas_data = await db.personas.find({"id": {"$in": active_persona_ids}}, {"_id": 0}).to_list(100)
     
+    mentioned_personas = []
+    user_message_lower = request.user_message.lower()
+    
+    for persona in personas_data:
+        persona_name_lower = persona['display_name'].lower()
+        first_name = persona_name_lower.split()[0]
+        
+        if (f"@{persona_name_lower}" in user_message_lower or 
+            f"@{first_name}" in user_message_lower or
+            f"hey {persona_name_lower}" in user_message_lower or
+            f"hey {first_name}" in user_message_lower or
+            f"{persona_name_lower}," in user_message_lower or
+            f"{first_name}," in user_message_lower):
+            mentioned_personas.append(persona)
+    
     mode = conv['mode']
-    num_responders = {
-        "Creativity Collaboration": random.randint(2, min(3, len(personas_data))),
-        "Shoot-the-Shit": random.randint(1, min(2, len(personas_data))),
-        "Unhinged": random.randint(1, min(3, len(personas_data))),
-        "Socratic Debate": min(2, len(personas_data))
-    }.get(mode, 1)
     
-    num_responders = min(num_responders, len(personas_data))
-    
-    responding_personas = random.sample(personas_data, num_responders)
+    if mentioned_personas:
+        responding_personas = mentioned_personas
+    else:
+        num_responders = {
+            "Creativity Collaboration": random.randint(2, min(3, len(personas_data))),
+            "Shoot-the-Shit": random.randint(1, min(2, len(personas_data))),
+            "Unhinged": random.randint(1, min(3, len(personas_data))),
+            "Socratic Debate": min(2, len(personas_data))
+        }.get(mode, 1)
+        
+        num_responders = min(num_responders, len(personas_data))
+        responding_personas = random.sample(personas_data, num_responders)
     
     mode_instructions = {
         "Creativity Collaboration": "Be constructive, idea-generating, and iterate with user feedback. Build on others' ideas when multiple personas speak.",
@@ -354,7 +372,7 @@ Quirks: {', '.join(persona['quirks'])}
 Mode: {mode}
 {mode_instructions.get(mode, '')}
 
-Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."""
+{"The user addressed you directly. Respond to them personally." if persona in mentioned_personas else "Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."}"""
         
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         chat = LlmChat(
