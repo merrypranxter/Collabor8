@@ -339,24 +339,24 @@ export default function Arena() {
             className="mb-8 flex items-center justify-between"
           >
             <div>
-              <h1 className="font-display text-5xl md:text-7xl font-normal tracking-tight mb-2 text-[#EAE6DF]" data-testid="arena-title">
+              <h1 className="font-display text-5xl md:text-7xl font-normal tracking-tight mb-2 text-[#F5F5F5]" data-testid="arena-title">
                 Collabor8
               </h1>
-              <p className="text-[#9A9AA3] text-base font-light tracking-wide" data-testid="arena-subtitle">
+              <p className="text-[#A1A1A1] text-base font-light tracking-wide" data-testid="arena-subtitle">
                 A symposium across time
               </p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
+                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
                 data-testid="expand-button"
               >
                 {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)] flex items-center gap-2"
+                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)] flex items-center gap-2"
                 data-testid="user-button"
               >
                 <User className="w-4 h-4" />
