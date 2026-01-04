@@ -311,21 +311,18 @@ export default function Arena() {
 
           <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <h3 className="font-display text-2xl font-bold" data-testid="personas-title">Personas</h3>
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-2"
+              <h3 className="font-display text-lg font-normal text-[#EAE6DF] tracking-wide" data-testid="personas-title">Personas</h3>
+              <button
                 onClick={() => setShowPersonaModal(true)}
+                className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
                 data-testid="add-persona-button"
               >
-                <Plus className="w-4 h-4" />
-                Add
-              </Button>
+                + Summon
+              </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto min-h-0" data-testid="personas-list">
-              <div className="space-y-3 pr-2">
+            <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
+              <div className="space-y-2 pr-2">
                 {personas.map(persona => (
                   <PersonaCard
                     key={persona.id}
