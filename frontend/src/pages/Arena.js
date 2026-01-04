@@ -212,14 +212,23 @@ export default function Arena() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+            className="mb-6 flex items-center justify-between"
           >
-            <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-2" data-testid="arena-title">
-              Collabor8
-            </h1>
-            <p className="text-muted-foreground text-lg" data-testid="arena-subtitle">
-              Where history's greatest minds converge
-            </p>
+            <div>
+              <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-2" data-testid="arena-title">
+                Collabor8
+              </h1>
+              <p className="text-muted-foreground text-lg" data-testid="arena-subtitle">
+                Where history's greatest minds converge
+              </p>
+            </div>
+            <ConversationsMenu
+              conversations={conversations}
+              currentConversationId={conversation?.id}
+              onSelectConversation={loadConversation}
+              onDeleteConversation={deleteConversation}
+              onNewConversation={startNewConversation}
+            />
           </motion.div>
 
           <div className="glass-panel rounded-2xl p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
