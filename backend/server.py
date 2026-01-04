@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+import random
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -62,6 +63,7 @@ class Conversation(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
+    title: str = "New Conversation"
     mode: str
     topic: Optional[str] = None
     active_personas: List[str] = []
@@ -83,8 +85,7 @@ class PersonaLookupRequest(BaseModel):
 
 class ChatGenerateRequest(BaseModel):
     conversation_id: str
-    persona_id: str
-    context_messages: List[Dict[str, Any]]
+    user_message: str
 
 @api_router.get("/")
 async def root():
@@ -157,7 +158,7 @@ async def create_persona(persona: PersonaCreate):
 
 @api_router.get("/personas", response_model=List[Persona])
 async def get_personas():
-    personas = await db.personas.find({}, {"_id": 0}).to_list(1000)
+    personas = await db.personas.find({}, {"_id": 0}).to_list(100)
     
     for persona in personas:
         if isinstance(persona['created_at'], str):
@@ -212,7 +213,8 @@ async def create_conversation(conv: ConversationCreate):
         session_id=str(uuid.uuid4()),
         mode=conv.mode,
         topic=conv.topic,
-        active_personas=conv.active_personas
+        active_personas=conv.active_personas,
+        title="New Conversation"
     )
     
     doc = conversation.model_dump()
@@ -221,6 +223,18 @@ async def create_conversation(conv: ConversationCreate):
     
     await db.conversations.insert_one(doc)
     return conversation
+
+@api_router.get("/conversations", response_model=List[Conversation])
+async def get_conversations():
+    convs = await db.conversations.find({}, {"_id": 0}).sort("updated_at", -1).to_list(50)
+    
+    for conv in convs:
+        if isinstance(conv['created_at'], str):
+            conv['created_at'] = datetime.fromisoformat(conv['created_at'])
+        if isinstance(conv['updated_at'], str):
+            conv['updated_at'] = datetime.fromisoformat(conv['updated_at'])
+    
+    return convs
 
 @api_router.get("/conversations/{conversation_id}", response_model=Conversation)
 async def get_conversation(conversation_id: str):
@@ -234,6 +248,15 @@ async def get_conversation(conversation_id: str):
         conv['updated_at'] = datetime.fromisoformat(conv['updated_at'])
     
     return conv
+
+@api_router.delete("/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str):
+    result = await db.conversations.delete_one({"id": conversation_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    await db.messages.delete_many({"conversation_id": conversation_id})
+    return {"message": "Conversation and messages deleted"}
 
 @api_router.post("/conversations/{conversation_id}/messages", response_model=Message)
 async def create_message(conversation_id: str, message: MessageCreate):
@@ -260,16 +283,23 @@ async def create_message(conversation_id: str, message: MessageCreate):
     
     await db.messages.insert_one(doc)
     
-    await db.conversations.update_one(
-        {"id": conversation_id},
-        {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
-    )
+    if message.is_user and conv['title'] == "New Conversation":
+        title_preview = message.content[:50] + "..." if len(message.content) > 50 else message.content
+        await db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"title": title_preview, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    else:
+        await db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
     
     return msg
 
 @api_router.get("/conversations/{conversation_id}/messages", response_model=List[Message])
 async def get_messages(conversation_id: str):
-    messages = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(1000)
+    messages = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(200)
     
     for msg in messages:
         if isinstance(msg['timestamp'], str):
@@ -277,25 +307,45 @@ async def get_messages(conversation_id: str):
     
     return messages
 
-@api_router.post("/chat/generate")
-async def generate_response(request: ChatGenerateRequest):
-    persona = await db.personas.find_one({"id": request.persona_id}, {"_id": 0})
-    if not persona:
-        raise HTTPException(status_code=404, detail="Persona not found")
-    
+@api_router.post("/chat/generate-multi")
+async def generate_multi_responses(request: ChatGenerateRequest):
     conv = await db.conversations.find_one({"id": request.conversation_id}, {"_id": 0})
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
+    active_persona_ids = conv['active_personas']
+    if not active_persona_ids:
+        return {"responses": []}
+    
+    personas_data = await db.personas.find({"id": {"$in": active_persona_ids}}, {"_id": 0}).to_list(100)
+    
     mode = conv['mode']
+    num_responders = {
+        "Creativity Collaboration": random.randint(2, min(3, len(personas_data))),
+        "Shoot-the-Shit": random.randint(1, min(2, len(personas_data))),
+        "Unhinged": random.randint(1, min(3, len(personas_data))),
+        "Socratic Debate": min(2, len(personas_data))
+    }.get(mode, 1)
+    
+    num_responders = min(num_responders, len(personas_data))
+    
+    responding_personas = random.sample(personas_data, num_responders)
+    
     mode_instructions = {
-        "Creativity Collaboration": "Be constructive, idea-generating, and iterate with user feedback. Provide options and next steps.",
-        "Shoot-the-Shit": "Be casual, meandering, tangents welcome. Still helpful if asked.",
-        "Unhinged": "[FICTION—UNHINGED] Be surreal, satirical, and extreme but fiction-only. No real-person targeted harassment.",
-        "Socratic Debate": "Use question-driven probing, challenge assumptions, explore definitions. End with summary of positions."
+        "Creativity Collaboration": "Be constructive, idea-generating, and iterate with user feedback. Build on others' ideas when multiple personas speak.",
+        "Shoot-the-Shit": "Be casual, meandering, tangents welcome. React naturally to what others say.",
+        "Unhinged": "[FICTION—UNHINGED] Be surreal, satirical, and extreme but fiction-only. Play off others' energy.",
+        "Socratic Debate": "Use question-driven probing, challenge assumptions. Engage with others' points directly."
     }
     
-    system_message = f"""You are {persona['display_name']}.
+    all_messages = await db.messages.find({"conversation_id": request.conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(50)
+    context_str = "\n".join([f"{msg['persona_name']}: {msg['content']}" for msg in all_messages[-10:]])
+    context_str += f"\nUser: {request.user_message}"
+    
+    responses = []
+    
+    for persona in responding_personas:
+        system_message = f"""You are {persona['display_name']}.
 Type: {persona['type']}. Role: {persona['role_in_arena']}.
 Bio: {persona['bio']}
 Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
@@ -304,34 +354,39 @@ Quirks: {', '.join(persona['quirks'])}
 Mode: {mode}
 {mode_instructions.get(mode, '')}
 
-Stay consistent with your voice and history. Keep responses focused and under 150 words unless the conversation naturally requires more depth."""
+Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."""
+        
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"{request.conversation_id}-{persona['id']}",
+            system_message=system_message
+        ).with_model("openai", "gpt-5.2")
+        
+        prompt = f"Recent conversation:\n{context_str}\n\nRespond as {persona['display_name']}:"
+        
+        response_text = await chat.send_message(UserMessage(text=prompt))
+        
+        msg = Message(
+            conversation_id=request.conversation_id,
+            persona_id=persona['id'],
+            persona_name=persona['display_name'],
+            content=response_text,
+            is_user=False
+        )
+        
+        doc = msg.model_dump()
+        doc['timestamp'] = doc['timestamp'].isoformat()
+        
+        await db.messages.insert_one(doc)
+        responses.append(msg)
     
-    api_key = os.environ.get('EMERGENT_LLM_KEY')
-    chat = LlmChat(
-        api_key=api_key,
-        session_id=request.conversation_id,
-        system_message=system_message
-    ).with_model("openai", "gpt-5.2")
-    
-    context_str = "\n".join([f"{msg['persona_name']}: {msg['content']}" for msg in request.context_messages[-10:]])
-    prompt = f"Conversation so far:\n{context_str}\n\nRespond as {persona['display_name']}:"
-    
-    response = await chat.send_message(UserMessage(text=prompt))
-    
-    msg = Message(
-        conversation_id=request.conversation_id,
-        persona_id=request.persona_id,
-        persona_name=persona['display_name'],
-        content=response,
-        is_user=False
+    await db.conversations.update_one(
+        {"id": request.conversation_id},
+        {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
-    doc = msg.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    await db.messages.insert_one(doc)
-    
-    return msg
+    return {"responses": responses}
 
 @api_router.post("/personas/seed")
 async def seed_default_personas():
