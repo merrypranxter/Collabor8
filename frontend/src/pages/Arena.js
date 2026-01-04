@@ -243,6 +243,18 @@ export default function Arena() {
     }
   };
 
+  const deletePersona = async (personaId) => {
+    try {
+      await axios.delete(`${API}/personas/${personaId}`);
+      setPersonas(prev => prev.filter(p => p.id !== personaId));
+      setActivePersonas(prev => prev.filter(id => id !== personaId));
+      toast.success("Persona removed from arena");
+    } catch (error) {
+      console.error("Failed to delete persona:", error);
+      toast.error("Failed to delete persona");
+    }
+  };
+
   const activePersonaObjects = personas.filter(p => activePersonas.includes(p.id));
 
   return (
