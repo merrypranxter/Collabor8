@@ -157,6 +157,26 @@ async def get_guest_session():
 
 @api_router.post("/personas", response_model=Persona)
 async def create_persona(persona: PersonaCreate):
+    avatar_base64 = None
+    
+    if persona.generate_avatar:
+        try:
+            api_key = os.environ.get('EMERGENT_LLM_KEY')
+            image_gen = OpenAIImageGeneration(api_key=api_key)
+            
+            prompt = f"A minimalist, elegant portrait icon of {persona.display_name}. Artistic, symbolic representation with warm muted colors on dark background. Style: refined, intellectual, timeless."
+            
+            images = await image_gen.generate_images(
+                prompt=prompt,
+                model="gpt-image-1",
+                number_of_images=1
+            )
+            
+            if images and len(images) > 0:
+                avatar_base64 = base64.b64encode(images[0]).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Failed to generate avatar: {str(e)}")
+    
     if persona.bio is None:
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         chat = LlmChat(
