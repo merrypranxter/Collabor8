@@ -396,12 +396,12 @@ export default function Arena() {
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex items-center gap-2 text-[#9A9AA3] px-4"
+                        className="flex items-center gap-2 text-[#A1A1A1] px-4"
                         data-testid="generating-indicator"
                       >
-                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" />
-                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" style={{ animationDelay: '0.2s' }} />
-                        <div className="w-1 h-1 rounded-full bg-[#B87333] animate-pulse" style={{ animationDelay: '0.4s' }} />
+                        <div className="w-1 h-1 rounded-full bg-white animate-pulse" />
+                        <div className="w-1 h-1 rounded-full bg-white animate-pulse" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-1 h-1 rounded-full bg-white animate-pulse" style={{ animationDelay: '0.4s' }} />
                         <span className="text-sm font-light ml-2">
                           Contemplating...
                         </span>
