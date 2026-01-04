@@ -346,21 +346,22 @@ export default function Arena() {
                 A symposium across time
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
+                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] p-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
                 data-testid="expand-button"
+                title="Expand Chat"
               >
                 {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)] flex items-center gap-2"
+                className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-3 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)] flex items-center gap-2"
                 data-testid="user-button"
               >
                 <User className="w-4 h-4" />
-                {user?.display_name || "Guest"}
+                <span className="hidden sm:inline">{user?.display_name || "Guest"}</span>
               </button>
               <ConversationsMenu
                 conversations={conversations}
