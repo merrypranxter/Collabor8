@@ -321,7 +321,7 @@ export default function Arena() {
                     persona={persona}
                     isActive={activePersonas.includes(persona.id)}
                     onClick={() => togglePersona(persona.id)}
-                    isSpeaking={currentSpeaker?.id === persona.id && isGenerating}
+                    isSpeaking={false}
                   />
                 ))}
               </div>
