@@ -430,13 +430,22 @@ export default function Arena() {
             <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4 shrink-0">
                 <h3 className="font-display text-lg font-normal text-[#EAE6DF] tracking-wide" data-testid="personas-title">Personas</h3>
-                <button
-                  onClick={() => setShowPersonaModal(true)}
-                  className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
-                  data-testid="add-persona-button"
-                >
-                  + Summon
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setExpandedPanel('personas')}
+                    className="text-[#B87333] hover:text-[#D28C4C] transition-colors"
+                    data-testid="expand-personas-button"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowPersonaModal(true)}
+                    className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
+                    data-testid="add-persona-button"
+                  >
+                    + Summon
+                  </button>
+                </div>
               </div>
               
               <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
