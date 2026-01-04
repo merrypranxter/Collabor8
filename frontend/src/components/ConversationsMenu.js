@@ -73,36 +73,35 @@ export default function ConversationsMenu({
           </SheetHeader>
           
           <div className="mt-6 flex flex-col gap-3">
-            <Button
+            <button
               onClick={() => {
                 onNewConversation();
                 setOpen(false);
               }}
-              className="w-full gap-2"
+              className="w-full py-3 text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
               data-testid="new-conversation-button"
             >
-              <MessageSquare className="w-4 h-4" />
-              New Conversation
-            </Button>
+              + New Symposium
+            </button>
             
-            <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)]">
+            <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)] scroll-area">
               <div className="space-y-2">
                 {conversations.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No saved conversations yet
+                  <div className="text-center py-8 text-[#9A9AA3] font-light text-sm">
+                    No conversations yet
                   </div>
                 ) : (
                   conversations.map((conv) => (
                     <motion.div
                       key={conv.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       className={`
                         relative group rounded-lg border p-3 cursor-pointer
                         transition-all duration-200
                         ${currentConversationId === conv.id
-                          ? "bg-primary/20 border-primary/50"
-                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                          ? "bg-[rgba(184,115,51,0.06)] border-[rgba(184,115,51,0.2)]"
+                          : "bg-[rgba(255,255,255,0.01)] border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.06)]"
                         }
                       `}
                       onClick={() => {
@@ -113,33 +112,31 @@ export default function ConversationsMenu({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm truncate" data-testid={`conversation-title-${conv.id}`}>
+                          <h4 className="font-light text-sm truncate text-[#EAE6DF]" data-testid={`conversation-title-${conv.id}`}>
                             {conv.title}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-[#9A9AA3] font-light uppercase" style={{ letterSpacing: '0.05em' }}>
                               {conv.mode}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-[#9A9AA3]">
                               •
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-[#9A9AA3] font-light">
                               {formatDate(conv.updated_at)}
                             </span>
                           </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                        <button
+                          className="opacity-0 group-hover:opacity-100 text-[#C55A4A] hover:text-[#D28C4C] transition-opacity"
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteId(conv.id);
                           }}
                           data-testid={`delete-conversation-${conv.id}`}
                         >
-                          <Trash2 className="w-3 h-3 text-destructive" />
-                        </Button>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </motion.div>
                   ))
@@ -151,18 +148,18 @@ export default function ConversationsMenu({
       </Sheet>
 
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="glass-panel border-white/20">
+        <AlertDialogContent className="bg-[#0D1020] border border-[rgba(255,255,255,0.06)]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The conversation and all its messages will be permanently deleted.
+            <AlertDialogTitle className="text-[#EAE6DF] font-display font-normal">Delete Conversation?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#9A9AA3] font-light">
+              This action cannot be undone. The conversation will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] hover:bg-[rgba(255,255,255,0.04)]">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleDelete(deleteId)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-[rgba(197,90,74,0.15)] border border-[rgba(197,90,74,0.3)] text-[#C55A4A] hover:bg-[rgba(197,90,74,0.25)]"
             >
               Delete
             </AlertDialogAction>
