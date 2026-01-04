@@ -155,7 +155,7 @@ export default function Arena() {
       });
       
       setMessages(prev => [...prev, ...response.data.responses]);
-      await loadConversations();
+      await loadConversations(user?.id);
       
     } catch (error) {
       console.error("Failed to send message:", error);
