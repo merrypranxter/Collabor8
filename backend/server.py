@@ -504,7 +504,7 @@ If the user shares links or files, engage with the content meaningfully."""
         
         # Use vision model if images are present
         if has_images:
-            chat = chat.with_model("openai", "gpt-4o")
+            chat = chat.with_model("openai", "gpt-4-vision-preview")
         else:
             chat = chat.with_model("openai", "gpt-5.2")
         
