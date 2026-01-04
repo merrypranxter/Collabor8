@@ -250,7 +250,7 @@ export default function Arena() {
           </div>
 
           <div className="glass-panel rounded-2xl p-6 flex-1 overflow-hidden flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="font-display text-2xl font-bold" data-testid="personas-title">Personas</h3>
               <Button
                 size="sm"
@@ -264,7 +264,7 @@ export default function Arena() {
               </Button>
             </div>
             
-            <div className="flex-1 overflow-y-auto" data-testid="personas-list">
+            <div className="flex-1 overflow-y-auto min-h-0" data-testid="personas-list">
               <div className="space-y-3 pr-2">
                 {personas.map(persona => (
                   <PersonaCard
