@@ -46,11 +46,16 @@ export default function Arena() {
 
   const initializeArena = async () => {
     try {
-      await axios.post(`${API}/personas/seed`);
+      console.log("Initializing arena...");
+      const seedResponse = await axios.post(`${API}/personas/seed`);
+      console.log("Seed response:", seedResponse.data);
+      
       const response = await axios.get(`${API}/personas`);
+      console.log("Personas fetched:", response.data.length);
       setPersonas(response.data);
       
       const defaultActive = response.data.slice(0, 3).map(p => p.id);
+      console.log("Setting active personas:", defaultActive);
       setActivePersonas(defaultActive);
       
       const convResponse = await axios.post(`${API}/conversations`, {
@@ -58,12 +63,14 @@ export default function Arena() {
         topic: null,
         active_personas: defaultActive
       });
+      console.log("Conversation created:", convResponse.data);
       setConversation(convResponse.data);
       
-      toast.success("Arena initialized! Ready to begin.");
+      toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
       console.error("Failed to initialize:", error);
-      toast.error("Failed to initialize arena");
+      console.error("Error details:", error.response?.data);
+      toast.error(`Failed to initialize: ${error.message}`);
     }
   };
 
