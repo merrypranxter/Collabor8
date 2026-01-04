@@ -207,7 +207,7 @@ export default function Arena() {
 
   return (
     <div className="min-h-screen relative z-10" data-testid="arena-container">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-screen p-4 lg:p-8 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-screen p-6 lg:p-8 overflow-hidden">
         <div className="col-span-1 lg:col-span-9 flex flex-col h-full relative z-10 min-h-0" data-testid="main-stage">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
