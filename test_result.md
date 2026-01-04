@@ -198,10 +198,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "GPT-4o vision model integration fix"
     - "Frontend file upload UI testing"
-  stuck_tasks:
-    - "Image and file upload with vision capabilities"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
