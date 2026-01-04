@@ -106,43 +106,81 @@ export default function Arena() {
       });
       
       setMessages(prev => [...prev, userMessage.data]);
+      const messageContent = userInput;
       setUserInput("");
       
-      generatePersonaResponse();
+      setIsGenerating(true);
+      
+      const response = await axios.post(`${API}/chat/generate-multi`, {
+        conversation_id: conversation.id,
+        user_message: messageContent
+      });
+      
+      setMessages(prev => [...prev, ...response.data.responses]);
+      await loadConversations();
+      
     } catch (error) {
       console.error("Failed to send message:", error);
       toast.error("Failed to send message");
     } finally {
       setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
-  const generatePersonaResponse = async () => {
-    if (activePersonas.length === 0 || !conversation) return;
-    
-    setIsGenerating(true);
-    
-    const nextPersonaId = activePersonas[currentPersonaIndex % activePersonas.length];
-    setCurrentPersonaIndex(prev => prev + 1);
-    
+  const loadConversation = async (conversationId) => {
     try {
-      const allMessages = await axios.get(`${API}/conversations/${conversation.id}/messages`);
+      const convResponse = await axios.get(`${API}/conversations/${conversationId}`);
+      setConversation(convResponse.data);
+      setMode(convResponse.data.mode);
+      setActivePersonas(convResponse.data.active_personas);
       
-      const response = await axios.post(`${API}/chat/generate`, {
-        conversation_id: conversation.id,
-        persona_id: nextPersonaId,
-        context_messages: allMessages.data.map(m => ({
-          persona_name: m.persona_name,
-          content: m.content
-        }))
-      });
+      const messagesResponse = await axios.get(`${API}/conversations/${conversationId}/messages`);
+      setMessages(messagesResponse.data);
       
-      setMessages(prev => [...prev, response.data]);
+      toast.success("Conversation loaded");
     } catch (error) {
-      console.error("Failed to generate response:", error);
-      toast.error("Failed to generate persona response");
-    } finally {
-      setIsGenerating(false);
+      console.error("Failed to load conversation:", error);
+      toast.error("Failed to load conversation");
+    }
+  };
+
+  const deleteConversation = async (conversationId) => {
+    try {
+      await axios.delete(`${API}/conversations/${conversationId}`);
+      
+      if (conversation?.id === conversationId) {
+        setMessages([]);
+        const response = await axios.post(`${API}/conversations`, {
+          mode,
+          topic: null,
+          active_personas: activePersonas
+        });
+        setConversation(response.data);
+      }
+      
+      await loadConversations();
+      toast.success("Conversation deleted");
+    } catch (error) {
+      console.error("Failed to delete conversation:", error);
+      toast.error("Failed to delete conversation");
+    }
+  };
+
+  const startNewConversation = async () => {
+    try {
+      setMessages([]);
+      const response = await axios.post(`${API}/conversations`, {
+        mode,
+        topic: null,
+        active_personas: activePersonas
+      });
+      setConversation(response.data);
+      await loadConversations();
+      toast.success("New conversation started");
+    } catch (error) {
+      console.error("Failed to start new conversation:", error);
+      toast.error("Failed to start new conversation");
     }
   };
 
