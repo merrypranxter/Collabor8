@@ -16,8 +16,8 @@ export default function ModeSelector({ modes, currentMode, onModeChange }) {
               w-full text-left py-3 px-4 text-sm font-light tracking-wide
               transition-all duration-200 border-l-2
               ${isActive 
-                ? "border-[#B87333] bg-[rgba(184,115,51,0.06)] text-[#EAE6DF]" 
-                : "border-transparent text-[#9A9AA3] hover:text-[#EAE6DF] hover:bg-[rgba(255,255,255,0.02)]"
+                ? "border-white bg-[rgba(255,255,255,0.08)] text-[#F5F5F5]" 
+                : "border-transparent text-[#A1A1A1] hover:text-[#F5F5F5] hover:bg-[rgba(255,255,255,0.02)]"
               }
             `}
             data-testid={`mode-button-${mode.id}`}

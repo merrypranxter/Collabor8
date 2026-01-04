@@ -18,27 +18,27 @@ export default function TranscriptBubble({ message, index }) {
       className={`
         flex gap-4 p-6 rounded-lg border message-bubble
         ${message.is_user 
-          ? "bg-[rgba(184,115,51,0.04)] border-[rgba(184,115,51,0.15)]" 
-          : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)]"
+          ? "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.15)]" 
+          : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)]"
         }
       `}
       data-testid={`message-${message.id}`}
     >
       <div 
-        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border border-[rgba(255,255,255,0.1)] shrink-0"
-        style={{ background: message.is_user ? 'rgba(184, 115, 51, 0.1)' : 'rgba(255, 255, 255, 0.03)' }}
+        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border border-[rgba(255,255,255,0.12)] shrink-0"
+        style={{ background: message.is_user ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)' }}
       >
-        <span className="text-[#EAE6DF] opacity-70">{getInitials(message.persona_name)}</span>
+        <span className="text-[#F5F5F5] opacity-70">{getInitials(message.persona_name)}</span>
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-light tracking-wide mb-2 uppercase text-[#B87333]" style={{ letterSpacing: '0.08em' }} data-testid={`message-persona-${message.id}`}>
+        <div className="text-sm font-light tracking-wide mb-2 uppercase text-white" style={{ letterSpacing: '0.08em' }} data-testid={`message-persona-${message.id}`}>
           {message.persona_name}
         </div>
-        <div className="text-[#EAE6DF] text-base font-light leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
+        <div className="text-[#F5F5F5] text-base font-light leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
           {message.content}
         </div>
-        <div className="text-xs text-[#9A9AA3] mt-3 font-light">
+        <div className="text-xs text-[#A1A1A1] mt-3 font-light">
           {new Date(message.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
         </div>
       </div>
