@@ -201,7 +201,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Frontend file upload UI testing"
+    - "All frontend file upload UI testing complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
