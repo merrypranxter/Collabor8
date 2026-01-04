@@ -231,7 +231,8 @@ async def create_persona(persona: PersonaCreate):
         bio=persona.bio,
         quirks=persona.quirks,
         voice=persona.voice,
-        role_in_arena=persona.role_in_arena
+        role_in_arena=persona.role_in_arena,
+        avatar_url=f"data:image/png;base64,{avatar_base64}" if avatar_base64 else None
     )
     
     doc = persona_obj.model_dump()
