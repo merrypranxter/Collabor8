@@ -357,7 +357,8 @@ export default function Arena() {
           </div>
         </div>
 
-        <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
+        {!isExpanded && (
+          <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
           <div className="card-subtle p-5 shrink-0">
             <h3 className="font-display text-lg font-normal mb-4 text-[#EAE6DF] tracking-wide" data-testid="mode-title">Mode</h3>
             <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
