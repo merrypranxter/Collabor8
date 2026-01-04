@@ -31,7 +31,7 @@ export default function TranscriptBubble({ message, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={`
-        flex gap-4 p-6 rounded-2xl border message-bubble
+        flex gap-4 p-8 rounded-2xl border message-bubble
         ${message.is_user 
           ? "bg-purple-900/20 border-purple-500/20 ml-12" 
           : "bg-white/5 border-white/5"
@@ -39,20 +39,20 @@ export default function TranscriptBubble({ message, index }) {
       `}
       data-testid={`message-${message.id}`}
     >
-      <Avatar className="w-10 h-10 shrink-0">
-        <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(message.persona_name)} text-white text-sm font-bold`}>
+      <Avatar className="w-12 h-12 shrink-0">
+        <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(message.persona_name)} text-white text-base font-bold`}>
           {getInitials(message.persona_name)}
         </AvatarFallback>
       </Avatar>
       
       <div className="flex-1 min-w-0">
-        <div className="font-display font-bold text-base mb-2" data-testid={`message-persona-${message.id}`}>
+        <div className="font-display font-bold text-xl mb-3" data-testid={`message-persona-${message.id}`}>
           {message.persona_name}
         </div>
-        <div className="text-foreground/90 leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
+        <div className="text-foreground/90 text-lg leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
           {message.content}
         </div>
-        <div className="text-xs text-muted-foreground mt-2">
+        <div className="text-sm text-muted-foreground mt-3">
           {new Date(message.timestamp).toLocaleTimeString()}
         </div>
       </div>

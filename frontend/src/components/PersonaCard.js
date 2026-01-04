@@ -42,18 +42,18 @@ export default function PersonaCard({ persona, isActive, onClick, isSpeaking }) 
       `}
       data-testid={`persona-card-${persona.id}`}
     >
-      <div className="p-4 flex items-center gap-3">
-        <Avatar className="w-12 h-12">
-          <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(persona.display_name)} text-white font-bold`}>
+      <div className="p-5 flex items-center gap-4">
+        <Avatar className="w-14 h-14">
+          <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(persona.display_name)} text-white font-bold text-lg`}>
             {getInitials(persona.display_name)}
           </AvatarFallback>
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <h4 className="font-display font-bold text-sm truncate" data-testid={`persona-name-${persona.id}`}>
+          <h4 className="font-display font-bold text-base truncate" data-testid={`persona-name-${persona.id}`}>
             {persona.display_name}
           </h4>
-          <p className="text-xs text-muted-foreground truncate" data-testid={`persona-role-${persona.id}`}>
+          <p className="text-sm text-muted-foreground truncate" data-testid={`persona-role-${persona.id}`}>
             {persona.role_in_arena}
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function PersonaCard({ persona, isActive, onClick, isSpeaking }) 
         )}
         
         {isActive && !isSpeaking && (
-          <div className="w-2 h-2 rounded-full bg-green-500" data-testid={`persona-active-${persona.id}`} />
+          <div className="w-3 h-3 rounded-full bg-green-500" data-testid={`persona-active-${persona.id}`} />
         )}
       </div>
       
