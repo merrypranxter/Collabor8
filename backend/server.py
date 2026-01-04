@@ -86,6 +86,7 @@ class Conversation(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
+    user_id: Optional[str] = None
     title: str = "New Conversation"
     mode: str
     topic: Optional[str] = None
