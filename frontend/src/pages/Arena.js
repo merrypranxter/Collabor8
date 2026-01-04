@@ -182,8 +182,8 @@ export default function Arena() {
             </p>
           </motion.div>
 
-          <div className="glass-panel rounded-2xl p-6 flex-1 flex flex-col overflow-hidden" data-testid="chat-container">
-            <div className="flex-1 overflow-y-auto pr-4 scroll-area" ref={scrollRef} data-testid="messages-scroll-area">
+          <div className="glass-panel rounded-2xl p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
+            <div className="flex-1 overflow-y-auto pr-4 scroll-area min-h-0" ref={scrollRef} data-testid="messages-scroll-area">
               <AnimatePresence>
                 {messages.length === 0 ? (
                   <motion.div
@@ -244,12 +244,12 @@ export default function Arena() {
         </div>
 
         <div className="col-span-1 lg:col-span-3 flex flex-col gap-4 h-full z-20 overflow-hidden" data-testid="controls-panel">
-          <div className="glass-panel rounded-2xl p-4 shrink-0">
-            <h3 className="font-display text-xl font-bold mb-3" data-testid="mode-title">Mode</h3>
+          <div className="glass-panel rounded-2xl p-3 shrink-0">
+            <h3 className="font-display text-lg font-bold mb-2" data-testid="mode-title">Mode</h3>
             <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 flex-[3] overflow-hidden flex flex-col min-h-0">
+          <div className="glass-panel rounded-2xl p-6 flex-[4] overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="font-display text-2xl font-bold" data-testid="personas-title">Personas</h3>
               <Button
