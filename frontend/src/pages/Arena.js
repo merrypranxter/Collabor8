@@ -379,7 +379,7 @@ export default function Arena() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex items-center justify-center h-full text-[#9A9AA3]"
+                    className="flex items-center justify-center h-full text-[#A1A1A1]"
                     data-testid="empty-state"
                   >
                     <div className="text-center space-y-3">
