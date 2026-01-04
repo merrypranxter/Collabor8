@@ -278,7 +278,7 @@ export default function Arena() {
                   />
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </div>
       </div>
