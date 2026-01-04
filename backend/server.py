@@ -450,13 +450,26 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     
     attachment_context = ""
     has_images = False
-    image_data_list = []
+    file_contents = []
     
     if request.attachments:
         for att in request.attachments:
             if att['type'] == 'image':
                 has_images = True
-                image_data_list.append(att.get('data', ''))
+                # Extract base64 data from data URL format
+                image_data = att.get('data', '')
+                if image_data.startswith('data:'):
+                    # Format: data:image/png;base64,<base64_data>
+                    base64_data = image_data.split(',', 1)[1] if ',' in image_data else image_data
+                else:
+                    base64_data = image_data
+                
+                # Create FileContent object for the image
+                file_content = FileContent(
+                    content_type="image/png",  # Default to PNG, could be extracted from data URL
+                    file_content_base64=base64_data
+                )
+                file_contents.append(file_content)
                 attachment_context += f"\n[User shared an image: {att.get('description', 'visual content')}]"
             elif att['type'] == 'url':
                 attachment_context += f"\n[User shared a link: {att['url']}]"
