@@ -345,15 +345,27 @@ async def seed_default_personas():
         {"display_name": "Helena Blavatsky", "type": "historical", "role_in_arena": "mystic"}
     ]
     
-    created = []
-    for p in default_personas:
-        existing = await db.personas.find_one({"display_name": p["display_name"]}, {"_id": 0})
-        if not existing:
-            persona_create = PersonaCreate(**p)
-            persona = await create_persona(persona_create)
-            created.append(persona.display_name)
+    existing_count = await db.personas.count_documents({})
+    if existing_count >= len(default_personas):
+        return {"message": "Personas already seeded", "created": []}
     
-    return {"message": f"Seeded {len(created)} personas", "created": created}
+    created = []
+    skipped = []
+    
+    for p in default_personas:
+        try:
+            existing = await db.personas.find_one({"display_name": p["display_name"]}, {"_id": 0})
+            if not existing:
+                persona_create = PersonaCreate(**p)
+                persona = await create_persona(persona_create)
+                created.append(persona.display_name)
+            else:
+                skipped.append(p["display_name"])
+        except Exception as e:
+            logger.error(f"Failed to create {p['display_name']}: {str(e)}")
+            continue
+    
+    return {"message": f"Seeded {len(created)} personas, skipped {len(skipped)}", "created": created, "skipped": skipped}
 
 app.include_router(api_router)
 
