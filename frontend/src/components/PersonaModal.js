@@ -42,19 +42,19 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] bg-[#0D1020] border border-[rgba(255,255,255,0.06)]" data-testid="persona-modal">
+      <DialogContent className="sm:max-w-[500px] bg-[#141414] border border-[rgba(255,255,255,0.08)]" data-testid="persona-modal">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-normal text-[#EAE6DF]">
+          <DialogTitle className="font-display text-2xl font-normal text-[#F5F5F5]">
             Summon a Persona
           </DialogTitle>
-          <DialogDescription className="text-[#9A9AA3] font-light">
+          <DialogDescription className="text-[#A1A1A1] font-light">
             Enter a name. The archive will provide their essence.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="persona-name" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
+            <Label htmlFor="persona-name" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
               Name
             </Label>
             <Input
@@ -62,44 +62,44 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
               placeholder="Socrates, Marie Curie, Gandalf..."
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light focus:border-[#B87333]"
+              className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light focus:border-white"
               data-testid="persona-name-input"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="persona-type" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
+            <Label htmlFor="persona-type" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
               Type
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light" data-testid="persona-type-select">
+              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light" data-testid="persona-type-select">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0D1020] border-[rgba(255,255,255,0.06)]">
-                <SelectItem value="historical" className="text-[#EAE6DF] font-light">Historical Figure</SelectItem>
-                <SelectItem value="fictional" className="text-[#EAE6DF] font-light">Fictional Character</SelectItem>
-                <SelectItem value="archetype" className="text-[#EAE6DF] font-light">Archetype</SelectItem>
-                <SelectItem value="custom" className="text-[#EAE6DF] font-light">Custom</SelectItem>
+              <SelectContent className="bg-[#141414] border-[rgba(255,255,255,0.08)]">
+                <SelectItem value="historical" className="text-[#F5F5F5] font-light">Historical Figure</SelectItem>
+                <SelectItem value="fictional" className="text-[#F5F5F5] font-light">Fictional Character</SelectItem>
+                <SelectItem value="archetype" className="text-[#F5F5F5] font-light">Archetype</SelectItem>
+                <SelectItem value="custom" className="text-[#F5F5F5] font-light">Custom</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="persona-role" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
+            <Label htmlFor="persona-role" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
               Role
             </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light" data-testid="persona-role-select">
+              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light" data-testid="persona-role-select">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0D1020] border-[rgba(255,255,255,0.06)]">
-                <SelectItem value="leader" className="text-[#EAE6DF] font-light">Leader</SelectItem>
-                <SelectItem value="skeptic" className="text-[#EAE6DF] font-light">Skeptic</SelectItem>
-                <SelectItem value="builder" className="text-[#EAE6DF] font-light">Builder</SelectItem>
-                <SelectItem value="comedian" className="text-[#EAE6DF] font-light">Comedian</SelectItem>
-                <SelectItem value="moderator" className="text-[#EAE6DF] font-light">Moderator</SelectItem>
-                <SelectItem value="wildcard" className="text-[#EAE6DF] font-light">Wildcard</SelectItem>
-                <SelectItem value="participant" className="text-[#EAE6DF] font-light">Participant</SelectItem>
+              <SelectContent className="bg-[#141414] border-[rgba(255,255,255,0.08)]">
+                <SelectItem value="leader" className="text-[#F5F5F5] font-light">Leader</SelectItem>
+                <SelectItem value="skeptic" className="text-[#F5F5F5] font-light">Skeptic</SelectItem>
+                <SelectItem value="builder" className="text-[#F5F5F5] font-light">Builder</SelectItem>
+                <SelectItem value="comedian" className="text-[#F5F5F5] font-light">Comedian</SelectItem>
+                <SelectItem value="moderator" className="text-[#F5F5F5] font-light">Moderator</SelectItem>
+                <SelectItem value="wildcard" className="text-[#F5F5F5] font-light">Wildcard</SelectItem>
+                <SelectItem value="participant" className="text-[#F5F5F5] font-light">Participant</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -108,7 +108,7 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 text-sm uppercase tracking-wider text-[#9A9AA3] hover:text-[#EAE6DF] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.06)] rounded-lg hover:bg-[rgba(255,255,255,0.02)]"
+              className="flex-1 py-2 text-sm uppercase tracking-wider text-[#A1A1A1] hover:text-[#F5F5F5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.08)] rounded-lg hover:bg-[rgba(255,255,255,0.02)]"
               data-testid="persona-cancel-button"
             >
               Cancel
@@ -116,7 +116,7 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
             <button
               type="submit"
               disabled={!name.trim()}
-              className="flex-1 py-2 text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] rounded-lg hover:bg-[rgba(184,115,51,0.05)] disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex-1 py-2 text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] rounded-lg hover:bg-[rgba(255,255,255,0.05)] disabled:opacity-30 disabled:cursor-not-allowed"
               data-testid="persona-submit-button"
             >
               Summon
