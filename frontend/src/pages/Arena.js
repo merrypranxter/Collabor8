@@ -89,7 +89,7 @@ export default function Arena() {
     }
   };
 
-  const initializeArena = async () => {
+  const initializeArena = async (userData) => {
     try {
       console.log("Initializing arena...");
       const seedResponse = await axios.post(`${API}/personas/seed`);
@@ -106,12 +106,13 @@ export default function Arena() {
       const convResponse = await axios.post(`${API}/conversations`, {
         mode: "Creativity Collaboration",
         topic: null,
-        active_personas: defaultActive
+        active_personas: defaultActive,
+        user_id: userData?.id
       });
       console.log("Conversation created:", convResponse.data);
       setConversation(convResponse.data);
       
-      await loadConversations();
+      await loadConversations(userData?.id);
       
       toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
