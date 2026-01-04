@@ -207,19 +207,20 @@ export default function Arena() {
 
   return (
     <div className="min-h-screen relative z-10" data-testid="arena-container">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-screen p-6 lg:p-8 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-screen p-8 overflow-hidden">
         <div className="col-span-1 lg:col-span-9 flex flex-col h-full relative z-10 min-h-0" data-testid="main-stage">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 flex items-center justify-between"
+            transition={{ duration: 0.4 }}
+            className="mb-8 flex items-center justify-between"
           >
             <div>
-              <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-2" data-testid="arena-title">
+              <h1 className="font-display text-5xl md:text-7xl font-normal tracking-tight mb-2 text-[#EAE6DF]" data-testid="arena-title">
                 Collabor8
               </h1>
-              <p className="text-muted-foreground text-lg" data-testid="arena-subtitle">
-                Where history's greatest minds converge
+              <p className="text-[#9A9AA3] text-base font-light tracking-wide" data-testid="arena-subtitle">
+                A symposium across time
               </p>
             </div>
             <ConversationsMenu
@@ -231,7 +232,7 @@ export default function Arena() {
             />
           </motion.div>
 
-          <div className="glass-panel rounded-2xl p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
+          <div className="card-subtle p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
             <div className="flex-1 overflow-y-auto pr-4 scroll-area min-h-0" ref={scrollRef} data-testid="messages-scroll-area">
               <AnimatePresence>
                 {messages.length === 0 ? (
