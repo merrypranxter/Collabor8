@@ -423,18 +423,18 @@ export default function Arena() {
                     sendMessage();
                   }
                 }}
-                className="flex-1 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] focus:border-[#B87333] rounded-lg p-4 text-base font-light resize-none h-24 focus:outline-none focus:ring-1 focus:ring-[#B87333] text-[#EAE6DF] placeholder:text-[#9A9AA3] placeholder:font-light transition-all duration-200"
+                className="flex-1 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] focus:border-white rounded-lg p-4 text-base font-light resize-none h-24 focus:outline-none focus:ring-1 focus:ring-white text-[#F5F5F5] placeholder:text-[#A1A1A1] placeholder:font-light transition-all duration-200"
                 disabled={isLoading || isGenerating}
                 data-testid="message-input"
               />
               <button
                 onClick={sendMessage}
                 disabled={isLoading || isGenerating || !userInput.trim()}
-                className="px-6 h-24 rounded-lg bg-[rgba(184,115,51,0.08)] border border-[rgba(184,115,51,0.2)] text-[#B87333] hover:bg-[rgba(184,115,51,0.12)] hover:border-[rgba(184,115,51,0.3)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 h-24 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                 data-testid="send-button"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-[#B87333] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Send className="w-5 h-5" />
                 )}
