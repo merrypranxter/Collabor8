@@ -511,8 +511,8 @@ If the user shares links or files, engage with the content meaningfully."""
         prompt = f"Recent conversation:\n{context_str}\n\nRespond as {persona['display_name']}:"
         
         # Create message with images if present
-        if has_images and image_data_list:
-            user_message = UserMessage(text=prompt, images=image_data_list)
+        if has_images and file_contents:
+            user_message = UserMessage(text=prompt, file_contents=file_contents)
         else:
             user_message = UserMessage(text=prompt)
         
