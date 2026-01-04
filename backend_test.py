@@ -386,14 +386,15 @@ class MultiPersonaChatTester:
         return success
 
 def main():
-    print("🚀 Starting Multi-Persona Chat Arena API Tests")
+    print("🚀 Starting Collabor8 Vision & Attachment Tests")
     print("=" * 60)
     
     tester = MultiPersonaChatTester()
     
-    # Test sequence
+    # Test sequence - prioritized based on review request
     tests = [
         ("Root API", tester.test_root_endpoint),
+        ("Guest Authentication", tester.test_guest_auth),
         ("Seed Personas", tester.test_seed_personas),
         ("Get Personas", tester.test_get_personas),
         ("Get Single Persona", tester.test_get_single_persona),
@@ -402,25 +403,39 @@ def main():
         ("Get Conversation", tester.test_get_conversation),
         ("Send User Message", tester.test_send_user_message),
         ("Get Messages", tester.test_get_messages),
-        ("Generate Persona Response", tester.test_generate_persona_response),
+        
+        # PRIORITY TESTS - Vision and Attachments
+        ("🔥 Image Upload with Vision (GPT-4o)", tester.test_image_upload_with_vision),
+        ("🔗 URL Attachment", tester.test_url_attachment),
+        ("📎 Multi-File Upload", tester.test_multi_file_upload),
+        ("💬 Basic Chat Flow", tester.test_basic_chat_flow),
     ]
     
     failed_tests = []
+    critical_failures = []
     
     for test_name, test_func in tests:
         try:
             if not test_func():
                 failed_tests.append(test_name)
+                # Mark vision and attachment tests as critical
+                if any(keyword in test_name.lower() for keyword in ['vision', 'image', 'attachment', 'url', 'file']):
+                    critical_failures.append(test_name)
         except Exception as e:
             print(f"❌ {test_name} failed with exception: {str(e)}")
             failed_tests.append(test_name)
+            if any(keyword in test_name.lower() for keyword in ['vision', 'image', 'attachment', 'url', 'file']):
+                critical_failures.append(test_name)
     
     # Print results
     print("\n" + "=" * 60)
     print(f"📊 Test Results: {tester.tests_passed}/{tester.tests_run} passed")
     
+    if critical_failures:
+        print(f"🚨 CRITICAL FAILURES (Vision/Attachments): {', '.join(critical_failures)}")
+    
     if failed_tests:
-        print(f"❌ Failed tests: {', '.join(failed_tests)}")
+        print(f"❌ All failed tests: {', '.join(failed_tests)}")
         return 1
     else:
         print("✅ All tests passed!")
