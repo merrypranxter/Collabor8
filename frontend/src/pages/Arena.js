@@ -262,10 +262,10 @@ export default function Arena() {
       {expandedPanel === 'personas' ? (
         <div className="h-screen p-8 overflow-hidden">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-display text-5xl font-normal text-[#EAE6DF]">Persona Gallery</h1>
+            <h1 className="font-display text-5xl font-normal text-[#F5F5F5]">Persona Gallery</h1>
             <button
               onClick={() => setExpandedPanel(null)}
-              className="text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] px-4 py-2 rounded-lg hover:bg-[rgba(184,115,51,0.05)]"
+              className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
             >
               <Minimize2 className="w-4 h-4 inline mr-2" />
               Close
@@ -278,28 +278,39 @@ export default function Arena() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className={`
-                  card-subtle p-6 cursor-pointer hover:bg-[rgba(255,255,255,0.04)] transition-all
-                  ${activePersonas.includes(persona.id) ? 'ring-1 ring-[#B87333]' : ''}
+                  card-subtle p-6 cursor-pointer hover:bg-[rgba(255,255,255,0.04)] transition-all relative group
+                  ${activePersonas.includes(persona.id) ? 'ring-1 ring-white' : ''}
                 `}
                 onClick={() => togglePersona(persona.id)}
               >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Remove ${persona.display_name} from the arena?`)) {
+                      deletePersona(persona.id);
+                    }
+                  }}
+                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(220,38,38,0.2)] border border-[rgba(220,38,38,0.3)]"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" />
+                </button>
                 <div className="flex items-start gap-4 mb-4">
                   <div 
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.1)] shrink-0"
-                    style={{ background: 'rgba(184, 115, 51, 0.1)' }}
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.15)] shrink-0"
+                    style={{ background: 'rgba(255, 255, 255, 0.05)' }}
                   >
-                    <span className="text-[#EAE6DF]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
+                    <span className="text-[#F5F5F5]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-display text-xl font-normal text-[#EAE6DF] mb-1">{persona.display_name}</h3>
-                    <p className="text-xs uppercase tracking-wider text-[#B87333]">{persona.role_in_arena}</p>
+                    <h3 className="font-display text-xl font-normal text-[#F5F5F5] mb-1">{persona.display_name}</h3>
+                    <p className="text-xs uppercase tracking-wider text-white">{persona.role_in_arena}</p>
                   </div>
                   {activePersonas.includes(persona.id) && (
-                    <div className="persona-status-copper" />
+                    <div className="persona-status-active" />
                   )}
                 </div>
-                <p className="text-sm text-[#9A9AA3] font-light leading-relaxed mb-3">{persona.bio}</p>
-                <div className="text-xs text-[#9A9AA3] font-light">
+                <p className="text-sm text-[#A1A1A1] font-light leading-relaxed mb-3">{persona.bio}</p>
+                <div className="text-xs text-[#A1A1A1] font-light">
                   <span className="uppercase tracking-wider">Quirks:</span>
                   <div className="mt-1 space-y-1">
                     {persona.quirks.map((quirk, i) => (
@@ -311,10 +322,10 @@ export default function Arena() {
             ))}
             <button
               onClick={() => setShowPersonaModal(true)}
-              className="card-subtle p-6 flex flex-col items-center justify-center gap-3 hover:bg-[rgba(184,115,51,0.05)] transition-all border-dashed border-[rgba(184,115,51,0.3)]"
+              className="card-subtle p-6 flex flex-col items-center justify-center gap-3 hover:bg-[rgba(255,255,255,0.05)] transition-all border-dashed border-[rgba(255,255,255,0.2)]"
             >
-              <Plus className="w-8 h-8 text-[#B87333]" />
-              <span className="text-sm uppercase tracking-wider text-[#B87333] font-light">Summon New Persona</span>
+              <Plus className="w-8 h-8 text-white" />
+              <span className="text-sm uppercase tracking-wider text-white font-light">Summon New Persona</span>
             </button>
           </div>
         </div>
