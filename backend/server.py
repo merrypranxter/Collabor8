@@ -46,11 +46,31 @@ class PersonaCreate(BaseModel):
     quirks: Optional[List[str]] = None
     voice: Optional[Voice] = None
     role_in_arena: str = "participant"
+    generate_avatar: bool = False
 
 class Persona(PersonaBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    avatar_url: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: str
+    password_hash: str
+    display_name: str
+    avatar_base64: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    display_name: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 class Message(BaseModel):
     model_config = ConfigDict(extra="ignore")
