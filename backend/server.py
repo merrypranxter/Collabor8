@@ -447,7 +447,18 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     
     all_messages = await db.messages.find({"conversation_id": request.conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(50)
     context_str = "\n".join([f"{msg['persona_name']}: {msg['content']}" for msg in all_messages[-10:]])
-    context_str += f"\nUser: {request.user_message}"
+    
+    attachment_context = ""
+    if request.attachments:
+        for att in request.attachments:
+            if att['type'] == 'image':
+                attachment_context += f"\n[User shared an image: {att.get('description', 'visual content')}]"
+            elif att['type'] == 'url':
+                attachment_context += f"\n[User shared a link: {att['url']}]"
+            elif att['type'] == 'file':
+                attachment_context += f"\n[User shared a file: {att['name']}]"
+    
+    context_str += f"\nUser: {request.user_message}{attachment_context}"
     
     responses = []
     
