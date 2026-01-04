@@ -450,7 +450,7 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     
     attachment_context = ""
     has_images = False
-    file_contents = []
+    image_contents = []
     
     if request.attachments:
         for att in request.attachments:
@@ -464,12 +464,9 @@ async def generate_multi_responses(request: ChatGenerateRequest):
                 else:
                     base64_data = image_data
                 
-                # Create FileContent object for the image
-                file_content = FileContent(
-                    content_type="image/png",  # Default to PNG, could be extracted from data URL
-                    file_content_base64=base64_data
-                )
-                file_contents.append(file_content)
+                # Create ImageContent object for the image
+                image_content = ImageContent(image_base64=base64_data)
+                image_contents.append(image_content)
                 attachment_context += f"\n[User shared an image: {att.get('description', 'visual content')}]"
             elif att['type'] == 'url':
                 attachment_context += f"\n[User shared a link: {att['url']}]"
@@ -502,14 +499,19 @@ If the user shares links or files, engage with the content meaningfully."""
             system_message=system_message
         )
         
-        # For now, use text model for all requests due to vision API limitations
-        # TODO: Fix vision integration when proper model is available
-        chat = chat.with_model("openai", "gpt-5.2")
+        # Use vision model when images are present
+        if has_images:
+            chat = chat.with_model("openai", "gpt-4o")
+        else:
+            chat = chat.with_model("openai", "gpt-5.2")
         
         prompt = f"Recent conversation:\n{context_str}\n\nRespond as {persona['display_name']}:"
         
-        # Create message - for now just use text, vision integration needs fixing
-        user_message = UserMessage(text=prompt)
+        # Create message with images if present
+        if has_images and image_contents:
+            user_message = UserMessage(text=prompt, file_contents=image_contents)
+        else:
+            user_message = UserMessage(text=prompt)
         
         response_text = await chat.send_message(user_message)
         
