@@ -261,7 +261,7 @@ export default function Arena() {
                       >
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span className="text-sm">
-                          {currentSpeaker?.display_name || "Persona"} is thinking...
+                          Personas are thinking...
                         </span>
                       </motion.div>
                     )}
