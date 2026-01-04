@@ -465,6 +465,7 @@ export default function Arena() {
           </div>
         )}
       </div>
+      )}
 
       <PersonaModal
         open={showPersonaModal}
