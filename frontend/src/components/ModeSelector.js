@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 
 export default function ModeSelector({ modes, currentMode, onModeChange }) {
   return (
-    <div className="flex flex-col gap-1.5" data-testid="mode-selector">
+    <div className="flex flex-col gap-1" data-testid="mode-selector">
       {modes.map((mode) => {
         const Icon = mode.icon;
         const isActive = currentMode === mode.id;
@@ -13,7 +13,7 @@ export default function ModeSelector({ modes, currentMode, onModeChange }) {
             <Button
               variant={isActive ? "default" : "ghost"}
               className={`
-                w-full justify-start gap-3 h-10 text-left font-medium
+                w-full justify-start gap-2 h-8 text-left font-medium text-xs
                 ${isActive 
                   ? "bg-primary text-primary-foreground shadow-lg" 
                   : "hover:bg-white/5"
@@ -23,11 +23,11 @@ export default function ModeSelector({ modes, currentMode, onModeChange }) {
               data-testid={`mode-button-${mode.id}`}
             >
               {typeof Icon === "string" ? (
-                <span className="text-lg">{Icon}</span>
+                <span className="text-base">{Icon}</span>
               ) : (
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5" />
               )}
-              <span className="text-sm">{mode.name}</span>
+              <span>{mode.name}</span>
             </Button>
           </motion.div>
         );
