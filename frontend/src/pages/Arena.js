@@ -39,7 +39,13 @@ export default function Arena() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    initializeArena();
+    const savedUser = localStorage.getItem('collabor8_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+      initializeArena(JSON.parse(savedUser));
+    } else {
+      setShowAuthModal(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -48,9 +54,35 @@ export default function Arena() {
     }
   }, [messages]);
 
-  const loadConversations = async () => {
+  const handleAuth = async (type, data) => {
     try {
-      const response = await axios.get(`${API}/conversations`);
+      let response;
+      if (type === "login") {
+        response = await axios.post(`${API}/auth/login`, data);
+      } else if (type === "register") {
+        response = await axios.post(`${API}/auth/register`, data);
+      } else if (type === "guest") {
+        response = await axios.get(`${API}/auth/guest`);
+        response.data.display_name = data.display_name || "Guest";
+      }
+      
+      const userData = response.data;
+      setUser(userData);
+      localStorage.setItem('collabor8_user', JSON.stringify(userData));
+      
+      await initializeArena(userData);
+      toast.success(`Welcome, ${userData.display_name}!`);
+    } catch (error) {
+      console.error("Auth failed:", error);
+      throw error;
+    }
+  };
+
+  const loadConversations = async (userId) => {
+    try {
+      const response = await axios.get(`${API}/conversations`, {
+        params: userId ? { user_id: userId } : {}
+      });
       setConversations(response.data);
     } catch (error) {
       console.error("Failed to load conversations:", error);
