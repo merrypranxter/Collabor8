@@ -175,13 +175,16 @@ export default function Arena() {
       
       setMessages(prev => [...prev, userMessage.data]);
       const messageContent = userInput;
+      const messageAttachments = attachments;
       setUserInput("");
+      setAttachments([]);
       
       setIsGenerating(true);
       
       const response = await axios.post(`${API}/chat/generate-multi`, {
         conversation_id: conversation.id,
-        user_message: messageContent
+        user_message: messageContent,
+        attachments: messageAttachments
       });
       
       setMessages(prev => [...prev, ...response.data.responses]);
