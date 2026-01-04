@@ -359,34 +359,35 @@ export default function Arena() {
 
         {!isExpanded && (
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
-          <div className="card-subtle p-5 shrink-0">
-            <h3 className="font-display text-lg font-normal mb-4 text-[#EAE6DF] tracking-wide" data-testid="mode-title">Mode</h3>
-            <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
-          </div>
-
-          <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-4 shrink-0">
-              <h3 className="font-display text-lg font-normal text-[#EAE6DF] tracking-wide" data-testid="personas-title">Personas</h3>
-              <button
-                onClick={() => setShowPersonaModal(true)}
-                className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
-                data-testid="add-persona-button"
-              >
-                + Summon
-              </button>
+            <div className="card-subtle p-5 shrink-0">
+              <h3 className="font-display text-lg font-normal mb-4 text-[#EAE6DF] tracking-wide" data-testid="mode-title">Mode</h3>
+              <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
             </div>
-            
-            <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
-              <div className="space-y-2 pr-2">
-                {personas.map(persona => (
-                  <PersonaCard
-                    key={persona.id}
-                    persona={persona}
-                    isActive={activePersonas.includes(persona.id)}
-                    onClick={() => togglePersona(persona.id)}
-                    isSpeaking={false}
-                  />
-                ))}
+
+            <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
+              <div className="flex items-center justify-between mb-4 shrink-0">
+                <h3 className="font-display text-lg font-normal text-[#EAE6DF] tracking-wide" data-testid="personas-title">Personas</h3>
+                <button
+                  onClick={() => setShowPersonaModal(true)}
+                  className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
+                  data-testid="add-persona-button"
+                >
+                  + Summon
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
+                <div className="space-y-2 pr-2">
+                  {personas.map(persona => (
+                    <PersonaCard
+                      key={persona.id}
+                      persona={persona}
+                      isActive={activePersonas.includes(persona.id)}
+                      onClick={() => togglePersona(persona.id)}
+                      isSpeaking={false}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
