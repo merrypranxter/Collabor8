@@ -176,7 +176,7 @@ export default function Arena() {
             className="mb-6"
           >
             <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-2" data-testid="arena-title">
-              The Celestial Symposium
+              Collabor8
             </h1>
             <p className="text-muted-foreground text-lg" data-testid="arena-subtitle">
               Where history's greatest minds converge
@@ -184,7 +184,7 @@ export default function Arena() {
           </motion.div>
 
           <div className="glass-panel rounded-2xl p-6 flex-1 flex flex-col overflow-hidden" data-testid="chat-container">
-            <ScrollArea className="flex-1 pr-4 scroll-area" ref={scrollRef} data-testid="messages-scroll-area">
+            <div className="flex-1 overflow-y-auto pr-4 scroll-area" ref={scrollRef} data-testid="messages-scroll-area">
               <AnimatePresence>
                 {messages.length === 0 ? (
                   <motion.div
@@ -220,7 +220,7 @@ export default function Arena() {
                   </div>
                 )}
               </AnimatePresence>
-            </ScrollArea>
+            </div>
 
             <div className="mt-6 flex gap-3" data-testid="input-container">
               <Input
@@ -265,8 +265,8 @@ export default function Arena() {
               </Button>
             </div>
             
-            <ScrollArea className="flex-1" data-testid="personas-list">
-              <div className="space-y-3">
+            <div className="flex-1 overflow-y-auto" data-testid="personas-list">
+              <div className="space-y-3 pr-2">
                 {personas.map(persona => (
                   <PersonaCard
                     key={persona.id}
