@@ -1,0 +1,197 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "The Anti-AI Designer",
+    "mission": "Create a 'Celestial Symposium' - a digital arena where history's greatest minds debate. Fusion of 'Theatrical Stage' + 'Modern Chat' + 'RPG Character Sheet'.",
+    "principles": [
+      "Fusion over Imitation: Mix Theater Scripts with Discord Chat.",
+      "Emotion First: Intellectual awe and curiosity.",
+      "Content is King: The conversation is the hero; UI is the stage.",
+      "Zoom In: Focus on the persona's 'Turn' - make it feel like a performance."
+    ]
+  },
+  "typography": {
+    "primary_font": "Manrope",
+    "secondary_font": "Playfair Display",
+    "mono_font": "JetBrains Mono",
+    "usage": {
+      "headings": "Playfair Display, font-bold, tracking-tight. Use for Persona Names and Mode Titles.",
+      "body": "Manrope, font-normal, leading-relaxed. Use for chat content and UI labels.",
+      "ui_elements": "Manrope, font-medium, tracking-wide, uppercase. Use for buttons and tabs.",
+      "code": "JetBrains Mono. Use for system logs or 'thought process' reveals."
+    },
+    "scale": {
+      "h1": "text-4xl md:text-6xl",
+      "h2": "text-3xl md:text-4xl",
+      "h3": "text-2xl",
+      "body": "text-base md:text-lg",
+      "caption": "text-xs tracking-widest uppercase"
+    }
+  },
+  "colors": {
+    "palette_name": "The Celestial Symposium (Jewel & Luxury Archetype)",
+    "mode": "dark",
+    "base": {
+      "background": "#0B0C15",
+      "foreground": "#E2E2E2",
+      "card": "#151725",
+      "card_foreground": "#FFFFFF",
+      "border": "#2A2D3E"
+    },
+    "brand": {
+      "primary": "#6D28D9",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#1E293B",
+      "secondary_foreground": "#E2E2E2",
+      "accent": "#F59E0B",
+      "accent_foreground": "#000000"
+    },
+    "semantic": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "info": "#3B82F6"
+    },
+    "gradients": {
+      "hero_glow": "radial-gradient(circle at center, rgba(109, 40, 217, 0.15) 0%, transparent 70%)",
+      "active_persona": "linear-gradient(135deg, rgba(109, 40, 217, 0.2) 0%, rgba(15, 23, 42, 0) 100%)"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": {
+      "default": "bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl",
+      "heavy": "bg-black/60 backdrop-blur-2xl border border-white/5"
+    },
+    "borders": {
+      "subtle": "border border-white/5",
+      "highlight": "border border-purple-500/30 box-shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+    },
+    "shadows": {
+      "glow": "0 0 20px rgba(109, 40, 217, 0.3)",
+      "deep": "0 20px 40px -10px rgba(0, 0, 0, 0.5)"
+    },
+    "textures": {
+      "noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")"
+    }
+  },
+  "layout_strategies": {
+    "arena_view": {
+      "name": "The Theater Stage",
+      "description": "A central transcript area flanked or bottom-lined by 'Persona Cards'. The user is the Director.",
+      "grid": "grid grid-cols-1 lg:grid-cols-12 gap-6 h-screen p-4 lg:p-8 overflow-hidden",
+      "areas": {
+        "stage": "col-span-1 lg:col-span-9 flex flex-col h-full relative z-10",
+        "controls": "col-span-1 lg:col-span-3 flex flex-col gap-4 h-full z-20 glass-panel"
+      }
+    },
+    "persona_manager": {
+      "name": "The Hall of Records",
+      "description": "A grid of cards, each representing a soul/mind. High visual impact.",
+      "grid": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-8"
+    }
+  },
+  "components": {
+    "PersonaCard": {
+      "description": "Represents an active AI agent. Shows avatar, name, and 'thinking' state.",
+      "style": "relative overflow-hidden rounded-xl border border-white/10 bg-card/50 hover:bg-card/80 transition-all duration-300 group",
+      "interaction": "Scale up slightly on active turn. Glow border when speaking.",
+      "elements": [
+        "Avatar: Circle or Rounded Square, 48px-64px.",
+        "Name: Playfair Display, Bold.",
+        "Status Indicator: Pulsing dot (Green=Active, Amber=Thinking)."
+      ]
+    },
+    "TranscriptBubble": {
+      "description": "A single turn in the conversation. NOT a standard chat bubble. More like a script block.",
+      "style": "flex flex-col gap-2 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors",
+      "layout": "Avatar left, Name top, Text body. Markdown supported.",
+      "variant_user": "bg-purple-900/20 border-purple-500/20 align-right"
+    },
+    "ModeSelector": {
+      "description": "Switch between 'Collaboration', 'Debate', etc.",
+      "style": "flex gap-2 p-1 bg-black/40 rounded-full border border-white/10 backdrop-blur-md",
+      "item": "px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg"
+    }
+  },
+  "motion": {
+    "library": "framer-motion",
+    "transitions": {
+      "default": "type: 'spring', stiffness: 300, damping: 30",
+      "slow": "duration: 0.8, ease: [0.16, 1, 0.3, 1]"
+    },
+    "animations": {
+      "fade_in_up": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 }
+      },
+      "scale_in": {
+        "initial": { "opacity": 0, "scale": 0.9 },
+        "animate": { "opacity": 1, "scale": 1 }
+      }
+    }
+  },
+  "image_urls": {
+    "backgrounds": [
+      {
+        "url": "https://images.pexels.com/photos/1819650/pexels-photo-1819650.jpeg",
+        "description": "Deep Nebula - Primary Background",
+        "category": "background"
+      },
+      {
+        "url": "https://images.pexels.com/photos/412026/pexels-photo-412026.jpeg",
+        "description": "Starfield - Secondary Background",
+        "category": "background"
+      }
+    ],
+    "avatars": {
+      "philosopher": [
+        {
+          "url": "https://images.pexels.com/photos/6714859/pexels-photo-6714859.jpeg",
+          "description": "Greek Statue Head - Use for Socrates/Plato types",
+          "category": "avatar"
+        },
+        {
+          "url": "https://images.pexels.com/photos/35492743/pexels-photo-35492743.jpeg",
+          "description": "Golden Buddha Statue - Use for Eastern Philosophy",
+          "category": "avatar"
+        }
+      ],
+      "scientist": [
+        {
+          "url": "https://images.pexels.com/photos/35435485/pexels-photo-35435485.jpeg",
+          "description": "Vintage Scientist - Use for Einstein/Oppenheimer",
+          "category": "avatar"
+        }
+      ],
+      "mystic": [
+        {
+          "url": "https://images.pexels.com/photos/2832382/pexels-photo-2832382.jpeg",
+          "description": "Abstract Psychedelic - Use for McKenna/Unhinged",
+          "category": "avatar"
+        }
+      ]
+    }
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations.",
+    "Use 'sonner' for toasts."
+  ],
+  "instructions_to_main_agent": [
+    "1. Install dependencies: `yarn add framer-motion lucide-react clsx tailwind-merge @radix-ui/react-slot class-variance-authority`.",
+    "2. Setup the 'Celestial' theme in `tailwind.config.js` using the colors provided.",
+    "3. Create a `Layout` component that includes the Noise Texture overlay.",
+    "4. Build the `PersonaCard` and `TranscriptBubble` components first.",
+    "5. Implement the 'Arena' view using the Grid strategy.",
+    "6. Use the provided Image URLs for the default personas. If a specific historical figure is missing, use the 'Abstract' or 'Statue' fallback."
+  ]
+}
