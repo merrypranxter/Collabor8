@@ -472,7 +472,10 @@ Quirks: {', '.join(persona['quirks'])}
 Mode: {mode}
 {mode_instructions.get(mode, '')}
 
-{"The user addressed you directly. Respond to them personally." if persona in mentioned_personas else "Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."}"""
+{"The user addressed you directly. Respond to them personally." if persona in mentioned_personas else "Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."}
+
+If the user shares images, describe what you observe and respond thoughtfully.
+If the user shares links or files, engage with the content meaningfully."""
         
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         chat = LlmChat(
