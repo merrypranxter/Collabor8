@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export default function TranscriptBubble({ message, index }) {
   const getInitials = (name) => {
@@ -11,49 +10,36 @@ export default function TranscriptBubble({ message, index }) {
       .slice(0, 2);
   };
 
-  const getAvatarColor = (name) => {
-    const colors = [
-      "from-purple-500 to-pink-500",
-      "from-blue-500 to-cyan-500",
-      "from-green-500 to-emerald-500",
-      "from-orange-500 to-red-500",
-      "from-indigo-500 to-purple-500",
-      "from-yellow-500 to-orange-500",
-      "from-pink-500 to-rose-500"
-    ];
-    const colorIndex = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[colorIndex % colors.length];
-  };
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ duration: 0.3, delay: index * 0.03 }}
       className={`
-        flex gap-4 p-8 rounded-2xl border message-bubble
+        flex gap-4 p-6 rounded-lg border message-bubble
         ${message.is_user 
-          ? "bg-purple-900/20 border-purple-500/20 ml-12" 
-          : "bg-white/5 border-white/5"
+          ? "bg-[rgba(184,115,51,0.04)] border-[rgba(184,115,51,0.15)]" 
+          : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)]"
         }
       `}
       data-testid={`message-${message.id}`}
     >
-      <Avatar className="w-12 h-12 shrink-0">
-        <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(message.persona_name)} text-white text-base font-bold`}>
-          {getInitials(message.persona_name)}
-        </AvatarFallback>
-      </Avatar>
+      <div 
+        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border border-[rgba(255,255,255,0.1)] shrink-0"
+        style={{ background: message.is_user ? 'rgba(184, 115, 51, 0.1)' : 'rgba(255, 255, 255, 0.03)' }}
+      >
+        <span className="text-[#EAE6DF] opacity-70">{getInitials(message.persona_name)}</span>
+      </div>
       
       <div className="flex-1 min-w-0">
-        <div className="font-display font-bold text-xl mb-3" data-testid={`message-persona-${message.id}`}>
+        <div className="text-sm font-light tracking-wide mb-2 uppercase text-[#B87333]" style={{ letterSpacing: '0.08em' }} data-testid={`message-persona-${message.id}`}>
           {message.persona_name}
         </div>
-        <div className="text-foreground/90 text-lg leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
+        <div className="text-[#EAE6DF] text-base font-light leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
           {message.content}
         </div>
-        <div className="text-sm text-muted-foreground mt-3">
-          {new Date(message.timestamp).toLocaleTimeString()}
+        <div className="text-xs text-[#9A9AA3] mt-3 font-light">
+          {new Date(message.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
         </div>
       </div>
     </motion.div>

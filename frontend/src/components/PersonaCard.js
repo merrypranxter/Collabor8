@@ -13,13 +13,10 @@ export default function PersonaCard({ persona, isActive, onClick, isSpeaking }) 
 
   const getAvatarColor = (name) => {
     const colors = [
-      "from-purple-500 to-pink-500",
-      "from-blue-500 to-cyan-500",
-      "from-green-500 to-emerald-500",
-      "from-orange-500 to-red-500",
-      "from-indigo-500 to-purple-500",
-      "from-yellow-500 to-orange-500",
-      "from-pink-500 to-rose-500"
+      "rgba(184, 115, 51, 0.15)",
+      "rgba(154, 154, 163, 0.15)",
+      "rgba(197, 90, 74, 0.15)",
+      "rgba(210, 140, 76, 0.15)",
     ];
     const index = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[index % colors.length];
@@ -27,69 +24,41 @@ export default function PersonaCard({ persona, isActive, onClick, isSpeaking }) 
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       onClick={onClick}
       className={`
-        relative overflow-hidden rounded-xl border cursor-pointer
-        transition-all duration-300 group
+        relative overflow-hidden rounded-lg border cursor-pointer
+        transition-all duration-200
         ${isActive 
-          ? "bg-card/80 border-primary/50 shadow-lg glow-border" 
-          : "bg-card/50 border-white/10 hover:bg-card/70 hover:border-white/20"
+          ? "bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.08)]" 
+          : "bg-[rgba(255,255,255,0.01)] border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.06)]"
         }
-        ${isSpeaking ? "persona-active" : ""}
       `}
       data-testid={`persona-card-${persona.id}`}
     >
-      <div className="p-5 flex items-center gap-4">
-        <Avatar className="w-14 h-14">
-          <AvatarFallback className={`bg-gradient-to-br ${getAvatarColor(persona.display_name)} text-white font-bold text-lg`}>
-            {getInitials(persona.display_name)}
-          </AvatarFallback>
-        </Avatar>
+      <div className="p-4 flex items-center gap-3">
+        <div 
+          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-light border border-[rgba(255,255,255,0.1)]"
+          style={{ background: getAvatarColor(persona.display_name) }}
+        >
+          <span className="text-[#EAE6DF] opacity-80">{getInitials(persona.display_name)}</span>
+        </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className="font-display font-bold text-base truncate" data-testid={`persona-name-${persona.id}`}>
+          <h4 className="font-light text-sm tracking-wide truncate text-[#EAE6DF]" data-testid={`persona-name-${persona.id}`}>
             {persona.display_name}
           </h4>
-          <p className="text-sm text-muted-foreground truncate" data-testid={`persona-role-${persona.id}`}>
+          <p className="text-xs text-[#9A9AA3] truncate uppercase" style={{ letterSpacing: '0.05em' }} data-testid={`persona-role-${persona.id}`}>
             {persona.role_in_arena}
           </p>
         </div>
         
-        {isSpeaking && (
-          <div className="flex gap-1">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1, delay: 0 }}
-              className="w-2 h-2 rounded-full bg-primary"
-            />
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
-              className="w-2 h-2 rounded-full bg-primary"
-            />
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
-              className="w-2 h-2 rounded-full bg-primary"
-            />
-          </div>
-        )}
-        
-        {isActive && !isSpeaking && (
-          <div className="w-3 h-3 rounded-full bg-green-500" data-testid={`persona-active-${persona.id}`} />
+        {isActive && (
+          <div className="persona-status-copper" data-testid={`persona-active-${persona.id}`} />
         )}
       </div>
-      
-      {isActive && (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent origin-left"
-        />
-      )}
     </motion.div>
   );
 }
