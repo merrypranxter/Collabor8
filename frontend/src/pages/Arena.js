@@ -271,22 +271,27 @@ export default function Arena() {
             </div>
 
             <div className="mt-6 flex gap-3" data-testid="input-container">
-              <Input
-                placeholder="Speak to the symposium..."
+              <textarea
+                placeholder="Speak to the symposium... (Type @PersonaName or 'hey PersonaName' to address specific personas)"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 bg-white/5 border-white/10 focus:border-primary"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                className="flex-1 bg-white/5 border border-white/10 focus:border-primary rounded-lg p-4 text-lg resize-none h-24 focus:outline-none focus:ring-2 focus:ring-primary/50"
                 disabled={isLoading || isGenerating}
                 data-testid="message-input"
               />
               <Button
                 onClick={sendMessage}
                 disabled={isLoading || isGenerating || !userInput.trim()}
-                className="px-6"
+                className="px-8 h-24 text-lg"
                 data-testid="send-button"
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
               </Button>
             </div>
           </div>
