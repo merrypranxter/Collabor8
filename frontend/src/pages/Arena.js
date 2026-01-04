@@ -133,11 +133,13 @@ export default function Arena() {
     setActivePersonas(newActivePersonas);
     
     // Update the conversation in the backend with new active personas
-    if (currentConversation?.id) {
+    if (conversation?.id) {
       try {
-        await axios.put(`${API_URL}/api/conversations/${currentConversation.id}`, {
+        console.log('Updating active personas:', newActivePersonas);
+        await axios.put(`${API}/conversations/${conversation.id}`, {
           active_personas: newActivePersonas
         });
+        console.log('✅ Active personas updated in backend');
       } catch (error) {
         console.error('Failed to update active personas:', error);
       }
