@@ -187,16 +187,7 @@ export default function Arena() {
   const changeMode = async (newMode) => {
     setMode(newMode);
     if (conversation) {
-      try {
-        await axios.post(`${API}/conversations`, {
-          mode: newMode,
-          topic: conversation.topic,
-          active_personas: activePersonas
-        });
-        toast.success(`Switched to ${newMode} mode`);
-      } catch (error) {
-        console.error("Failed to change mode:", error);
-      }
+      toast.success(`Switched to ${newMode} mode`);
     }
   };
 
@@ -213,7 +204,6 @@ export default function Arena() {
   };
 
   const activePersonaObjects = personas.filter(p => activePersonas.includes(p.id));
-  const currentSpeaker = activePersonaObjects[currentPersonaIndex % activePersonaObjects.length];
 
   return (
     <div className="min-h-screen relative z-10" data-testid="arena-container">
