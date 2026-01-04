@@ -107,15 +107,18 @@ user_problem_statement: "Build a Collabor8-Style Persona Arena - a multi-persona
 backend:
   - task: "Image and file upload with vision capabilities"
     implemented: true
-    working: "pending_test"
+    working: "partial"
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "pending_test"
         agent: "main"
         comment: "Implemented vision support. When images are attached, backend now uses GPT-4o vision model instead of GPT-5.2. Image data is passed to the vision API for analysis. Need to test with real image uploads."
+      - working: "partial"
+        agent: "testing"
+        comment: "TESTED: Image upload flow works and personas respond to image attachments, but actual GPT-4o vision model is not working due to emergentintegrations library limitations. Error: 'Expected PDF MIME type but got image/png' and 'Invalid model name gpt-4o/gpt-4-vision-preview'. Currently using GPT-5.2 for all requests. Attachment context is properly included so personas know images were shared. NEEDS RESEARCH: Proper vision model integration with emergentintegrations library."
   
   - task: "Multi-persona chat with LLM integration"
     implemented: true
@@ -128,6 +131,33 @@ backend:
       - working: true
         agent: "main"
         comment: "Basic multi-persona chat tested and working. Personas respond naturally in character."
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Multi-persona chat working perfectly. Multiple personas respond in character with appropriate randomization based on conversation mode."
+
+  - task: "URL attachment handling"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "TESTED: URL attachments work correctly. URLs are included in attachment context and personas acknowledge and respond to shared links appropriately."
+
+  - task: "Multi-file upload support"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Multi-file upload works. Multiple attachments are processed correctly and included in conversation context."
 
 frontend:
   - task: "File/Image upload UI with attachment display"
@@ -157,18 +187,20 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
 
 test_plan:
   current_focus:
+    - "GPT-4o vision model integration fix"
+    - "Frontend file upload UI testing"
+  stuck_tasks:
     - "Image and file upload with vision capabilities"
-    - "URL attachment handling"
-    - "End-to-end vision flow"
-  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
     message: "I've completed the vision implementation. The system now switches to GPT-4o when images are uploaded and passes base64 image data to the vision API. The frontend UI is working and shows attachment previews. Please test: 1) Upload an image and ask personas to describe it, 2) Upload a URL and verify it's included in context, 3) Upload a regular file and check handling. Basic chat is already confirmed working."
+  - agent: "testing"
+    message: "BACKEND TESTING COMPLETE: ✅ All API endpoints working. ✅ Multi-persona chat working. ✅ URL attachments working. ✅ Multi-file upload working. ❌ GPT-4o vision model NOT working - emergentintegrations library has limitations (expects PDF MIME type, model names not available). Currently using GPT-5.2 for all requests but attachment context is properly included. CRITICAL: Need to research proper vision model integration with emergentintegrations library or find alternative approach. Frontend UI testing still needed."
