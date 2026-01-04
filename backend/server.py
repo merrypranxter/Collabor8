@@ -115,6 +115,46 @@ class ChatGenerateRequest(BaseModel):
 async def root():
     return {"message": "Collabor8 Arena API"}
 
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+@api_router.post("/auth/register")
+async def register_user(user: UserCreate):
+    existing = await db.users.find_one({"username": user.username}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    user_obj = User(
+        username=user.username,
+        password_hash=hash_password(user.password),
+        display_name=user.display_name
+    )
+    
+    doc = user_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.users.insert_one(doc)
+    
+    return {"id": user_obj.id, "username": user_obj.username, "display_name": user_obj.display_name}
+
+@api_router.post("/auth/login")
+async def login_user(credentials: UserLogin):
+    user = await db.users.find_one({"username": credentials.username}, {"_id": 0})
+    if not user or user['password_hash'] != hash_password(credentials.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    return {
+        "id": user['id'],
+        "username": user['username'],
+        "display_name": user['display_name'],
+        "avatar_base64": user.get('avatar_base64')
+    }
+
+@api_router.get("/auth/guest")
+async def get_guest_session():
+    guest_id = str(uuid.uuid4())
+    return {"id": guest_id, "username": f"guest_{guest_id[:8]}", "display_name": "Guest", "is_guest": True}
+
 @api_router.post("/personas", response_model=Persona)
 async def create_persona(persona: PersonaCreate):
     if persona.bio is None:
