@@ -396,6 +396,31 @@ async def get_messages(conversation_id: str):
     
     return messages
 
+@api_router.put("/conversations/{conversation_id}")
+async def update_conversation(conversation_id: str, update_data: dict):
+    conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Update allowed fields
+    update_fields = {}
+    if 'active_personas' in update_data:
+        update_fields['active_personas'] = update_data['active_personas']
+    if 'mode' in update_data:
+        update_fields['mode'] = update_data['mode']
+    if 'title' in update_data:
+        update_fields['title'] = update_data['title']
+    
+    if update_fields:
+        update_fields['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": update_fields}
+        )
+    
+    updated_conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    return updated_conv
+
 @api_router.post("/chat/generate-multi")
 async def generate_multi_responses(request: ChatGenerateRequest):
     conv = await db.conversations.find_one({"id": request.conversation_id}, {"_id": 0})
