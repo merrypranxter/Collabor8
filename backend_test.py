@@ -157,8 +157,202 @@ class MultiPersonaChatTester:
             print(f"   Found {len(response)} messages")
         return success
 
+    def create_test_image(self, text="TEST IMAGE", width=200, height=200):
+        """Create a simple test image with text"""
+        try:
+            # Create a simple image with text
+            img = Image.new('RGB', (width, height), color='lightblue')
+            draw = ImageDraw.Draw(img)
+            
+            # Try to use a default font, fallback to basic if not available
+            try:
+                font = ImageFont.load_default()
+            except:
+                font = None
+            
+            # Calculate text position to center it
+            if font:
+                bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+            else:
+                text_width = len(text) * 6  # Rough estimate
+                text_height = 11
+            
+            x = (width - text_width) // 2
+            y = (height - text_height) // 2
+            
+            draw.text((x, y), text, fill='black', font=font)
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_data = buffer.getvalue()
+            return base64.b64encode(img_data).decode('utf-8')
+        except Exception as e:
+            print(f"   Warning: Could not create test image: {e}")
+            # Return a minimal base64 encoded 1x1 pixel image as fallback
+            return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+
+    def test_image_upload_with_vision(self):
+        """Test image upload with vision capabilities (HIGHEST PRIORITY)"""
+        if not self.conversation_id:
+            print("❌ No conversation ID available")
+            return False
+        
+        print("   Creating test image...")
+        test_image_b64 = self.create_test_image("VISION TEST - Can you see this text?")
+        
+        # Create attachment data structure matching frontend format
+        attachments = [{
+            "type": "image",
+            "name": "test_vision.png", 
+            "data": f"data:image/png;base64,{test_image_b64}",
+            "description": "Test image for vision analysis"
+        }]
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "What do you see in this image? Please describe the text and colors.",
+            "attachments": attachments
+        }
+        
+        print("   This may take longer due to GPT-4o vision processing...")
+        success, response = self.run_test("Image Upload with Vision", "POST", "chat/generate-multi", 200, generate_data)
+        
+        if success and 'responses' in response:
+            responses = response['responses']
+            print(f"   Generated {len(responses)} persona responses")
+            
+            # Check if any response mentions vision-related content
+            vision_keywords = ['image', 'see', 'text', 'blue', 'color', 'vision', 'picture', 'visual']
+            vision_detected = False
+            
+            for resp in responses:
+                content = resp.get('content', '').lower()
+                if any(keyword in content for keyword in vision_keywords):
+                    vision_detected = True
+                    print(f"   ✅ Vision detected in {resp.get('persona_name')}: {content[:100]}...")
+                    break
+            
+            if not vision_detected:
+                print("   ⚠️  Warning: No vision-related content detected in responses")
+                print("   This might indicate GPT-4o vision is not working properly")
+                
+            return True
+        else:
+            print("   ❌ Failed to get valid responses")
+            return False
+
+    def test_url_attachment(self):
+        """Test URL attachment handling"""
+        if not self.conversation_id:
+            print("❌ No conversation ID available")
+            return False
+        
+        attachments = [{
+            "type": "url",
+            "url": "https://example.com/article",
+            "name": "https://example.com/article"
+        }]
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "Please acknowledge the URL I shared and comment on it.",
+            "attachments": attachments
+        }
+        
+        success, response = self.run_test("URL Attachment", "POST", "chat/generate-multi", 200, generate_data)
+        
+        if success and 'responses' in response:
+            responses = response['responses']
+            print(f"   Generated {len(responses)} persona responses")
+            
+            # Check if any response mentions the URL
+            url_mentioned = False
+            for resp in responses:
+                content = resp.get('content', '').lower()
+                if 'url' in content or 'link' in content or 'example.com' in content:
+                    url_mentioned = True
+                    print(f"   ✅ URL acknowledged by {resp.get('persona_name')}")
+                    break
+            
+            if not url_mentioned:
+                print("   ⚠️  Warning: URL not mentioned in responses")
+                
+            return True
+        return False
+
+    def test_multi_file_upload(self):
+        """Test multiple file upload"""
+        if not self.conversation_id:
+            print("❌ No conversation ID available")
+            return False
+        
+        # Create multiple test images
+        image1_b64 = self.create_test_image("IMAGE 1", 150, 150)
+        image2_b64 = self.create_test_image("IMAGE 2", 150, 150)
+        
+        attachments = [
+            {
+                "type": "image",
+                "name": "test1.png",
+                "data": f"data:image/png;base64,{image1_b64}",
+                "description": "First test image"
+            },
+            {
+                "type": "image", 
+                "name": "test2.png",
+                "data": f"data:image/png;base64,{image2_b64}",
+                "description": "Second test image"
+            }
+        ]
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "I've uploaded multiple images. Can you see both of them?",
+            "attachments": attachments
+        }
+        
+        success, response = self.run_test("Multi-File Upload", "POST", "chat/generate-multi", 200, generate_data)
+        
+        if success and 'responses' in response:
+            responses = response['responses']
+            print(f"   Generated {len(responses)} persona responses")
+            return True
+        return False
+
+    def test_basic_chat_flow(self):
+        """Test basic chat without attachments"""
+        if not self.conversation_id:
+            print("❌ No conversation ID available")
+            return False
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "Hello everyone! This is a simple test message without any attachments.",
+            "attachments": []
+        }
+        
+        success, response = self.run_test("Basic Chat Flow", "POST", "chat/generate-multi", 200, generate_data)
+        
+        if success and 'responses' in response:
+            responses = response['responses']
+            print(f"   Generated {len(responses)} persona responses")
+            
+            # Verify multiple personas responded
+            if len(responses) >= 1:
+                print("   ✅ Multi-persona chat working")
+                for resp in responses:
+                    print(f"   - {resp.get('persona_name')}: {resp.get('content', '')[:50]}...")
+                return True
+            else:
+                print("   ❌ No persona responses generated")
+                return False
+        return False
+
     def test_generate_persona_response(self):
-        """Test generating a persona response"""
+        """Test generating a persona response (legacy endpoint if exists)"""
         if not self.conversation_id or not self.persona_ids:
             print("❌ No conversation or persona IDs available")
             return False
@@ -181,6 +375,14 @@ class MultiPersonaChatTester:
         if success:
             print(f"   Generated response from: {response.get('persona_name')}")
             print(f"   Content preview: {response.get('content', '')[:100]}...")
+        return success
+
+    def test_guest_auth(self):
+        """Test guest authentication"""
+        success, response = self.run_test("Guest Authentication", "GET", "auth/guest", 200)
+        if success:
+            print(f"   Guest ID: {response.get('id', 'Unknown')}")
+            print(f"   Display Name: {response.get('display_name', 'Unknown')}")
         return success
 
 def main():
