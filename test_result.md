@@ -107,11 +107,11 @@ user_problem_statement: "Build a Collabor8-Style Persona Arena - a multi-persona
 backend:
   - task: "Image and file upload with vision capabilities"
     implemented: true
-    working: "partial"
+    working: "pending_test"
     file: "/app/backend/server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "pending_test"
         agent: "main"
@@ -119,6 +119,9 @@ backend:
       - working: "partial"
         agent: "testing"
         comment: "TESTED: Image upload flow works and personas respond to image attachments, but actual GPT-4o vision model is not working due to emergentintegrations library limitations. Error: 'Expected PDF MIME type but got image/png' and 'Invalid model name gpt-4o/gpt-4-vision-preview'. Currently using GPT-5.2 for all requests. Attachment context is properly included so personas know images were shared. NEEDS RESEARCH: Proper vision model integration with emergentintegrations library."
+      - working: "pending_test"
+        agent: "main"
+        comment: "FIXED: Consulted integration playbook expert. Implemented proper vision integration using ImageContent class from emergentintegrations. Now using GPT-4o with file_contents parameter containing ImageContent objects with base64 image data. Ready for testing with real image uploads."
   
   - task: "Multi-persona chat with LLM integration"
     implemented: true
