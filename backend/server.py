@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,67 +6,355 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
-
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+class Voice(BaseModel):
+    tone: str
+    pacing: str
+    signature_moves: List[str] = []
+    taboos: List[str] = []
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+class PersonaBase(BaseModel):
+    display_name: str
+    type: str
+    bio: str
+    quirks: List[str]
+    voice: Voice
+    role_in_arena: str
+
+class PersonaCreate(BaseModel):
+    display_name: str
+    type: str = "custom"
+    bio: Optional[str] = None
+    quirks: Optional[List[str]] = None
+    voice: Optional[Voice] = None
+    role_in_arena: str = "participant"
+
+class Persona(PersonaBase):
+    model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Message(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    conversation_id: str
+    persona_id: Optional[str] = None
+    persona_name: str
+    content: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_user: bool = False
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class Conversation(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str
+    mode: str
+    topic: Optional[str] = None
+    active_personas: List[str] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-# Add your routes to the router instead of directly to app
+class ConversationCreate(BaseModel):
+    mode: str
+    topic: Optional[str] = None
+    active_personas: List[str] = []
+
+class MessageCreate(BaseModel):
+    content: str
+    persona_id: Optional[str] = None
+    is_user: bool = False
+
+class PersonaLookupRequest(BaseModel):
+    name: str
+
+class ChatGenerateRequest(BaseModel):
+    conversation_id: str
+    persona_id: str
+    context_messages: List[Dict[str, Any]]
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Collabor8 Arena API"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+@api_router.post("/personas", response_model=Persona)
+async def create_persona(persona: PersonaCreate):
+    if persona.bio is None:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=str(uuid.uuid4()),
+            system_message="You are a helpful assistant that provides concise biographical information."
+        ).with_model("openai", "gpt-5.2")
+        
+        prompt = f"Provide a concise 2-3 sentence bio for {persona.display_name}. Include key facts and personality."
+        response = await chat.send_message(UserMessage(text=prompt))
+        persona.bio = response.strip()
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
+    if persona.quirks is None or len(persona.quirks) == 0:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=str(uuid.uuid4()),
+            system_message="You are a helpful assistant."
+        ).with_model("openai", "gpt-5.2")
+        
+        prompt = f"List 3 distinctive quirks or traits for {persona.display_name}. Return only a comma-separated list."
+        response = await chat.send_message(UserMessage(text=prompt))
+        persona.quirks = [q.strip() for q in response.split(',')]
+    
+    if persona.voice is None:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=str(uuid.uuid4()),
+            system_message="You are a helpful assistant."
+        ).with_model("openai", "gpt-5.2")
+        
+        prompt = f"Describe {persona.display_name}'s speaking voice in 3 words for tone, 2 words for pacing, list 2 signature moves (speaking patterns), and 2 taboos (topics/behaviors to avoid). Format: Tone: X, Y, Z | Pacing: A, B | Moves: 1, 2 | Taboos: 1, 2"
+        response = await chat.send_message(UserMessage(text=prompt))
+        
+        parts = response.split('|')
+        tone_part = parts[0].split(':')[1].strip() if len(parts) > 0 else "thoughtful"
+        pacing_part = parts[1].split(':')[1].strip() if len(parts) > 1 else "measured"
+        moves_part = parts[2].split(':')[1].strip() if len(parts) > 2 else ""
+        taboos_part = parts[3].split(':')[1].strip() if len(parts) > 3 else ""
+        
+        persona.voice = Voice(
+            tone=tone_part,
+            pacing=pacing_part,
+            signature_moves=[m.strip() for m in moves_part.split(',')] if moves_part else [],
+            taboos=[t.strip() for t in taboos_part.split(',')] if taboos_part else []
+        )
+    
+    persona_obj = Persona(
+        display_name=persona.display_name,
+        type=persona.type,
+        bio=persona.bio,
+        quirks=persona.quirks,
+        voice=persona.voice,
+        role_in_arena=persona.role_in_arena
+    )
+    
+    doc = persona_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.personas.insert_one(doc)
+    return persona_obj
+
+@api_router.get("/personas", response_model=List[Persona])
+async def get_personas():
+    personas = await db.personas.find({}, {"_id": 0}).to_list(1000)
+    
+    for persona in personas:
+        if isinstance(persona['created_at'], str):
+            persona['created_at'] = datetime.fromisoformat(persona['created_at'])
+    
+    return personas
+
+@api_router.get("/personas/{persona_id}", response_model=Persona)
+async def get_persona(persona_id: str):
+    persona = await db.personas.find_one({"id": persona_id}, {"_id": 0})
+    if not persona:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    
+    if isinstance(persona['created_at'], str):
+        persona['created_at'] = datetime.fromisoformat(persona['created_at'])
+    
+    return persona
+
+@api_router.put("/personas/{persona_id}", response_model=Persona)
+async def update_persona(persona_id: str, persona_update: PersonaCreate):
+    existing = await db.personas.find_one({"id": persona_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    
+    updated_persona = Persona(
+        id=persona_id,
+        display_name=persona_update.display_name,
+        type=persona_update.type,
+        bio=persona_update.bio or existing['bio'],
+        quirks=persona_update.quirks or existing['quirks'],
+        voice=persona_update.voice or Voice(**existing['voice']),
+        role_in_arena=persona_update.role_in_arena,
+        created_at=datetime.fromisoformat(existing['created_at']) if isinstance(existing['created_at'], str) else existing['created_at']
+    )
+    
+    doc = updated_persona.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.personas.update_one({"id": persona_id}, {"$set": doc})
+    return updated_persona
+
+@api_router.delete("/personas/{persona_id}")
+async def delete_persona(persona_id: str):
+    result = await db.personas.delete_one({"id": persona_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    return {"message": "Persona deleted"}
+
+@api_router.post("/conversations", response_model=Conversation)
+async def create_conversation(conv: ConversationCreate):
+    conversation = Conversation(
+        session_id=str(uuid.uuid4()),
+        mode=conv.mode,
+        topic=conv.topic,
+        active_personas=conv.active_personas
+    )
+    
+    doc = conversation.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.conversations.insert_one(doc)
+    return conversation
+
+@api_router.get("/conversations/{conversation_id}", response_model=Conversation)
+async def get_conversation(conversation_id: str):
+    conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    if isinstance(conv['created_at'], str):
+        conv['created_at'] = datetime.fromisoformat(conv['created_at'])
+    if isinstance(conv['updated_at'], str):
+        conv['updated_at'] = datetime.fromisoformat(conv['updated_at'])
+    
+    return conv
+
+@api_router.post("/conversations/{conversation_id}/messages", response_model=Message)
+async def create_message(conversation_id: str, message: MessageCreate):
+    conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    persona_name = "User"
+    if message.persona_id:
+        persona = await db.personas.find_one({"id": message.persona_id}, {"_id": 0})
+        if persona:
+            persona_name = persona['display_name']
+    
+    msg = Message(
+        conversation_id=conversation_id,
+        persona_id=message.persona_id,
+        persona_name=persona_name,
+        content=message.content,
+        is_user=message.is_user
+    )
+    
+    doc = msg.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+    await db.messages.insert_one(doc)
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    await db.conversations.update_one(
+        {"id": conversation_id},
+        {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
     
-    return status_checks
+    return msg
 
-# Include the router in the main app
+@api_router.get("/conversations/{conversation_id}/messages", response_model=List[Message])
+async def get_messages(conversation_id: str):
+    messages = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(1000)
+    
+    for msg in messages:
+        if isinstance(msg['timestamp'], str):
+            msg['timestamp'] = datetime.fromisoformat(msg['timestamp'])
+    
+    return messages
+
+@api_router.post("/chat/generate")
+async def generate_response(request: ChatGenerateRequest):
+    persona = await db.personas.find_one({"id": request.persona_id}, {"_id": 0})
+    if not persona:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    
+    conv = await db.conversations.find_one({"id": request.conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    mode = conv['mode']
+    mode_instructions = {
+        "Creativity Collaboration": "Be constructive, idea-generating, and iterate with user feedback. Provide options and next steps.",
+        "Shoot-the-Shit": "Be casual, meandering, tangents welcome. Still helpful if asked.",
+        "Unhinged": "[FICTION—UNHINGED] Be surreal, satirical, and extreme but fiction-only. No real-person targeted harassment.",
+        "Socratic Debate": "Use question-driven probing, challenge assumptions, explore definitions. End with summary of positions."
+    }
+    
+    system_message = f"""You are {persona['display_name']}.
+Type: {persona['type']}. Role: {persona['role_in_arena']}.
+Bio: {persona['bio']}
+Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
+Quirks: {', '.join(persona['quirks'])}
+
+Mode: {mode}
+{mode_instructions.get(mode, '')}
+
+Stay consistent with your voice and history. Keep responses focused and under 150 words unless the conversation naturally requires more depth."""
+    
+    api_key = os.environ.get('EMERGENT_LLM_KEY')
+    chat = LlmChat(
+        api_key=api_key,
+        session_id=request.conversation_id,
+        system_message=system_message
+    ).with_model("openai", "gpt-5.2")
+    
+    context_str = "\n".join([f"{msg['persona_name']}: {msg['content']}" for msg in request.context_messages[-10:]])
+    prompt = f"Conversation so far:\n{context_str}\n\nRespond as {persona['display_name']}:"
+    
+    response = await chat.send_message(UserMessage(text=prompt))
+    
+    msg = Message(
+        conversation_id=request.conversation_id,
+        persona_id=request.persona_id,
+        persona_name=persona['display_name'],
+        content=response,
+        is_user=False
+    )
+    
+    doc = msg.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    
+    await db.messages.insert_one(doc)
+    
+    return msg
+
+@api_router.post("/personas/seed")
+async def seed_default_personas():
+    default_personas = [
+        {"display_name": "Terence McKenna", "type": "historical", "role_in_arena": "mystic"},
+        {"display_name": "Jesus", "type": "historical", "role_in_arena": "spiritual_leader"},
+        {"display_name": "Buddha", "type": "historical", "role_in_arena": "philosopher"},
+        {"display_name": "J. Robert Oppenheimer", "type": "historical", "role_in_arena": "scientist"},
+        {"display_name": "Carl Jung", "type": "historical", "role_in_arena": "psychologist"},
+        {"display_name": "Albert Einstein", "type": "historical", "role_in_arena": "scientist"},
+        {"display_name": "Helena Blavatsky", "type": "historical", "role_in_arena": "mystic"}
+    ]
+    
+    created = []
+    for p in default_personas:
+        existing = await db.personas.find_one({"display_name": p["display_name"]}, {"_id": 0})
+        if not existing:
+            persona_create = PersonaCreate(**p)
+            persona = await create_persona(persona_create)
+            created.append(persona.display_name)
+    
+    return {"message": f"Seeded {len(created)} personas", "created": created}
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,7 +365,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
