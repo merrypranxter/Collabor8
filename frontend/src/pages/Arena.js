@@ -37,7 +37,9 @@ export default function Arena() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedPanel, setExpandedPanel] = useState(null);
+  const [attachments, setAttachments] = useState([]);
   const scrollRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('collabor8_user');
