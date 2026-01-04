@@ -135,6 +135,34 @@ export default function Arena() {
     });
   };
 
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const attachment = {
+          type: file.type.startsWith('image/') ? 'image' : 'file',
+          name: file.name,
+          data: e.target.result,
+          description: file.name
+        };
+        setAttachments(prev => [...prev, attachment]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleUrlAttachment = () => {
+    const url = prompt("Enter URL:");
+    if (url) {
+      setAttachments(prev => [...prev, { type: 'url', url, name: url }]);
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   const sendMessage = async () => {
     if (!userInput.trim() || !conversation) return;
     
