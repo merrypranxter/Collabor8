@@ -453,12 +453,14 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     if mentioned_personas:
         responding_personas = mentioned_personas
     else:
+        # Determine how many personas should respond based on mode
+        # Now responds with ALL active personas (not random subset)
         num_responders = {
-            "Creativity Collaboration": random.randint(2, min(3, len(personas_data))),
-            "Shoot-the-Shit": random.randint(1, min(2, len(personas_data))),
-            "Unhinged": random.randint(1, min(3, len(personas_data))),
-            "Socratic Debate": min(2, len(personas_data))
-        }.get(mode, 1)
+            "Creativity Collaboration": len(personas_data),  # All personas collaborate
+            "Shoot-the-Shit": random.randint(2, max(2, len(personas_data))),  # Most personas join casually
+            "Unhinged": len(personas_data),  # All personas go wild
+            "Socratic Debate": len(personas_data)  # All personas debate
+        }.get(mode, len(personas_data))
         
         num_responders = min(num_responders, len(personas_data))
         responding_personas = random.sample(personas_data, num_responders)
