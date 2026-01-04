@@ -36,6 +36,7 @@ export default function Arena() {
   const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedPanel, setExpandedPanel] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
