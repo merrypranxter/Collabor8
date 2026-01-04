@@ -44,6 +44,15 @@ export default function Arena() {
     }
   }, [messages]);
 
+  const loadConversations = async () => {
+    try {
+      const response = await axios.get(`${API}/conversations`);
+      setConversations(response.data);
+    } catch (error) {
+      console.error("Failed to load conversations:", error);
+    }
+  };
+
   const initializeArena = async () => {
     try {
       console.log("Initializing arena...");
@@ -65,6 +74,8 @@ export default function Arena() {
       });
       console.log("Conversation created:", convResponse.data);
       setConversation(convResponse.data);
+      
+      await loadConversations();
       
       toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
