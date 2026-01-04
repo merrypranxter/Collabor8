@@ -390,13 +390,19 @@ export default function Arena() {
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <PersonaModal
         open={showPersonaModal}
         onClose={() => setShowPersonaModal(false)}
         onSubmit={addPersona}
+      />
+      
+      <AuthModal
+        open={showAuthModal}
+        onClose={() => user ? setShowAuthModal(false) : null}
+        onAuth={handleAuth}
       />
     </div>
   );
