@@ -595,6 +595,37 @@ async def seed_default_personas():
     
     return {"message": f"Seeded {len(created)} personas, skipped {len(skipped)}", "created": created, "skipped": skipped}
 
+# Health check endpoints for Kubernetes deployment
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes liveness/readiness probes"""
+    try:
+        # Check MongoDB connection
+        await db.command('ping')
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "service": "collabor8"
+        }
+    except Exception as e:
+        logging.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=503, detail="Service unavailable")
+
+@api_router.get("/health")
+async def api_health_check():
+    """API health check endpoint"""
+    try:
+        # Check MongoDB connection
+        await db.command('ping')
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "service": "collabor8-api"
+        }
+    except Exception as e:
+        logging.error(f"API health check failed: {e}")
+        raise HTTPException(status_code=503, detail="Service unavailable")
+
 app.include_router(api_router)
 
 app.add_middleware(
