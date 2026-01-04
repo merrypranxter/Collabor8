@@ -446,33 +446,72 @@ export default function Arena() {
               </AnimatePresence>
             </div>
 
-            <div className="mt-6 flex gap-3" data-testid="input-container">
-              <textarea
-                placeholder="Address the symposium..."
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                className="flex-1 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] focus:border-white rounded-lg p-4 text-base font-light resize-none h-24 focus:outline-none focus:ring-1 focus:ring-white text-[#F5F5F5] placeholder:text-[#A1A1A1] placeholder:font-light transition-all duration-200"
-                disabled={isLoading || isGenerating}
-                data-testid="message-input"
-              />
-              <button
-                onClick={sendMessage}
-                disabled={isLoading || isGenerating || !userInput.trim()}
-                className="px-6 h-24 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-                data-testid="send-button"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
+            <div className="mt-6" data-testid="input-container">
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {attachments.map((att, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded px-3 py-1.5">
+                      {att.type === 'image' && <ImageIcon className="w-3 h-3" />}
+                      {att.type === 'url' && <LinkIcon className="w-3 h-3" />}
+                      {att.type === 'file' && <FileText className="w-3 h-3" />}
+                      <span className="text-xs text-[#F5F5F5]">{att.name?.slice(0, 20)}</span>
+                      <button onClick={() => removeAttachment(idx)} className="text-[#DC2626] hover:text-[#EF4444]">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,application/pdf,.txt,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 h-24 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.05)] transition-all"
+                  title="Upload files or images"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleUrlAttachment}
+                  className="px-3 h-24 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.05)] transition-all"
+                  title="Add URL"
+                >
+                  <LinkIcon className="w-5 h-5" />
+                </button>
+                <textarea
+                  placeholder="Address the symposium..."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  className="flex-1 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] focus:border-white rounded-lg p-4 text-base font-light resize-none h-24 focus:outline-none focus:ring-1 focus:ring-white text-[#F5F5F5] placeholder:text-[#A1A1A1] placeholder:font-light transition-all duration-200"
+                  disabled={isLoading || isGenerating}
+                  data-testid="message-input"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={isLoading || isGenerating || !userInput.trim()}
+                  className="px-6 h-24 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                  data-testid="send-button"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
