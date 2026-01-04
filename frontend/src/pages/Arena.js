@@ -446,24 +446,24 @@ export default function Arena() {
         {!isExpanded && (
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
             <div className="card-subtle p-5 shrink-0">
-              <h3 className="font-display text-lg font-normal mb-4 text-[#EAE6DF] tracking-wide" data-testid="mode-title">Mode</h3>
+              <h3 className="font-display text-lg font-normal mb-4 text-[#F5F5F5] tracking-wide" data-testid="mode-title">Mode</h3>
               <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
             </div>
 
             <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4 shrink-0">
-                <h3 className="font-display text-lg font-normal text-[#EAE6DF] tracking-wide" data-testid="personas-title">Personas</h3>
+                <h3 className="font-display text-lg font-normal text-[#F5F5F5] tracking-wide" data-testid="personas-title">Personas</h3>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setExpandedPanel('personas')}
-                    className="text-[#B87333] hover:text-[#D28C4C] transition-colors"
+                    className="text-white hover:text-[#E5E5E5] transition-colors"
                     data-testid="expand-personas-button"
                   >
                     <Maximize2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setShowPersonaModal(true)}
-                    className="text-xs uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200"
+                    className="text-xs uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200"
                     data-testid="add-persona-button"
                   >
                     + Summon
@@ -480,6 +480,8 @@ export default function Arena() {
                       isActive={activePersonas.includes(persona.id)}
                       onClick={() => togglePersona(persona.id)}
                       isSpeaking={false}
+                      showDelete={true}
+                      onDelete={deletePersona}
                     />
                   ))}
                 </div>
