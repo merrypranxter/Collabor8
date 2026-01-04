@@ -1,7 +1,10 @@
 import requests
 import sys
 import json
+import base64
+import io
 from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
 
 class MultiPersonaChatTester:
     def __init__(self, base_url="https://multiverse-chat-1.preview.emergentagent.com"):
