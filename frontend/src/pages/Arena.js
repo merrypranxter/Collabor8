@@ -204,7 +204,6 @@ export default function Arena() {
                       <TranscriptBubble key={msg.id} message={msg} index={idx} />
                     ))}
                     {isGenerating && (
-                    {isGenerating && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
