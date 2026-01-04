@@ -54,75 +54,73 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
         
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="persona-name" className="text-sm font-medium">
+            <Label htmlFor="persona-name" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
               Name
             </Label>
             <Input
               id="persona-name"
-              placeholder="e.g., Socrates, Marie Curie, Gandalf..."
+              placeholder="Socrates, Marie Curie, Gandalf..."
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-white/5 border-white/10"
+              className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light focus:border-[#B87333]"
               data-testid="persona-name-input"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="persona-type" className="text-sm font-medium">
+            <Label htmlFor="persona-type" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
               Type
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="bg-white/5 border-white/10" data-testid="persona-type-select">
+              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light" data-testid="persona-type-select">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="historical">Historical Figure</SelectItem>
-                <SelectItem value="fictional">Fictional Character</SelectItem>
-                <SelectItem value="archetype">Archetype</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
+              <SelectContent className="bg-[#0D1020] border-[rgba(255,255,255,0.06)]">
+                <SelectItem value="historical" className="text-[#EAE6DF] font-light">Historical Figure</SelectItem>
+                <SelectItem value="fictional" className="text-[#EAE6DF] font-light">Fictional Character</SelectItem>
+                <SelectItem value="archetype" className="text-[#EAE6DF] font-light">Archetype</SelectItem>
+                <SelectItem value="custom" className="text-[#EAE6DF] font-light">Custom</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="persona-role" className="text-sm font-medium">
-              Role in Arena
+            <Label htmlFor="persona-role" className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">
+              Role
             </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="bg-white/5 border-white/10" data-testid="persona-role-select">
+              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light" data-testid="persona-role-select">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="leader">Leader</SelectItem>
-                <SelectItem value="skeptic">Skeptic</SelectItem>
-                <SelectItem value="builder">Builder</SelectItem>
-                <SelectItem value="comedian">Comedian</SelectItem>
-                <SelectItem value="moderator">Moderator</SelectItem>
-                <SelectItem value="wildcard">Wildcard</SelectItem>
-                <SelectItem value="participant">Participant</SelectItem>
+              <SelectContent className="bg-[#0D1020] border-[rgba(255,255,255,0.06)]">
+                <SelectItem value="leader" className="text-[#EAE6DF] font-light">Leader</SelectItem>
+                <SelectItem value="skeptic" className="text-[#EAE6DF] font-light">Skeptic</SelectItem>
+                <SelectItem value="builder" className="text-[#EAE6DF] font-light">Builder</SelectItem>
+                <SelectItem value="comedian" className="text-[#EAE6DF] font-light">Comedian</SelectItem>
+                <SelectItem value="moderator" className="text-[#EAE6DF] font-light">Moderator</SelectItem>
+                <SelectItem value="wildcard" className="text-[#EAE6DF] font-light">Wildcard</SelectItem>
+                <SelectItem value="participant" className="text-[#EAE6DF] font-light">Participant</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="flex gap-3 pt-4">
-            <Button
+            <button
               type="button"
-              variant="outline"
               onClick={onClose}
-              className="flex-1"
+              className="flex-1 py-2 text-sm uppercase tracking-wider text-[#9A9AA3] hover:text-[#EAE6DF] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.06)] rounded-lg hover:bg-[rgba(255,255,255,0.02)]"
               data-testid="persona-cancel-button"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              className="flex-1 gap-2"
               disabled={!name.trim()}
+              className="flex-1 py-2 text-sm uppercase tracking-wider text-[#B87333] hover:text-[#D28C4C] font-light transition-colors duration-200 border border-[rgba(184,115,51,0.2)] rounded-lg hover:bg-[rgba(184,115,51,0.05)] disabled:opacity-30 disabled:cursor-not-allowed"
               data-testid="persona-submit-button"
             >
-              <Sparkles className="w-4 h-4" />
               Summon
-            </Button>
+            </button>
           </div>
         </form>
       </DialogContent>
