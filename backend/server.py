@@ -449,9 +449,14 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     context_str = "\n".join([f"{msg['persona_name']}: {msg['content']}" for msg in all_messages[-10:]])
     
     attachment_context = ""
+    has_images = False
+    image_data_list = []
+    
     if request.attachments:
         for att in request.attachments:
             if att['type'] == 'image':
+                has_images = True
+                image_data_list.append(att.get('data', ''))
                 attachment_context += f"\n[User shared an image: {att.get('description', 'visual content')}]"
             elif att['type'] == 'url':
                 attachment_context += f"\n[User shared a link: {att['url']}]"
@@ -482,11 +487,23 @@ If the user shares links or files, engage with the content meaningfully."""
             api_key=api_key,
             session_id=f"{request.conversation_id}-{persona['id']}",
             system_message=system_message
-        ).with_model("openai", "gpt-5.2")
+        )
+        
+        # Use vision model if images are present
+        if has_images:
+            chat = chat.with_model("openai", "gpt-4o")
+        else:
+            chat = chat.with_model("openai", "gpt-5.2")
         
         prompt = f"Recent conversation:\n{context_str}\n\nRespond as {persona['display_name']}:"
         
-        response_text = await chat.send_message(UserMessage(text=prompt))
+        # Create message with images if present
+        if has_images and image_data_list:
+            user_message = UserMessage(text=prompt, images=image_data_list)
+        else:
+            user_message = UserMessage(text=prompt)
+        
+        response_text = await chat.send_message(user_message)
         
         msg = Message(
             conversation_id=request.conversation_id,
