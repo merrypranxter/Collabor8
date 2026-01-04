@@ -70,21 +70,21 @@ export default function AuthModal({ open, onClose, onAuth }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] bg-[#0D1020] border border-[rgba(255,255,255,0.06)]" data-testid="auth-modal">
+      <DialogContent className="sm:max-w-[480px] bg-[#141414] border border-[rgba(255,255,255,0.08)]" data-testid="auth-modal">
         <DialogHeader>
-          <DialogTitle className="font-display text-3xl font-normal text-[#EAE6DF] mb-2">
+          <DialogTitle className="font-display text-3xl font-normal text-[#F5F5F5] mb-2">
             Join the Symposium
           </DialogTitle>
-          <DialogDescription className="text-[#9A9AA3] font-light">
+          <DialogDescription className="text-[#A1A1A1] font-light">
             Sign in to save your conversations across time
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="guest" className="mt-4">
           <TabsList className="grid w-full grid-cols-3 bg-[rgba(255,255,255,0.02)]">
-            <TabsTrigger value="guest" className="text-[#9A9AA3] data-[state=active]:text-[#B87333] data-[state=active]:bg-[rgba(184,115,51,0.06)]">Guest</TabsTrigger>
-            <TabsTrigger value="login" className="text-[#9A9AA3] data-[state=active]:text-[#B87333] data-[state=active]:bg-[rgba(184,115,51,0.06)]">Sign In</TabsTrigger>
-            <TabsTrigger value="register" className="text-[#9A9AA3] data-[state=active]:text-[#B87333] data-[state=active]:bg-[rgba(184,115,51,0.06)]">Register</TabsTrigger>
+            <TabsTrigger value="guest" className="text-[#A1A1A1] data-[state=active]:text-white data-[state=active]:bg-[rgba(255,255,255,0.08)]">Guest</TabsTrigger>
+            <TabsTrigger value="login" className="text-[#A1A1A1] data-[state=active]:text-white data-[state=active]:bg-[rgba(255,255,255,0.08)]">Sign In</TabsTrigger>
+            <TabsTrigger value="register" className="text-[#A1A1A1] data-[state=active]:text-white data-[state=active]:bg-[rgba(255,255,255,0.08)]">Register</TabsTrigger>
           </TabsList>
           
           <TabsContent value="guest" className="space-y-4 mt-6">
