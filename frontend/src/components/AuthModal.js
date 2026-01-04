@@ -89,22 +89,22 @@ export default function AuthModal({ open, onClose, onAuth }) {
           
           <TabsContent value="guest" className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label className="text-sm font-light text-[#EAE6DF] uppercase tracking-wider">Display Name (Optional)</Label>
+              <Label className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">Display Name (Optional)</Label>
               <Input
                 placeholder="How shall we address you?"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)] text-[#EAE6DF] font-light focus:border-[#B87333]"
+                className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light focus:border-white"
               />
             </div>
             <Button
               onClick={handleGuest}
               disabled={isLoading}
-              className="w-full py-3 text-sm uppercase tracking-wider bg-[rgba(184,115,51,0.08)] border border-[rgba(184,115,51,0.2)] text-[#B87333] hover:bg-[rgba(184,115,51,0.12)] font-light"
+              className="w-full py-3 text-sm uppercase tracking-wider bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.12)] font-light"
             >
               {isLoading ? "Entering..." : "Continue as Guest"}
             </Button>
-            <p className="text-xs text-[#9A9AA3] text-center font-light">Guest conversations are not saved</p>
+            <p className="text-xs text-[#A1A1A1] text-center font-light">Guest conversations are not saved</p>
           </TabsContent>
           
           <TabsContent value="login" className="space-y-4 mt-6">
