@@ -25,12 +25,12 @@ export default function Arena() {
   const [personas, setPersonas] = useState([]);
   const [activePersonas, setActivePersonas] = useState([]);
   const [conversation, setConversation] = useState(null);
+  const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
   const [mode, setMode] = useState("Creativity Collaboration");
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
-  const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const scrollRef = useRef(null);
 
