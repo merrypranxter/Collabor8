@@ -586,11 +586,10 @@ export default function Arena() {
       // Create a new conversation if this is the first message
       if (!currentConversation) {
         console.log("Creating new conversation...");
-        const convResponse = await axios.post(`${API}/conversations`, {
+        const convResponse = await axios.post(`${API}/conversations?user_id=${user?.id}`, {
           mode,
           topic: null,
-          active_personas: activePersonas,
-          user_id: user?.id
+          active_personas: activePersonas
         });
         currentConversation = convResponse.data;
         setConversation(currentConversation);
