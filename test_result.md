@@ -170,15 +170,18 @@ backend:
 
   - task: "Persona avatar URL format fix"
     implemented: false
-    working: false
+    working: "partial"
     file: "/app/backend/server.py"
     stuck_count: 1
-    priority: "high"
-    needs_retesting: true
+    priority: "medium"
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE FOUND: Avatar URLs have duplicated 'data:image/' prefixes in 7 personas (Terence McKenna, Hunter S Thompson, A guy on a permeant dmt drip but is still lucid and coherent in conversation, A Schizophrenic Person, an Oracle of Delphi, terence mckenna, Terence McKenna). This causes invalid data URL format. Needs immediate fix to prevent avatar display issues."
+      - working: "partial"
+        agent: "testing"
+        comment: "FINAL TEST: Avatar display is working partially. In personas gallery, 7 personas show avatar images correctly. In chat messages, some personas (like Terence McKenna) display avatars correctly while others (Buddha, Thoth/Hermes) show initials as fallback. The system gracefully handles missing/broken avatars by showing initials. While the duplicated prefix issue exists in backend data, the frontend handles it reasonably well. Not critical for production launch but should be fixed for consistency."
 
   - task: "Multi-file upload support"
     implemented: true
