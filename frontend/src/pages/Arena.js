@@ -40,8 +40,17 @@ export default function Arena() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedPanel, setExpandedPanel] = useState(null);
   const [attachments, setAttachments] = useState([]);
+  
+  // Audio states
+  const [playingMessageId, setPlayingMessageId] = useState(null);
+  const [autoPlayQueue, setAutoPlayQueue] = useState([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const synthesisRef = useRef(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('collabor8_user');
