@@ -11,9 +11,16 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
       .slice(0, 2);
   };
 
-  // Assign unique colors to personas
-  const getPersonaColor = (personaName, isUser) => {
-    if (isUser) {
+  // Convert hex to rgba
+  const hexToRgba = (hex, alpha) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return `rgba(168, 85, 247, ${alpha})`;
+    return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${alpha})`;
+  };
+
+  // Get color from persona or use defaults
+  const getPersonaColor = (message) => {
+    if (message.is_user) {
       return {
         bg: 'rgba(59, 130, 246, 0.15)',
         border: 'rgba(59, 130, 246, 0.4)',
@@ -22,12 +29,15 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
       };
     }
 
-    const colorMap = {
-      "Terence McKenna": {
-        bg: 'rgba(168, 85, 247, 0.12)',
-        border: 'rgba(168, 85, 247, 0.3)',
-        text: '#C084FC',
-        avatar: 'rgba(168, 85, 247, 0.2)'
+    // Use custom color from persona if available
+    const personaColor = message.persona_color || message.color || "#A855F7";
+    
+    return {
+      bg: hexToRgba(personaColor, 0.12),
+      border: hexToRgba(personaColor, 0.3),
+      text: personaColor,
+      avatar: hexToRgba(personaColor, 0.2)
+    };
       },
       "Jesus": {
         bg: 'rgba(251, 191, 36, 0.12)',
