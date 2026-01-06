@@ -900,6 +900,41 @@ The group is discussing autonomously. Share your thoughts, react to others, buil
         "duration": duration_seconds
     }
 
+@api_router.post("/chat/generate-title")
+async def generate_conversation_title(request: dict):
+    """
+    Generate an AI-powered title for a conversation
+    """
+    first_message = request.get('first_message', '')
+    
+    if not first_message:
+        raise HTTPException(status_code=400, detail="First message is required")
+    
+    try:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=str(uuid.uuid4()),
+            system_message="You are a helpful assistant that creates concise, descriptive titles for conversations. Generate a title that is 3-6 words maximum and captures the essence of the topic."
+        ).with_model("openai", "gpt-5.2")
+        
+        prompt = f"Create a short, catchy title (3-6 words max) for a conversation that starts with: '{first_message[:200]}'"
+        response = await chat.send_message(UserMessage(text=prompt))
+        
+        # Clean up the title (remove quotes if present)
+        title = response.strip().strip('"').strip("'")
+        
+        # Ensure it's not too long
+        if len(title) > 50:
+            title = title[:47] + "..."
+        
+        return {"title": title}
+        
+    except Exception as e:
+        logging.error(f"Title generation failed: {e}")
+        # Fallback to first 50 chars of message
+        return {"title": first_message[:47] + "..." if len(first_message) > 50 else first_message}
+
 @api_router.post("/tts/generate")
 async def generate_speech(request: dict):
     """
