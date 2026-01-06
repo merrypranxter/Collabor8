@@ -1389,7 +1389,7 @@ export default function Arena() {
       />
       
       <AuthModal
-        open={showAuthModal && !user}
+        open={showAuthModal}
         onClose={() => {}}
         onAuth={handleAuth}
       />
