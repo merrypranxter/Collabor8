@@ -315,12 +315,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Drag-Drop Persona Reordering (Both Views)"
-    - "Auto-Save with AI-Generated Titles"
+    - "Profile and Settings Modal Features"
     - "Login Functionality (Registration and Authentication)"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Profile and Settings Modal Features"
+    - "Login Functionality (Registration and Authentication)"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
