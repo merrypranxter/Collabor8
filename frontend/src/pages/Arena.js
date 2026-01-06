@@ -62,6 +62,180 @@ export default function Arena() {
     }
   }, []);
 
+  // Smart autoscroll - only scroll if user is near bottom
+  useEffect(() => {
+    if (scrollRef.current && shouldAutoScroll) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      
+      if (isNearBottom) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    }
+  }, [messages, shouldAutoScroll]);
+
+  // Detect manual scroll
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+      setShouldAutoScroll(isAtBottom);
+    }
+  };
+
+  // Voice configuration for each persona
+  const getVoiceConfig = (personaName) => {
+    const voiceMap = {
+      "Terence McKenna": { pitch: 0.9, rate: 0.95, voiceIndex: 0 },
+      "Jesus": { pitch: 1.0, rate: 0.9, voiceIndex: 1 },
+      "Buddha": { pitch: 0.95, rate: 0.85, voiceIndex: 2 },
+      "Carl Jung": { pitch: 1.05, rate: 0.9, voiceIndex: 3 },
+      "Albert Einstein": { pitch: 1.1, rate: 0.95, voiceIndex: 4 },
+      "Helena Blavatsky": { pitch: 1.15, rate: 0.9, voiceIndex: 5 },
+      "J Robert Oppenheimer": { pitch: 1.0, rate: 1.0, voiceIndex: 6 },
+      "Marie Curie": { pitch: 1.2, rate: 0.95, voiceIndex: 7 },
+    };
+    return voiceMap[personaName] || { pitch: 1.0, rate: 1.0, voiceIndex: 0 };
+  };
+
+  // Text-to-Speech function
+  const speakMessage = (messageId, text, personaName) => {
+    // Stop any currently playing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voiceConfig = getVoiceConfig(personaName);
+    
+    utterance.pitch = voiceConfig.pitch;
+    utterance.rate = voiceConfig.rate;
+    utterance.volume = 1.0;
+    
+    // Try to use different voices if available
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      const voiceIndex = voiceConfig.voiceIndex % voices.length;
+      utterance.voice = voices[voiceIndex];
+    }
+    
+    setPlayingMessageId(messageId);
+    
+    utterance.onend = () => {
+      setPlayingMessageId(null);
+      // Auto-play next message if in queue
+      playNextInQueue(messageId);
+    };
+    
+    utterance.onerror = () => {
+      setPlayingMessageId(null);
+      toast.error("Failed to play audio");
+    };
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Play next message in auto-play queue
+  const playNextInQueue = (currentMessageId) => {
+    if (autoPlayQueue.length > 0) {
+      const currentIndex = autoPlayQueue.findIndex(id => id === currentMessageId);
+      if (currentIndex !== -1 && currentIndex < autoPlayQueue.length - 1) {
+        const nextMessageId = autoPlayQueue[currentIndex + 1];
+        const nextMessage = messages.find(m => m.id === nextMessageId);
+        if (nextMessage) {
+          setTimeout(() => {
+            speakMessage(nextMessage.id, nextMessage.content, nextMessage.persona_name);
+          }, 500); // Small pause between messages
+        }
+      } else {
+        // Reached end of queue
+        setAutoPlayQueue([]);
+      }
+    }
+  };
+
+  // Start auto-play from a specific message
+  const startAutoPlay = (startMessageId) => {
+    const startIndex = messages.findIndex(m => m.id === startMessageId);
+    if (startIndex === -1) return;
+    
+    // Get all non-user messages from this point forward
+    const queueIds = messages
+      .slice(startIndex)
+      .filter(m => !m.is_user)
+      .map(m => m.id);
+    
+    setAutoPlayQueue(queueIds);
+    
+    const startMessage = messages.find(m => m.id === startMessageId);
+    if (startMessage) {
+      speakMessage(startMessage.id, startMessage.content, startMessage.persona_name);
+    }
+  };
+
+  // Stop all audio playback
+  const stopAudio = () => {
+    window.speechSynthesis.cancel();
+    setPlayingMessageId(null);
+    setAutoPlayQueue([]);
+  };
+
+  // Speech-to-text (Speech Recognition)
+  const startRecording = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error("Speech recognition not supported in this browser");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast.success("Listening...");
+    };
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        setUserInput(prev => prev + finalTranscript);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsRecording(false);
+      toast.error("Speech recognition error");
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
