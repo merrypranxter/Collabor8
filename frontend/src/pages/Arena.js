@@ -618,6 +618,16 @@ export default function Arena() {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
+              {(playingMessageId || autoPlayQueue.length > 0) && (
+                <button
+                  onClick={stopAudio}
+                  className="text-sm uppercase tracking-wider text-[#EF4444] hover:text-[#DC2626] font-light transition-colors duration-200 border border-[rgba(239,68,68,0.3)] px-3 py-2 rounded-lg hover:bg-[rgba(239,68,68,0.1)] flex items-center gap-2 animate-pulse"
+                  title="Stop all audio"
+                >
+                  <Square className="w-4 h-4" />
+                  <span className="hidden sm:inline">Stop Audio</span>
+                </button>
+              )}
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] p-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
