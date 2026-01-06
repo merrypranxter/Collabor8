@@ -277,6 +277,10 @@ async def update_persona(persona_id: str, persona_update: PersonaCreate):
     if not existing:
         raise HTTPException(status_code=404, detail="Persona not found")
     
+    # Update avatar if provided
+    avatar_base64 = persona_update.avatar_base64 or existing.get('avatar_base64')
+    avatar_url = f"data:image/png;base64,{avatar_base64}" if avatar_base64 else existing.get('avatar_url')
+    
     updated_persona = Persona(
         id=persona_id,
         display_name=persona_update.display_name,
@@ -284,7 +288,9 @@ async def update_persona(persona_id: str, persona_update: PersonaCreate):
         bio=persona_update.bio or existing['bio'],
         quirks=persona_update.quirks or existing['quirks'],
         voice=persona_update.voice or Voice(**existing['voice']),
-        role_in_arena=persona_update.role_in_arena,
+        color=persona_update.color or existing.get('color', '#A855F7'),
+        avatar_base64=avatar_base64,
+        avatar_url=avatar_url,
         created_at=datetime.fromisoformat(existing['created_at']) if isinstance(existing['created_at'], str) else existing['created_at']
     )
     
