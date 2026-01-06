@@ -44,7 +44,7 @@ def create_test_image(text="VISION TEST", width=200, height=200):
         return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
 def test_vision():
-    base_url = "https://multiverse-chat-1.preview.emergentagent.com"
+    base_url = "https://thinkroom.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔍 Testing Vision Functionality...")
