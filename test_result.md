@@ -273,6 +273,12 @@ frontend:
       - working: true
         agent: "testing"
         comment: "AUTO-SAVE TESTING COMPLETE ✅: AI-generated title mechanism fully implemented and working. ✅ saveConversation function automatically generates titles using /api/chat/generate-title endpoint when conversation title is 'New Conversation'. ✅ Auto-save timer (autoSaveTimerRef) runs every 5 minutes for logged-in users. ✅ Conversations are properly saved and updated without creating duplicates. ✅ AI analyzes first user message to generate meaningful conversation titles. ✅ System correctly updates existing conversations rather than creating new ones. Note: Guest conversations are not saved to history as expected behavior, but the auto-save mechanism is fully functional for authenticated users."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG FOUND ❌: Auto-save NOT working for guest users. Conversations are created but not appearing in history. Root cause identified: Frontend sends user_id in request body but backend expects it as query parameter. This causes all conversations to be created with user_id=null, so they don't appear when loading conversations for specific user."
+      - working: true
+        agent: "testing"
+        comment: "BUG FIXED ✅: Updated conversation creation calls to send user_id as query parameter instead of request body. Fixed in sendMessage() and deleteConversation() functions. COMPREHENSIVE TESTING COMPLETE: ✅ First message creates conversation with AI-generated title immediately. ✅ Subsequent messages update same conversation (no duplicates). ✅ New conversation button creates separate conversation entry. ✅ AI-generated titles are relevant and concise ('Thoughts on Time Travel', 'Exploring the Nature of Consciousness'). ✅ Auto-save works for both guest and registered users. ✅ History shows conversations properly organized. ChatGPT-style auto-save system is now fully functional."
 
   - task: "Login Functionality (Registration and Authentication)"
     implemented: true
