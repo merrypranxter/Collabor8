@@ -280,17 +280,32 @@ frontend:
         agent: "testing"
         comment: "BUG FIXED ✅: Updated conversation creation calls to send user_id as query parameter instead of request body. Fixed in sendMessage() and deleteConversation() functions. COMPREHENSIVE TESTING COMPLETE: ✅ First message creates conversation with AI-generated title immediately. ✅ Subsequent messages update same conversation (no duplicates). ✅ New conversation button creates separate conversation entry. ✅ AI-generated titles are relevant and concise ('Thoughts on Time Travel', 'Exploring the Nature of Consciousness'). ✅ Auto-save works for both guest and registered users. ✅ History shows conversations properly organized. ChatGPT-style auto-save system is now fully functional."
 
+  - task: "Profile and Settings Modal Features"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/ProfileModal.js, /app/frontend/src/components/SettingsModal.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL BLOCKING ISSUE: Authentication modal overlay is intercepting all pointer events, preventing access to Profile and Settings features. Modal appears stuck open with DialogOverlay blocking all UI interactions. Successfully filled registration form (testuser789, Test User 789, test789) but modal remains stuck. The ProfileModal and SettingsModal components exist and are properly imported in Arena.js, but are completely inaccessible due to this blocking UI issue. URGENT: Modal overlay z-index or event handling issue must be resolved before these features can be tested."
+
   - task: "Login Functionality (Registration and Authentication)"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/AuthModal.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: true
         agent: "testing"
         comment: "LOGIN FUNCTIONALITY TESTING COMPLETE ✅: All authentication features working perfectly. ✅ Registration successful - created testuser123 account with display name 'Test User' and password. ✅ AuthModal component with three tabs (Guest/Sign In/Register) all functional. ✅ Registration form validates and creates new users via /api/auth/register endpoint. ✅ Login form authenticates users via /api/auth/login endpoint. ✅ Guest mode allows immediate access without registration. ✅ User session management working with localStorage persistence. ✅ User dropdown menu shows proper options based on authentication status. ✅ Logout functionality available for authenticated users. The complete authentication flow is production-ready."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL REGRESSION: Authentication modal is now stuck open and blocking all UI interactions. Modal overlay (DialogOverlay) intercepts all pointer events, preventing users from accessing the main application. This is a critical blocking issue that makes the application unusable. The modal appears to have z-index or event handling problems that prevent it from closing properly after authentication attempts."
 
 metadata:
   created_by: "main_agent"
