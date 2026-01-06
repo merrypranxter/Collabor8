@@ -936,67 +936,68 @@ async def generate_conversation_title(request: dict):
         # Fallback to first 50 chars of message
         return {"title": first_message[:47] + "..." if len(first_message) > 50 else first_message}
 
-@api_router.put("/users/profile")
-async def update_user_profile(request: dict, current_user: dict = Depends(get_current_user)):
-    """
-    Update user profile (display name, avatar)
-    """
-    user_id = current_user['id']
-    update_data = {}
-    
-    if 'display_name' in request:
-        update_data['display_name'] = request['display_name']
-    
-    if 'avatar_base64' in request:
-        update_data['avatar_base64'] = request['avatar_base64']
-    
-    if update_data:
-        await db.users.update_one(
-            {"id": user_id},
-            {"$set": update_data}
-        )
-    
-    # Get updated user
-    updated_user = await db.users.find_one({"id": user_id}, {"_id": 0, "hashed_password": 0})
-    return updated_user
+# TODO: Implement proper authentication middleware
+# @api_router.put("/users/profile")
+# async def update_user_profile(request: dict, current_user: dict = Depends(get_current_user)):
+#     """
+#     Update user profile (display name, avatar)
+#     """
+#     user_id = current_user['id']
+#     update_data = {}
+#     
+#     if 'display_name' in request:
+#         update_data['display_name'] = request['display_name']
+#     
+#     if 'avatar_base64' in request:
+#         update_data['avatar_base64'] = request['avatar_base64']
+#     
+#     if update_data:
+#         await db.users.update_one(
+#             {"id": user_id},
+#             {"$set": update_data}
+#         )
+#     
+#     # Get updated user
+#     updated_user = await db.users.find_one({"id": user_id}, {"_id": 0, "hashed_password": 0})
+#     return updated_user
 
-@api_router.put("/users/password")
-async def change_password(request: dict, current_user: dict = Depends(get_current_user)):
-    """
-    Change user password
-    """
-    current_password = request.get('current_password')
-    new_password = request.get('new_password')
-    
-    if not current_password or not new_password:
-        raise HTTPException(status_code=400, detail="Both current and new password required")
-    
-    user_id = current_user['id']
-    user = await db.users.find_one({"id": user_id})
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Verify current password
-    if not pwd_context.verify(current_password, user['hashed_password']):
-        raise HTTPException(status_code=400, detail="Current password is incorrect")
-    
-    # Update to new password
-    new_hashed = pwd_context.hash(new_password)
-    await db.users.update_one(
-        {"id": user_id},
-        {"$set": {"hashed_password": new_hashed}}
-    )
-    
-    return {"message": "Password updated successfully"}
+# @api_router.put("/users/password")
+# async def change_password(request: dict, current_user: dict = Depends(get_current_user)):
+#     """
+#     Change user password
+#     """
+#     current_password = request.get('current_password')
+#     new_password = request.get('new_password')
+#     
+#     if not current_password or not new_password:
+#         raise HTTPException(status_code=400, detail="Both current and new password required")
+#     
+#     user_id = current_user['id']
+#     user = await db.users.find_one({"id": user_id})
+#     
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     
+#     # Verify current password
+#     if not pwd_context.verify(current_password, user['hashed_password']):
+#         raise HTTPException(status_code=400, detail="Current password is incorrect")
+#     
+#     # Update to new password
+#     new_hashed = pwd_context.hash(new_password)
+#     await db.users.update_one(
+#         {"id": user_id},
+#         {"$set": {"hashed_password": new_hashed}}
+#     )
+#     
+#     return {"message": "Password updated successfully"}
 
-@api_router.get("/users/me")
-async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
-    """
-    Get current user's profile
-    """
-    user = await db.users.find_one({"id": current_user['id']}, {"_id": 0, "hashed_password": 0})
-    return user
+# @api_router.get("/users/me")
+# async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
+#     """
+#     Get current user's profile
+#     """
+#     user = await db.users.find_one({"id": current_user['id']}, {"_id": 0, "hashed_password": 0})
+#     return user
 async def generate_speech(request: dict):
     """
     Generate high-quality speech from text using OpenAI TTS
