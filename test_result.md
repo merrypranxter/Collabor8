@@ -323,11 +323,9 @@ test_plan:
   current_focus:
     - "Profile and Settings Modal Features"
     - "Login Functionality (Registration and Authentication)"
-  stuck_tasks:
-    - "Profile and Settings Modal Features"
-    - "Login Functionality (Registration and Authentication)"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
