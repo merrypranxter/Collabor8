@@ -1132,45 +1132,108 @@ export default function Arena() {
 
         {!isExpanded && (
           <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full z-20 overflow-hidden" data-testid="controls-panel">
-            <div className="card-subtle p-5 shrink-0">
-              <h3 className="font-display text-lg font-normal mb-4 text-[#F5F5F5] tracking-wide" data-testid="mode-title">Mode</h3>
-              <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
-            </div>
-
-            <div className="card-subtle p-5 flex-[4] overflow-hidden flex flex-col min-h-0">
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <h3 className="font-display text-lg font-normal text-[#F5F5F5] tracking-wide" data-testid="personas-title">Personas</h3>
-                <div className="flex items-center gap-2">
+            <div className={`card-subtle shrink-0 transition-all ${expandedModePanel ? 'flex-1' : ''}`}>
+              <div className="p-5 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-4 shrink-0">
+                  <h3 className="font-display text-lg font-normal text-[#F5F5F5] tracking-wide" data-testid="mode-title">Mode</h3>
                   <button
-                    onClick={() => setExpandedPanel('personas')}
+                    onClick={() => setExpandedModePanel(!expandedModePanel)}
                     className="text-white hover:text-[#E5E5E5] transition-colors"
-                    data-testid="expand-personas-button"
+                    title={expandedModePanel ? "Collapse" : "Expand"}
                   >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setShowPersonaModal(true)}
-                    className="text-xs uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200"
-                    data-testid="add-persona-button"
-                  >
-                    + Summon
+                    {expandedModePanel ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
                 </div>
+                <ModeSelector modes={modes} currentMode={mode} onModeChange={changeMode} />
+                {expandedModePanel && (
+                  <div className="mt-4 text-sm text-[#A1A1A1] font-light">
+                    <p className="mb-2">Current mode: <span className="text-[#F5F5F5]">{mode}</span></p>
+                    <p className="text-xs leading-relaxed">
+                      {mode === "Creativity Collaboration" && "Build on ideas, collaborate constructively, and synthesize concepts together."}
+                      {mode === "Shoot-the-Shit" && "Casual conversation, tangents welcome. Natural back-and-forth discussion."}
+                      {mode === "Unhinged" && "Surreal, satirical exploration of ideas. Maximum creativity and chaos."}
+                      {mode === "Socratic Debate" && "Question-driven probing, challenge assumptions, and engage critically."}
+                    </p>
+                  </div>
+                )}
               </div>
-              
-              <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
-                <div className="space-y-2 pr-2">
-                  {personas.map(persona => (
-                    <PersonaCard
-                      key={persona.id}
-                      persona={persona}
-                      isActive={activePersonas.includes(persona.id)}
-                      onClick={() => togglePersona(persona.id)}
-                      isSpeaking={false}
-                      showDelete={true}
-                      onDelete={deletePersona}
+            </div>
+
+            <div className={`card-subtle flex flex-col min-h-0 ${expandedModePanel ? '' : 'flex-[4]'}`}>
+              <div className="p-5 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-4 shrink-0">
+                  <h3 className="font-display text-lg font-normal text-[#F5F5F5] tracking-wide" data-testid="personas-title">Personas</h3>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setExpandedPanel('personas')}
+                      className="text-white hover:text-[#E5E5E5] transition-colors"
+                      data-testid="expand-personas-button"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setShowPersonaModal(true)}
+                      className="text-xs uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200"
+                      data-testid="add-persona-button"
+                    >
+                      + Summon
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Tag filter */}
+                {personas.some(p => p.tags && p.tags.length > 0) && (
+                  <div className="mb-3 shrink-0">
+                    <input
+                      type="text"
+                      placeholder="Filter by tag..."
+                      value={tagFilter}
+                      onChange={(e) => setTagFilter(e.target.value)}
+                      className="w-full text-xs bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded px-2 py-1.5 text-[#F5F5F5] placeholder:text-[#666] focus:outline-none focus:border-white"
                     />
-                  ))}
+                  </div>
+                )}
+                
+                <div className="flex-1 overflow-y-auto min-h-0 scroll-area" data-testid="personas-list">
+                  <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="personas">
+                      {(provided) => (
+                        <div 
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-2 pr-2"
+                        >
+                          {filteredPersonas.map((persona, index) => (
+                            <Draggable key={persona.id} draggableId={persona.id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  className={`relative ${snapshot.isDragging ? 'opacity-50' : ''}`}
+                                >
+                                  <div 
+                                    {...provided.dragHandleProps}
+                                    className="absolute left-1 top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+                                  >
+                                    <GripVertical className="w-4 h-4 text-[#666]" />
+                                  </div>
+                                  <PersonaCard
+                                    persona={persona}
+                                    isActive={activePersonas.includes(persona.id)}
+                                    onClick={() => togglePersona(persona.id)}
+                                    isSpeaking={false}
+                                    showDelete={true}
+                                    onDelete={deletePersona}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
                 </div>
               </div>
             </div>
