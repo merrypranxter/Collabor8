@@ -549,6 +549,7 @@ def main():
         ("Guest Authentication", tester.test_guest_auth),
         ("Seed Personas", tester.test_seed_personas),
         ("Get Personas", tester.test_get_personas),
+        ("🔍 Persona Avatar URL Validation", tester.test_persona_avatar_urls),
         ("Get Single Persona", tester.test_get_single_persona),
         ("Create Custom Persona", tester.test_create_custom_persona),
         ("Create Conversation", tester.test_create_conversation),
@@ -556,9 +557,14 @@ def main():
         ("Send User Message", tester.test_send_user_message),
         ("Get Messages", tester.test_get_messages),
         
-        # PRIORITY TESTS - Vision and Attachments
+        # PRIORITY TESTS - URL Extraction Feature (NEW)
+        ("🌐 Extract URL Endpoint", tester.test_extract_url_endpoint),
+        ("⚠️  URL Error Handling", tester.test_extract_url_error_handling),
+        ("🔗 URL Attachment with Real Content", tester.test_url_attachment_with_extraction),
+        
+        # EXISTING PRIORITY TESTS - Vision and Attachments
         ("🔥 Image Upload with Vision (GPT-4o)", tester.test_image_upload_with_vision),
-        ("🔗 URL Attachment", tester.test_url_attachment),
+        ("🔗 URL Attachment (Basic)", tester.test_url_attachment),
         ("📎 Multi-File Upload", tester.test_multi_file_upload),
         ("💬 Basic Chat Flow", tester.test_basic_chat_flow),
     ]
