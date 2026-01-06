@@ -508,7 +508,10 @@ async def generate_multi_responses(request: ChatGenerateRequest):
             elif att['type'] == 'file':
                 attachment_context += f"\n[User shared a file: {att['name']}]"
     
-    context_str += f"\nUser: {request.user_message}{attachment_context}"
+    # Add attachment context to the end if there are attachments
+    # Don't duplicate the user message - it's already in all_messages
+    if attachment_context:
+        context_str += attachment_context
     
     responses = []
     
