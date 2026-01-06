@@ -25,6 +25,7 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
   const [color, setColor] = useState("#A855F7"); // Default purple
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [tags, setTags] = useState("");
 
   // Update form when editing persona changes
   useEffect(() => {
@@ -33,12 +34,14 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
       setType(editingPersona.type || "historical");
       setColor(editingPersona.color || "#A855F7");
       setAvatarPreview(editingPersona.avatar_url || editingPersona.avatar_base64 || null);
+      setTags((editingPersona.tags || []).join(", "));
     } else {
       setName("");
       setType("historical");
       setColor("#A855F7");
       setAvatarFile(null);
       setAvatarPreview(null);
+      setTags("");
     }
   }, [editingPersona]);
 
