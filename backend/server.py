@@ -252,7 +252,9 @@ async def create_persona(persona: PersonaCreate):
         voice=persona.voice,
         color=persona.color or "#A855F7",
         avatar_base64=avatar_base64,
-        avatar_url=f"data:image/png;base64,{avatar_base64}" if avatar_base64 else None
+        avatar_url=f"data:image/png;base64,{avatar_base64}" if avatar_base64 else None,
+        tags=persona.tags or [],
+        sort_order=persona.sort_order or 0
     )
     
     doc = persona_obj.model_dump()
