@@ -834,6 +834,7 @@ The group is discussing autonomously. Share your thoughts, react to others, buil
                         persona_id=persona['id'],
                         persona_name=persona['display_name'],
                         persona_color=persona.get('color', '#A855F7'),
+                        persona_avatar=persona.get('avatar_url') or persona.get('avatar_base64'),
                         content=response_text,
                         is_user=False
                     )
