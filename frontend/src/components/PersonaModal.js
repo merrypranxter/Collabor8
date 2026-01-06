@@ -197,6 +197,21 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
             </div>
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="persona-tags" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
+              Tags (Optional)
+            </Label>
+            <Input
+              id="persona-tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="psychedelic, philosophy, science (comma-separated)"
+              className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light placeholder:text-[#666] focus:border-white"
+              data-testid="persona-tags-input"
+            />
+            <p className="text-xs text-[#666] font-light">Add tags to organize and filter personas (e.g., #psychedelic, #art)</p>
+          </div>
+          
           <div className="flex gap-3 pt-4">
             <button
               type="button"
