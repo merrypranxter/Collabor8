@@ -80,6 +80,15 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
             {new Date(message.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
           </div>
           
+          <button
+            onClick={() => onCopy(message.content)}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] text-[#A1A1A1] hover:bg-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.15)] transition-all"
+            title="Copy message"
+          >
+            <Copy className="w-3 h-3" />
+            Copy
+          </button>
+          
           {!message.is_user && (
             <div className="flex gap-2">
               <button
