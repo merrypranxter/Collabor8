@@ -686,6 +686,16 @@ export default function Arena() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    setEditingPersona(persona);
+                    setShowPersonaModal(true);
+                  }}
+                  className="absolute top-3 right-14 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(59,130,246,0.2)] border border-[rgba(59,130,246,0.3)]"
+                >
+                  <Edit className="w-3.5 h-3.5 text-[#3B82F6]" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
                     if (window.confirm(`Remove ${persona.display_name} from the arena?`)) {
                       deletePersona(persona.id);
                     }
