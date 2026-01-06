@@ -84,20 +84,6 @@ export default function Arena() {
   };
 
   // Voice configuration for each persona
-  const getVoiceConfig = (personaName) => {
-    const voiceMap = {
-      "Terence McKenna": { pitch: 0.9, rate: 0.95, voiceIndex: 0 },
-      "Jesus": { pitch: 1.0, rate: 0.9, voiceIndex: 1 },
-      "Buddha": { pitch: 0.95, rate: 0.85, voiceIndex: 2 },
-      "Carl Jung": { pitch: 1.05, rate: 0.9, voiceIndex: 3 },
-      "Albert Einstein": { pitch: 1.1, rate: 0.95, voiceIndex: 4 },
-      "Helena Blavatsky": { pitch: 1.15, rate: 0.9, voiceIndex: 5 },
-      "J Robert Oppenheimer": { pitch: 1.0, rate: 1.0, voiceIndex: 6 },
-      "Marie Curie": { pitch: 1.2, rate: 0.95, voiceIndex: 7 },
-    };
-    return voiceMap[personaName] || { pitch: 1.0, rate: 1.0, voiceIndex: 0 };
-  };
-
   // Text-to-Speech function using high-quality OpenAI TTS
   const speakMessage = async (messageId, text, personaName) => {
     try {
