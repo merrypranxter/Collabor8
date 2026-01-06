@@ -645,7 +645,7 @@ export default function Arena() {
           </motion.div>
 
           <div className="card-subtle p-6 flex-1 flex flex-col overflow-hidden min-h-0" data-testid="chat-container">
-            <div className="flex-1 overflow-y-auto pr-4 scroll-area min-h-0" ref={scrollRef} data-testid="messages-scroll-area">
+            <div className="flex-1 overflow-y-auto pr-4 scroll-area min-h-0" ref={scrollRef} onScroll={handleScroll} data-testid="messages-scroll-area">
               <AnimatePresence>
                 {messages.length === 0 ? (
                   <motion.div
