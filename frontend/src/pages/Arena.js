@@ -35,6 +35,8 @@ export default function Arena() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [discussionActive, setDiscussionActive] = useState(false);
+  const [stopDiscussion, setStopDiscussion] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedPanel, setExpandedPanel] = useState(null);
   const [attachments, setAttachments] = useState([]);
