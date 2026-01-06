@@ -39,7 +39,7 @@ class PersonaBase(BaseModel):
     bio: str
     quirks: List[str]
     voice: Voice
-    role_in_arena: str
+    color: Optional[str] = "#A855F7"  # Default purple
 
 class PersonaCreate(BaseModel):
     display_name: str
@@ -47,13 +47,15 @@ class PersonaCreate(BaseModel):
     bio: Optional[str] = None
     quirks: Optional[List[str]] = None
     voice: Optional[Voice] = None
-    role_in_arena: str = "participant"
     generate_avatar: bool = False
+    color: Optional[str] = "#A855F7"
+    avatar_base64: Optional[str] = None
 
 class Persona(PersonaBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     avatar_url: Optional[str] = None
+    avatar_base64: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class User(BaseModel):
