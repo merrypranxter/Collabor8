@@ -40,6 +40,11 @@ export default function Arena() {
   const [stopDiscussion, setStopDiscussion] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedPanel, setExpandedPanel] = useState(null);
+  const [expandedModePanel, setExpandedModePanel] = useState(false);
+  const [expandedHistoryPanel, setExpandedHistoryPanel] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [tagFilter, setTagFilter] = useState('');
+  const userMenuRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
   
   // Audio states
