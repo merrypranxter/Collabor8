@@ -290,6 +290,12 @@ async def get_persona(persona_id: str):
     if isinstance(persona['created_at'], str):
         persona['created_at'] = datetime.fromisoformat(persona['created_at'])
     
+    # Add default values for new fields if they don't exist
+    if 'tags' not in persona:
+        persona['tags'] = []
+    if 'sort_order' not in persona:
+        persona['sort_order'] = 0
+    
     return persona
 
 @api_router.put("/personas/{persona_id}", response_model=Persona)
