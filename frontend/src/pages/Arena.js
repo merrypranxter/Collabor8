@@ -46,11 +46,11 @@ export default function Arena() {
   const [autoPlayQueue, setAutoPlayQueue] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [currentAudio, setCurrentAudio] = useState(null);
   
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
-  const synthesisRef = useRef(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('collabor8_user');
