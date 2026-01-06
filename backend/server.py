@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+from emergentintegrations.llm.openai import OpenAITextToSpeech
 import random
 import base64
 import hashlib
