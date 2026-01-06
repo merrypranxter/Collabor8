@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Volume2, Play } from "lucide-react";
+import { Volume2, Play, Copy } from "lucide-react";
 
-export default function TranscriptBubble({ message, index, onPlay, isPlaying, onAutoPlay }) {
+export default function TranscriptBubble({ message, index, onPlay, isPlaying, onAutoPlay, onCopy }) {
   const getInitials = (name) => {
     return name
       .split(" ")
