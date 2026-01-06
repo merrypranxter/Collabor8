@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, Upload, Image as ImageIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -22,7 +22,21 @@ import {
 export default function PersonaModal({ open, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [type, setType] = useState("historical");
-  const [role, setRole] = useState("participant");
+  const [color, setColor] = useState("#A855F7"); // Default purple
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,12 +45,15 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
     onSubmit({
       display_name: name,
       type,
-      role_in_arena: role
+      color: color,
+      avatar_base64: avatarPreview
     });
     
     setName("");
     setType("historical");
-    setRole("participant");
+    setColor("#A855F7");
+    setAvatarFile(null);
+    setAvatarPreview(null);
     onClose();
   };
 
