@@ -185,6 +185,9 @@ export default function Arena() {
   const sendMessage = async () => {
     if (!userInput.trim() || !conversation) return;
     
+    // Stop any ongoing discussion when user sends new message
+    setStopDiscussion(true);
+    
     setIsLoading(true);
     try {
       const userMessage = await axios.post(`${API}/conversations/${conversation.id}/messages`, {
@@ -200,6 +203,7 @@ export default function Arena() {
       
       setIsGenerating(true);
       
+      // Get initial responses from all personas
       const response = await axios.post(`${API}/chat/generate-multi`, {
         conversation_id: conversation.id,
         user_message: messageContent,
@@ -207,6 +211,14 @@ export default function Arena() {
       });
       
       setMessages(prev => [...prev, ...response.data.responses]);
+      setIsGenerating(false);
+      
+      // Now continue the discussion - personas respond to each other
+      setDiscussionActive(true);
+      setStopDiscussion(false);
+      
+      continueDiscussion(conversation.id);
+      
       await loadConversations(user?.id);
       
     } catch (error) {
@@ -214,7 +226,33 @@ export default function Arena() {
       toast.error("Failed to send message");
     } finally {
       setIsLoading(false);
-      setIsGenerating(false);
+    }
+  };
+
+  const continueDiscussion = async (conversationId) => {
+    try {
+      // Continue for 2 rounds of discussion
+      const discussionResponse = await axios.post(`${API}/chat/continue-discussion`, {
+        conversation_id: conversationId,
+        max_rounds: 2
+      });
+      
+      // Add responses one by one for better UX
+      for (const response of discussionResponse.data.responses) {
+        if (stopDiscussion) {
+          console.log("Discussion stopped by user");
+          break;
+        }
+        setMessages(prev => [...prev, response]);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Delay between messages
+      }
+      
+    } catch (error) {
+      console.error("Failed to continue discussion:", error);
+    } finally {
+      setDiscussionActive(false);
+    }
+  };
     }
   };
 
