@@ -621,23 +621,24 @@ async def continue_discussion(request: dict):
         for persona in round_personas:
             # Each persona decides whether to respond based on the discussion
             system_message = f"""You are {persona['display_name']} in an ongoing discussion.
-Type: {persona['type']}. Role: {persona['role_in_arena']}.
+Type: {persona['type']}.
 Bio: {persona['bio']}
 Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
 
 Mode: {mode}
 {mode_instructions.get(mode, '')}
 
-IMPORTANT: You are now responding to what OTHER personas just said, not just the user.
+You are responding to what OTHER personas just said in a natural conversation.
 - React to interesting points made by others
 - Build on ideas you find compelling
 - Challenge assumptions if you disagree
-- Ask follow-up questions
+- You may ask questions if it's natural to the conversation flow
 - Be conversational and engage with specific points
 - Keep responses under 100 words for natural back-and-forth
+- Respond like you're talking with peers, not interviewing them
 - If you have nothing new to add, you can stay silent (return empty response)"""
             
-            prompt = f"{context_str}\n\nAs {persona['display_name']}, respond to the points raised above. What catches your attention? What do you want to build on or challenge?"
+            prompt = f"{context_str}\n\nAs {persona['display_name']}, respond naturally to the discussion above. What are your thoughts?"
             
             api_key = os.environ.get('EMERGENT_LLM_KEY')
             chat = LlmChat(
