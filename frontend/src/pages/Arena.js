@@ -556,6 +556,15 @@ export default function Arena() {
                   disabled={isLoading || isGenerating}
                   data-testid="message-input"
                 />
+                {discussionActive && (
+                  <button
+                    onClick={() => setStopDiscussion(true)}
+                    className="px-6 h-24 rounded-lg bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#EF4444] hover:bg-[rgba(220,38,38,0.2)] hover:border-[rgba(220,38,38,0.4)] transition-all duration-200"
+                    title="Stop ongoing discussion"
+                  >
+                    <span className="text-sm uppercase tracking-wider">Stop</span>
+                  </button>
+                )}
                 <button
                   onClick={sendMessage}
                   disabled={isLoading || isGenerating || !userInput.trim()}
