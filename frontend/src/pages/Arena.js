@@ -662,7 +662,14 @@ export default function Arena() {
                 ) : (
                   <div className="space-y-4" data-testid="messages-list">
                     {messages.map((msg, idx) => (
-                      <TranscriptBubble key={msg.id} message={msg} index={idx} />
+                      <TranscriptBubble 
+                        key={msg.id} 
+                        message={msg} 
+                        index={idx}
+                        onPlay={speakMessage}
+                        isPlaying={playingMessageId === msg.id}
+                        onAutoPlay={startAutoPlay}
+                      />
                     ))}
                     {isGenerating && (
                       <motion.div
