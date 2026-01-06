@@ -23,6 +23,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.units import inch
 from io import BytesIO
 import PyPDF2
+import requests
+from bs4 import BeautifulSoup
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -946,6 +948,62 @@ async def extract_pdf_text(request: dict):
     except Exception as e:
         logging.error(f"PDF extraction failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to extract PDF text: {str(e)}")
+
+@api_router.post("/extract-url")
+async def extract_url_content(request: dict):
+    """
+    Extract content from a web URL
+    """
+    url = request.get('url', '')
+    
+    if not url:
+        raise HTTPException(status_code=400, detail="No URL provided")
+    
+    try:
+        # Set headers to mimic a browser
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        # Fetch the URL with timeout
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        # Parse HTML
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style", "nav", "footer", "header"]):
+            script.decompose()
+        
+        # Get text content
+        text = soup.get_text()
+        
+        # Clean up text
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text_content = '\n'.join(chunk for chunk in chunks if chunk)
+        
+        # Get title
+        title = soup.find('title')
+        title_text = title.string if title else url
+        
+        # Limit text length
+        if len(text_content) > 5000:
+            text_content = text_content[:5000] + "... [content truncated]"
+        
+        return {
+            "url": url,
+            "title": title_text,
+            "content": text_content.strip(),
+            "success": True
+        }
+        
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="URL request timed out")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"URL extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to extract URL content: {str(e)}")
 
 @api_router.post("/export/pdf")
 async def export_pdf(request: dict):
