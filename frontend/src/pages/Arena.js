@@ -1020,6 +1020,76 @@ export default function Arena() {
         onClose={() => {}}
         onAuth={handleAuth}
       />
+
+      {/* AUTORUN Modal */}
+      {showAutorunModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setShowAutorunModal(false)}>
+          <div className="bg-[#141414] border border-[rgba(255,255,255,0.15)] rounded-lg p-8 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-display text-[#F5F5F5] mb-4">AUTORUN Mode</h2>
+            <p className="text-[#A1A1A1] mb-6 font-light">
+              Let the personas discuss autonomously. Select how long they should talk:
+            </p>
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              {[2, 5, 7, 10, 15, 20, 30, 60].map(mins => (
+                <button
+                  key={mins}
+                  onClick={() => startAutorun(mins)}
+                  className="p-4 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(34,197,94,0.1)] hover:border-[rgba(34,197,94,0.3)] transition-all text-[#F5F5F5] font-light"
+                >
+                  {mins}m
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowAutorunModal(false)}
+              className="w-full py-2 text-sm uppercase tracking-wider text-[#A1A1A1] hover:text-[#F5F5F5] font-light transition-colors border border-[rgba(255,255,255,0.08)] rounded-lg hover:bg-[rgba(255,255,255,0.02)]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
+          <div className="bg-[#141414] border border-[rgba(255,255,255,0.15)] rounded-lg p-8 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-display text-[#F5F5F5] mb-4">Export & Share</h2>
+            <p className="text-[#A1A1A1] mb-6 font-light">
+              Save or share this conversation
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => { exportAsText(); setShowExportModal(false); }}
+                className="w-full py-3 px-4 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all text-[#F5F5F5] font-light flex items-center gap-3"
+              >
+                <FileText className="w-5 h-5" />
+                <span>Export as TXT</span>
+              </button>
+              <button
+                onClick={() => { exportAsPDF(); setShowExportModal(false); }}
+                className="w-full py-3 px-4 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all text-[#F5F5F5] font-light flex items-center gap-3"
+              >
+                <Download className="w-5 h-5" />
+                <span>Export as PDF</span>
+              </button>
+              <button
+                onClick={() => { shareConversation(); setShowExportModal(false); }}
+                className="w-full py-3 px-4 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all text-[#F5F5F5] font-light flex items-center gap-3"
+              >
+                <Share2 className="w-5 h-5" />
+                <span>Share Link</span>
+              </button>
+            </div>
+            <button
+              onClick={() => setShowExportModal(false)}
+              className="w-full mt-4 py-2 text-sm uppercase tracking-wider text-[#A1A1A1] hover:text-[#F5F5F5] font-light transition-colors border border-[rgba(255,255,255,0.08)] rounded-lg hover:bg-[rgba(255,255,255,0.02)]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
