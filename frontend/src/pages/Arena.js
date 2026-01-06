@@ -253,8 +253,6 @@ export default function Arena() {
       setDiscussionActive(false);
     }
   };
-    }
-  };
 
   const loadConversation = async (conversationId) => {
     try {
