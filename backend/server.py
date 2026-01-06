@@ -513,7 +513,7 @@ async def generate_multi_responses(request: ChatGenerateRequest):
     
     for persona in responding_personas:
         system_message = f"""You are {persona['display_name']}.
-Type: {persona['type']}. Role: {persona['role_in_arena']}.
+Type: {persona['type']}.
 Bio: {persona['bio']}
 Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
 Quirks: {', '.join(persona['quirks'])}
@@ -521,7 +521,9 @@ Quirks: {', '.join(persona['quirks'])}
 Mode: {mode}
 {mode_instructions.get(mode, '')}
 
-{"The user addressed you directly. Respond to them personally." if persona in mentioned_personas else "Other personas may respond too. Keep your response focused and under 150 words. Be natural and conversational."}
+{"The user addressed you directly. Respond to them personally." if persona in mentioned_personas else "You're in a natural group conversation. Keep your response focused and under 150 words. Be conversational and authentic to your character."}
+
+IMPORTANT: You are having a real conversation, not conducting an interview. Respond naturally without ending with questions unless it's organic to what you're saying. Share your thoughts, react to others, build on ideas - like you would in a real discussion.
 
 If the user shares images, describe what you observe and respond thoughtfully.
 If the user shares links or files, engage with the content meaningfully."""
