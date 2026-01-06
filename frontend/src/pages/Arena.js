@@ -115,6 +115,7 @@ export default function Arena() {
       setCurrentAudio(audio);
       
       audio.onended = () => {
+        console.log('Audio ended for message:', messageId);
         setPlayingMessageId(null);
         setCurrentAudio(null);
         // Auto-play next message if in queue
@@ -126,41 +127,64 @@ export default function Arena() {
         setPlayingMessageId(null);
         setCurrentAudio(null);
         toast.error("Failed to play audio");
+        // Try to continue to next in queue even on error
+        playNextInQueue(messageId);
       };
       
-      audio.play();
+      await audio.play();
+      console.log('Playing audio for message:', messageId);
       
     } catch (error) {
       console.error('TTS generation failed:', error);
       setPlayingMessageId(null);
       setCurrentAudio(null);
       toast.error("Failed to generate speech");
+      // Try to continue to next in queue
+      playNextInQueue(messageId);
     }
   };
 
   // Play next message in auto-play queue
   const playNextInQueue = (currentMessageId) => {
+    console.log('playNextInQueue called for:', currentMessageId);
+    console.log('Current queue:', autoPlayQueue);
+    
     if (autoPlayQueue.length > 0) {
       const currentIndex = autoPlayQueue.findIndex(id => id === currentMessageId);
+      console.log('Current index in queue:', currentIndex);
+      
       if (currentIndex !== -1 && currentIndex < autoPlayQueue.length - 1) {
         const nextMessageId = autoPlayQueue[currentIndex + 1];
         const nextMessage = messages.find(m => m.id === nextMessageId);
+        console.log('Next message:', nextMessage?.persona_name);
+        
         if (nextMessage) {
           setTimeout(() => {
             speakMessage(nextMessage.id, nextMessage.content, nextMessage.persona_name);
           }, 800); // Small pause between messages
+        } else {
+          console.log('Next message not found in messages array');
+          setAutoPlayQueue([]);
         }
       } else {
         // Reached end of queue
+        console.log('Reached end of queue');
         setAutoPlayQueue([]);
+        toast.success('Finished playing all messages');
       }
+    } else {
+      console.log('Queue is empty');
     }
   };
 
   // Start auto-play from a specific message
   const startAutoPlay = (startMessageId) => {
+    console.log('Starting auto-play from message:', startMessageId);
     const startIndex = messages.findIndex(m => m.id === startMessageId);
-    if (startIndex === -1) return;
+    if (startIndex === -1) {
+      console.log('Start message not found');
+      return;
+    }
     
     // Get all non-user messages from this point forward
     const queueIds = messages
@@ -168,6 +192,7 @@ export default function Arena() {
       .filter(m => !m.is_user)
       .map(m => m.id);
     
+    console.log('Created queue with', queueIds.length, 'messages');
     setAutoPlayQueue(queueIds);
     
     const startMessage = messages.find(m => m.id === startMessageId);
