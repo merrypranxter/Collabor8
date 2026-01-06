@@ -831,10 +831,18 @@ export default function Arena() {
                 </button>
                 <div className="flex items-start gap-4 mb-4">
                   <div 
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.15)] shrink-0"
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.15)] shrink-0 overflow-hidden"
                     style={{ background: 'rgba(255, 255, 255, 0.05)' }}
                   >
-                    <span className="text-[#F5F5F5]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
+                    {persona.avatar_url || persona.avatar_base64 ? (
+                      <img 
+                        src={persona.avatar_url || persona.avatar_base64} 
+                        alt={persona.display_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-[#F5F5F5]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="font-display text-xl font-normal text-[#F5F5F5] mb-1">{persona.display_name}</h3>
