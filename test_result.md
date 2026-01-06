@@ -240,8 +240,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Comprehensive UI testing completed successfully"
-  stuck_tasks: []
+    - "Backend URL extraction API endpoint"
+    - "Persona avatar URL format fix"
+  stuck_tasks:
+    - "Persona avatar URL format fix"
   test_all: false
   test_priority: "high_first"
 
