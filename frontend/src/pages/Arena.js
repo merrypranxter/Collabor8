@@ -47,6 +47,7 @@ export default function Arena() {
   const [tagFilter, setTagFilter] = useState('');
   const userMenuRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
+  const autoSaveTimerRef = useRef(null);
   
   // Audio states
   const [playingMessageId, setPlayingMessageId] = useState(null);
@@ -404,6 +405,67 @@ export default function Arena() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserMenu]);
+
+  // Auto-save conversation every 5 minutes
+  useEffect(() => {
+    if (conversation?.id && messages.length > 0 && user && !user.is_guest) {
+      // Clear existing timer
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+      }
+      
+      // Set up auto-save every 5 minutes
+      autoSaveTimerRef.current = setInterval(async () => {
+        try {
+          console.log('Auto-saving conversation...');
+          await saveConversation();
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+      
+      return () => {
+        if (autoSaveTimerRef.current) {
+          clearInterval(autoSaveTimerRef.current);
+        }
+      };
+    }
+  }, [conversation?.id, messages.length, user]);
+
+  // Save conversation with AI-generated title
+  const saveConversation = async () => {
+    if (!conversation?.id || messages.length === 0) return;
+    
+    try {
+      // Generate title from first few messages if title is "New Conversation"
+      if (conversation.title === "New Conversation" || conversation.title.includes("...")) {
+        // Get first user message
+        const firstUserMessage = messages.find(m => m.is_user);
+        if (firstUserMessage) {
+          // Generate a smart title using AI
+          const titleResponse = await axios.post(`${API}/chat/generate-title`, {
+            conversation_id: conversation.id,
+            first_message: firstUserMessage.content
+          });
+          
+          const newTitle = titleResponse.data.title;
+          
+          // Update conversation with new title
+          await axios.put(`${API}/conversations/${conversation.id}`, {
+            title: newTitle
+          });
+          
+          setConversation(prev => ({ ...prev, title: newTitle }));
+          console.log('✅ Conversation auto-saved with title:', newTitle);
+        }
+      }
+      
+      // Reload conversations list
+      await loadConversations(user?.id);
+    } catch (error) {
+      console.error('Failed to save conversation:', error);
+    }
+  };
 
   const handleLogout = () => {
     setUser(null);
