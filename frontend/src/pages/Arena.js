@@ -44,6 +44,8 @@ export default function Arena() {
   const [expandedModePanel, setExpandedModePanel] = useState(false);
   const [expandedHistoryPanel, setExpandedHistoryPanel] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [tagFilter, setTagFilter] = useState('');
   const userMenuRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
@@ -411,6 +413,51 @@ export default function Arena() {
     setShowUserMenu(false);
     setShowAuthModal(true);
     toast.success("Logged out successfully");
+  };
+
+  const handleUpdateProfile = async (updates) => {
+    try {
+      // Call backend to update profile
+      const response = await axios.put(`${API}/users/profile`, updates, {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`
+        }
+      });
+      
+      // Update local user state
+      const updatedUser = { ...user, ...response.data };
+      setUser(updatedUser);
+      localStorage.setItem('collabor8_user', JSON.stringify(updatedUser));
+      
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      console.error("Profile update failed:", error);
+      throw error;
+    }
+  };
+
+  const handleChangePassword = async (passwordData) => {
+    try {
+      await axios.put(`${API}/users/password`, passwordData, {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`
+        }
+      });
+      
+      toast.success("Password changed successfully!");
+    } catch (error) {
+      console.error("Password change failed:", error);
+      throw error;
+    }
+  };
+
+  const handleSaveSettings = async (settings) => {
+    // Apply settings to current session
+    if (settings.defaultMode) {
+      setMode(settings.defaultMode);
+    }
+    
+    toast.success("Settings saved!");
   };
 
   // Handle persona drag and drop
