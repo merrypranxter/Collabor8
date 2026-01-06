@@ -387,11 +387,59 @@ export default function Arena() {
     }
   };
 
+  // Close user menu when clicking outside
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  }, [messages]);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('collabor8_user');
+    setShowUserMenu(false);
+    setShowAuthModal(true);
+    toast.success("Logged out successfully");
+  };
+
+  // Handle persona drag and drop
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(personas);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    // Update local state immediately for smooth UX
+    setPersonas(items);
+    
+    // Create orders array with new positions
+    const orders = items.map((persona, index) => ({
+      id: persona.id,
+      sort_order: index
+    }));
+    
+    // Send to backend
+    try {
+      await axios.post(`${API}/personas/reorder`, { orders });
+    } catch (error) {
+      console.error("Failed to save order:", error);
+      toast.error("Failed to save persona order");
+      // Revert on error
+      const response = await axios.get(`${API}/personas`);
+      setPersonas(response.data);
+    }
+  };
 
   const handleAuth = async (type, data) => {
     try {
