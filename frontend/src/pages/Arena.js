@@ -796,6 +796,10 @@ export default function Arena() {
                         onPlay={speakMessage}
                         isPlaying={playingMessageId === msg.id}
                         onAutoPlay={startAutoPlay}
+                        onCopy={(text) => {
+                          navigator.clipboard.writeText(text);
+                          toast.success("Copied to clipboard!");
+                        }}
                       />
                     ))}
                     {isGenerating && (
