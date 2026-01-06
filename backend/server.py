@@ -687,6 +687,117 @@ You are responding to what OTHER personas just said in a natural conversation.
     
     return {"responses": all_responses, "rounds_completed": len(all_responses) // 2}
 
+@api_router.post("/chat/autorun")
+async def autorun_discussion(request: dict):
+    """
+    AUTORUN mode - autonomous discussion for specified duration
+    """
+    conversation_id = request.get('conversation_id')
+    duration_seconds = request.get('duration_seconds', 300)  # Default 5 minutes
+    
+    conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    active_persona_ids = conv['active_personas']
+    if not active_persona_ids or len(active_persona_ids) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 active personas")
+    
+    personas_data = await db.personas.find({"id": {"$in": active_persona_ids}}, {"_id": 0}).to_list(100)
+    mode = conv['mode']
+    
+    mode_instructions = {
+        "Creativity Collaboration": "Build on others' ideas. Add new angles. Collaborate and synthesize.",
+        "Shoot-the-Shit": "React naturally. Casual banter. Can agree, disagree, or go on tangents.",
+        "Unhinged": "React wildly. Amplify or subvert. Maximum chaos and creativity.",
+        "Socratic Debate": "Challenge each other. Ask questions. Probe assumptions."
+    }
+    
+    start_time = datetime.now(timezone.utc)
+    end_time = start_time.timestamp() + duration_seconds
+    round_num = 0
+    total_responses = []
+    
+    # Keep discussing until time runs out
+    while datetime.now(timezone.utc).timestamp() < end_time:
+        round_num += 1
+        
+        # Get recent conversation context
+        all_messages = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(200)
+        recent_context = all_messages[-15:]
+        
+        context_str = "Recent discussion:\n" + "\n".join([
+            f"{msg['persona_name']}: {msg['content'][:200]}..." if len(msg['content']) > 200 else f"{msg['persona_name']}: {msg['content']}"
+            for msg in recent_context
+        ])
+        
+        # Select 2-3 personas to respond in this round
+        num_speakers = min(random.randint(2, 3), len(personas_data))
+        round_personas = random.sample(personas_data, num_speakers)
+        
+        for persona in round_personas:
+            # Check time limit
+            if datetime.now(timezone.utc).timestamp() >= end_time:
+                break
+                
+            system_message = f"""You are {persona['display_name']} in an ongoing autonomous discussion.
+Type: {persona['type']}.
+Bio: {persona['bio']}
+Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
+
+Mode: {mode}
+{mode_instructions.get(mode, '')}
+
+The group is discussing autonomously. Share your thoughts, react to others, build on ideas, or challenge them.
+- Keep responses under 100 words
+- Be natural and conversational
+- You may stay silent if you have nothing to add"""
+            
+            prompt = f"{context_str}\n\nContinue the discussion as {persona['display_name']}. What are your thoughts?"
+            
+            api_key = os.environ.get('EMERGENT_LLM_KEY')
+            chat = LlmChat(
+                api_key=api_key,
+                session_id=f"{conversation_id}-autorun-{persona['id']}-{round_num}",
+                system_message=system_message
+            ).with_model("openai", "gpt-5.2")
+            
+            try:
+                response_text = await chat.send_message(UserMessage(text=prompt))
+                
+                if response_text and len(response_text.strip()) > 10:
+                    msg = Message(
+                        conversation_id=conversation_id,
+                        persona_id=persona['id'],
+                        persona_name=persona['display_name'],
+                        persona_color=persona.get('color', '#A855F7'),
+                        content=response_text,
+                        is_user=False
+                    )
+                    
+                    doc = msg.model_dump()
+                    doc['timestamp'] = doc['timestamp'].isoformat()
+                    await db.messages.insert_one(doc)
+                    
+                    total_responses.append(msg)
+            except Exception as e:
+                logging.error(f"Autorun error for {persona['display_name']}: {e}")
+                continue
+        
+        # Small delay between rounds
+        await asyncio.sleep(2)
+    
+    await db.conversations.update_one(
+        {"id": conversation_id},
+        {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        "responses": total_responses,
+        "rounds_completed": round_num,
+        "duration": duration_seconds
+    }
+
 @api_router.post("/tts/generate")
 async def generate_speech(request: dict):
     """
