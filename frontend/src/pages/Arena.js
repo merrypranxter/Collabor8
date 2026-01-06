@@ -34,6 +34,7 @@ export default function Arena() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
+  const [editingPersona, setEditingPersona] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [discussionActive, setDiscussionActive] = useState(false);
   const [stopDiscussion, setStopDiscussion] = useState(false);
