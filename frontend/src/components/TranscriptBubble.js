@@ -11,29 +11,107 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
       .slice(0, 2);
   };
 
+  // Assign unique colors to personas
+  const getPersonaColor = (personaName, isUser) => {
+    if (isUser) {
+      return {
+        bg: 'rgba(59, 130, 246, 0.15)',
+        border: 'rgba(59, 130, 246, 0.4)',
+        text: '#60A5FA',
+        avatar: 'rgba(59, 130, 246, 0.25)'
+      };
+    }
+
+    const colorMap = {
+      "Terence McKenna": {
+        bg: 'rgba(168, 85, 247, 0.12)',
+        border: 'rgba(168, 85, 247, 0.3)',
+        text: '#C084FC',
+        avatar: 'rgba(168, 85, 247, 0.2)'
+      },
+      "Jesus": {
+        bg: 'rgba(251, 191, 36, 0.12)',
+        border: 'rgba(251, 191, 36, 0.3)',
+        text: '#FCD34D',
+        avatar: 'rgba(251, 191, 36, 0.2)'
+      },
+      "Buddha": {
+        bg: 'rgba(34, 197, 94, 0.12)',
+        border: 'rgba(34, 197, 94, 0.3)',
+        text: '#4ADE80',
+        avatar: 'rgba(34, 197, 94, 0.2)'
+      },
+      "Carl Jung": {
+        bg: 'rgba(239, 68, 68, 0.12)',
+        border: 'rgba(239, 68, 68, 0.3)',
+        text: '#F87171',
+        avatar: 'rgba(239, 68, 68, 0.2)'
+      },
+      "Albert Einstein": {
+        bg: 'rgba(236, 72, 153, 0.12)',
+        border: 'rgba(236, 72, 153, 0.3)',
+        text: '#F472B6',
+        avatar: 'rgba(236, 72, 153, 0.2)'
+      },
+      "Helena Blavatsky": {
+        bg: 'rgba(147, 51, 234, 0.12)',
+        border: 'rgba(147, 51, 234, 0.3)',
+        text: '#A855F7',
+        avatar: 'rgba(147, 51, 234, 0.2)'
+      },
+      "J Robert Oppenheimer": {
+        bg: 'rgba(234, 88, 12, 0.12)',
+        border: 'rgba(234, 88, 12, 0.3)',
+        text: '#FB923C',
+        avatar: 'rgba(234, 88, 12, 0.2)'
+      },
+      "Marie Curie": {
+        bg: 'rgba(6, 182, 212, 0.12)',
+        border: 'rgba(6, 182, 212, 0.3)',
+        text: '#22D3EE',
+        avatar: 'rgba(6, 182, 212, 0.2)'
+      },
+    };
+
+    // Default color for unknown personas
+    return colorMap[personaName] || {
+      bg: 'rgba(156, 163, 175, 0.12)',
+      border: 'rgba(156, 163, 175, 0.3)',
+      text: '#9CA3AF',
+      avatar: 'rgba(156, 163, 175, 0.2)'
+    };
+  };
+
+  const colors = getPersonaColor(message.persona_name, message.is_user);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.03 }}
-      className={`
-        flex gap-4 p-6 rounded-lg border message-bubble
-        ${message.is_user 
-          ? "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.15)]" 
-          : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)]"
-        }
-      `}
+      className="flex gap-4 p-6 rounded-lg border message-bubble"
+      style={{
+        background: colors.bg,
+        borderColor: colors.border
+      }}
       data-testid={`message-${message.id}`}
     >
       <div 
-        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border border-[rgba(255,255,255,0.12)] shrink-0"
-        style={{ background: message.is_user ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)' }}
+        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border shrink-0"
+        style={{ 
+          background: colors.avatar,
+          borderColor: colors.border
+        }}
       >
-        <span className="text-[#F5F5F5] opacity-70">{getInitials(message.persona_name)}</span>
+        <span style={{ color: colors.text }}>{getInitials(message.persona_name)}</span>
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-light tracking-wide mb-2 uppercase text-white" style={{ letterSpacing: '0.08em' }} data-testid={`message-persona-${message.id}`}>
+        <div 
+          className="text-sm font-light tracking-wide mb-2 uppercase" 
+          style={{ letterSpacing: '0.08em', color: colors.text }} 
+          data-testid={`message-persona-${message.id}`}
+        >
           {message.persona_name}
         </div>
         <div className="text-[#F5F5F5] text-base font-light leading-relaxed whitespace-pre-wrap" data-testid={`message-content-${message.id}`}>
