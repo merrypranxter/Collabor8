@@ -1068,8 +1068,8 @@ export default function Arena() {
                     data-testid="empty-state"
                   >
                     <div className="text-center space-y-3">
-                      <p className="text-lg font-light tracking-wide">The table awaits...</p>
-                      <p className="text-sm font-light">Address the symposium</p>
+                      <p className="text-lg font-light tracking-wide">Start a new conversation</p>
+                      <p className="text-sm font-light">Your message will automatically save to history</p>
                     </div>
                   </motion.div>
                 ) : (
