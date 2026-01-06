@@ -55,13 +55,21 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
       data-testid={`message-${message.id}`}
     >
       <div 
-        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border shrink-0"
+        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-light border shrink-0 overflow-hidden"
         style={{ 
           background: colors.avatar,
           borderColor: colors.border
         }}
       >
-        <span style={{ color: colors.text }}>{getInitials(message.persona_name)}</span>
+        {message.persona_avatar ? (
+          <img 
+            src={message.persona_avatar} 
+            alt={message.persona_name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span style={{ color: colors.text }}>{getInitials(message.persona_name)}</span>
+        )}
       </div>
       
       <div className="flex-1 min-w-0">
