@@ -1461,6 +1461,29 @@ export default function Arena() {
           </div>
         </div>
       )}
+
+      {/* Profile Modal */}
+      <ProfileModal
+        open={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        onUpdateProfile={async (updates) => {
+          if (updates.current_password) {
+            // Password change
+            await handleChangePassword(updates);
+          } else {
+            // Profile update
+            await handleUpdateProfile(updates);
+          }
+        }}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        open={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        onSaveSettings={handleSaveSettings}
+      />
     </div>
   );
 }
