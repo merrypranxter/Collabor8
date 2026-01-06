@@ -864,6 +864,87 @@ async def generate_speech(request: dict):
         logging.error(f"TTS generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate speech: {str(e)}")
 
+@api_router.post("/export/pdf")
+async def export_pdf(request: dict):
+    """
+    Export conversation as PDF
+    """
+    conversation_id = request.get('conversation_id')
+    messages = request.get('messages', [])
+    
+    if not messages:
+        # Fetch from database if not provided
+        messages = await db.messages.find(
+            {"conversation_id": conversation_id}, 
+            {"_id": 0}
+        ).sort("timestamp", 1).to_list(1000)
+    
+    # Create PDF in memory
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    story = []
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor='#1a1a1a',
+        spaceAfter=30
+    )
+    
+    persona_style = ParagraphStyle(
+        'PersonaName',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor='#4a4a4a',
+        spaceAfter=6
+    )
+    
+    message_style = ParagraphStyle(
+        'MessageContent',
+        parent=styles['BodyText'],
+        fontSize=10,
+        leading=14,
+        spaceAfter=20
+    )
+    
+    # Add title
+    title = Paragraph("Collabor8 Conversation", title_style)
+    story.append(title)
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Add messages
+    for msg in messages:
+        persona_name = msg.get('persona_name', 'Unknown')
+        content = msg.get('content', '')
+        timestamp = msg.get('timestamp', '')
+        
+        # Escape HTML characters
+        content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        
+        # Add persona name and timestamp
+        header = f"<b>{persona_name}</b> - {timestamp}"
+        story.append(Paragraph(header, persona_style))
+        
+        # Add message content
+        story.append(Paragraph(content, message_style))
+        story.append(Spacer(1, 0.1*inch))
+    
+    # Build PDF
+    doc.build(story)
+    
+    # Get PDF bytes
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=conversation.pdf"}
+    )
+
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     default_personas = [
