@@ -632,6 +632,17 @@ export default function Arena() {
     }
   };
 
+  const editPersona = async (personaId, personaData) => {
+    try {
+      const response = await axios.put(`${API}/personas/${personaId}`, personaData);
+      setPersonas(prev => prev.map(p => p.id === personaId ? response.data : p));
+      toast.success(`${response.data.display_name} updated`);
+    } catch (error) {
+      console.error("Failed to edit persona:", error);
+      toast.error("Failed to edit persona");
+    }
+  };
+
   const deletePersona = async (personaId) => {
     try {
       await axios.delete(`${API}/personas/${personaId}`);
