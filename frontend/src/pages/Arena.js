@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, Plus, Settings, MessageSquare, Users, Loader2, Maximize2, Minimize2, User, Trash2, Paperclip, X, Image as ImageIcon, Link as LinkIcon, FileText, Volume2, Mic, Square, Play, Download, Share2, Clock, Edit } from "lucide-react";
+import { Sparkles, Send, Plus, Settings, MessageSquare, Users, Loader2, Maximize2, Minimize2, User, Trash2, Paperclip, X, Image as ImageIcon, Link as LinkIcon, FileText, Volume2, Mic, Square, Play, Download, Share2, Clock, Edit, ChevronDown, UserCircle, LogOut, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import PersonaCard from "../components/PersonaCard";
 import TranscriptBubble from "../components/TranscriptBubble";
