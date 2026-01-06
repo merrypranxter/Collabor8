@@ -658,6 +658,7 @@ You are responding to what OTHER personas just said in a natural conversation.
                         conversation_id=conversation_id,
                         persona_id=persona['id'],
                         persona_name=persona['display_name'],
+                        persona_color=persona.get('color', '#A855F7'),
                         content=response_text,
                         is_user=False
                     )
