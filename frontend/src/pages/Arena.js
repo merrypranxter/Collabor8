@@ -48,6 +48,16 @@ export default function Arena() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [currentAudio, setCurrentAudio] = useState(null);
   
+  // AUTORUN states
+  const [showAutorunModal, setShowAutorunModal] = useState(false);
+  const [isAutorunActive, setIsAutorunActive] = useState(false);
+  const [autorunTimeLeft, setAutorunTimeLeft] = useState(0);
+  const [autorunTotalTime, setAutorunTotalTime] = useState(0);
+  const autorunTimerRef = useRef(null);
+  
+  // Export states
+  const [showExportModal, setShowExportModal] = useState(false);
+  
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
