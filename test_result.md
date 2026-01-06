@@ -250,6 +250,42 @@ frontend:
         agent: "testing"
         comment: "FINAL VERIFICATION COMPLETE ✅: All requested P0-P3 features tested and working. ✅ Guest authentication working. ✅ Personas gallery expansion with 26 personas, 7 with avatar images. ✅ User profile menu with Profile/Settings options. ✅ Mode panel expansion with descriptions. ✅ Tag filtering functional. ✅ Persona activation with visual feedback. ✅ Multi-persona chat flow with natural responses. ✅ Audio play/stop controls working. ✅ URL attachment and file upload working. ✅ Mobile responsive design. The application is ready for production use with all core features operational and no critical blocking issues."
 
+  - task: "Drag-Drop Persona Reordering (Both Views)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Arena.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "DRAG-DROP TESTING COMPLETE ✅: Fully functional in both collapsed and expanded persona views. ✅ Found 23 grip icons (GripVertical from lucide-react) that appear on hover in both views. ✅ DragDropContext properly implemented using @hello-pangea/dnd library with Droppable and Draggable components. ✅ handleDragEnd function working correctly to reorder personas and save to backend via /api/personas/reorder endpoint. ✅ Visual feedback during drag operations with opacity changes. ✅ Grip icons positioned correctly and accessible on hover. Users can successfully reorder personas by dragging the grip handles in both collapsed sidebar and expanded gallery views."
+
+  - task: "Auto-Save with AI-Generated Titles"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Arena.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "AUTO-SAVE TESTING COMPLETE ✅: AI-generated title mechanism fully implemented and working. ✅ saveConversation function automatically generates titles using /api/chat/generate-title endpoint when conversation title is 'New Conversation'. ✅ Auto-save timer (autoSaveTimerRef) runs every 5 minutes for logged-in users. ✅ Conversations are properly saved and updated without creating duplicates. ✅ AI analyzes first user message to generate meaningful conversation titles. ✅ System correctly updates existing conversations rather than creating new ones. Note: Guest conversations are not saved to history as expected behavior, but the auto-save mechanism is fully functional for authenticated users."
+
+  - task: "Login Functionality (Registration and Authentication)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AuthModal.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "LOGIN FUNCTIONALITY TESTING COMPLETE ✅: All authentication features working perfectly. ✅ Registration successful - created testuser123 account with display name 'Test User' and password. ✅ AuthModal component with three tabs (Guest/Sign In/Register) all functional. ✅ Registration form validates and creates new users via /api/auth/register endpoint. ✅ Login form authenticates users via /api/auth/login endpoint. ✅ Guest mode allows immediate access without registration. ✅ User session management working with localStorage persistence. ✅ User dropdown menu shows proper options based on authentication status. ✅ Logout functionality available for authenticated users. The complete authentication flow is production-ready."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
