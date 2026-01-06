@@ -102,23 +102,72 @@ export default function PersonaModal({ open, onClose, onSubmit }) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="persona-role" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
-              Role
+            <Label htmlFor="persona-color" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
+              Color
             </Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light" data-testid="persona-role-select">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-[#141414] border-[rgba(255,255,255,0.08)]">
-                <SelectItem value="leader" className="text-[#F5F5F5] font-light">Leader</SelectItem>
-                <SelectItem value="skeptic" className="text-[#F5F5F5] font-light">Skeptic</SelectItem>
-                <SelectItem value="builder" className="text-[#F5F5F5] font-light">Builder</SelectItem>
-                <SelectItem value="comedian" className="text-[#F5F5F5] font-light">Comedian</SelectItem>
-                <SelectItem value="moderator" className="text-[#F5F5F5] font-light">Moderator</SelectItem>
-                <SelectItem value="wildcard" className="text-[#F5F5F5] font-light">Wildcard</SelectItem>
-                <SelectItem value="participant" className="text-[#F5F5F5] font-light">Participant</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                id="persona-color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-16 h-10 rounded border border-[rgba(255,255,255,0.15)] bg-transparent cursor-pointer"
+                data-testid="persona-color-picker"
+              />
+              <Input
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                placeholder="#A855F7"
+                className="flex-1 bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-light focus:border-white"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="persona-avatar" className="text-sm font-light text-[#F5F5F5] uppercase tracking-wider">
+              Avatar (Optional)
+            </Label>
+            <div className="flex gap-3 items-center">
+              {avatarPreview ? (
+                <div className="relative">
+                  <img 
+                    src={avatarPreview} 
+                    alt="Avatar preview" 
+                    className="w-16 h-16 rounded-full object-cover border border-[rgba(255,255,255,0.15)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarFile(null);
+                      setAvatarPreview(null);
+                    }}
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-full border-2 border-dashed border-[rgba(255,255,255,0.15)] flex items-center justify-center">
+                  <ImageIcon className="w-6 h-6 text-[#A1A1A1]" />
+                </div>
+              )}
+              <label htmlFor="avatar-upload" className="flex-1 cursor-pointer">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all">
+                  <Upload className="w-4 h-4 text-[#A1A1A1]" />
+                  <span className="text-sm text-[#A1A1A1] font-light">
+                    {avatarFile ? avatarFile.name : "Upload Image"}
+                  </span>
+                </div>
+              </label>
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+                data-testid="persona-avatar-input"
+              />
+            </div>
           </div>
           
           <div className="flex gap-3 pt-4">
