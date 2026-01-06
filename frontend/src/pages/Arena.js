@@ -751,21 +751,10 @@ export default function Arena() {
   };
 
   const startNewConversation = async () => {
-    try {
-      setMessages([]);
-      const response = await axios.post(`${API}/conversations`, {
-        mode,
-        topic: null,
-        active_personas: activePersonas,
-        user_id: user?.id
-      });
-      setConversation(response.data);
-      await loadConversations(user?.id);
-      toast.success("New conversation started");
-    } catch (error) {
-      console.error("Failed to start new conversation:", error);
-      toast.error("Failed to start new conversation");
-    }
+    // Clear current conversation and messages
+    setConversation(null);
+    setMessages([]);
+    toast.success("New conversation started");
   };
 
   const changeMode = async (newMode) => {
