@@ -29,10 +29,18 @@ export default function PersonaCard({ persona, isActive, onClick, isSpeaking, on
     >
       <div className="p-4 flex items-center gap-3" onClick={onClick}>
         <div 
-          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-light border border-[rgba(255,255,255,0.15)]"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-light border border-[rgba(255,255,255,0.15)] overflow-hidden"
           style={{ background: 'rgba(255, 255, 255, 0.05)' }}
         >
-          <span className="text-[#F5F5F5] opacity-80">{getInitials(persona.display_name)}</span>
+          {persona.avatar_url || persona.avatar_base64 ? (
+            <img 
+              src={persona.avatar_url || persona.avatar_base64} 
+              alt={persona.display_name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-[#F5F5F5] opacity-80">{getInitials(persona.display_name)}</span>
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
