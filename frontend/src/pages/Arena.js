@@ -1033,8 +1033,19 @@ export default function Arena() {
 
       <PersonaModal
         open={showPersonaModal}
-        onClose={() => setShowPersonaModal(false)}
-        onSubmit={addPersona}
+        onClose={() => {
+          setShowPersonaModal(false);
+          setEditingPersona(null);
+        }}
+        onSubmit={(data) => {
+          if (editingPersona) {
+            editPersona(editingPersona.id, data);
+          } else {
+            addPersona(data);
+          }
+          setEditingPersona(null);
+        }}
+        editingPersona={editingPersona}
       />
       
       <AuthModal
