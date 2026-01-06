@@ -61,11 +61,18 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
     e.preventDefault();
     if (!name.trim()) return;
     
+    // Parse tags from comma-separated string
+    const tagArray = tags
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(t => t.length > 0);
+    
     onSubmit({
       display_name: name,
       type,
       color: color,
-      avatar_base64: avatarPreview
+      avatar_base64: avatarPreview,
+      tags: tagArray
     });
     
     setName("");
@@ -73,6 +80,7 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
     setColor("#A855F7");
     setAvatarFile(null);
     setAvatarPreview(null);
+    setTags("");
     onClose();
   };
 
