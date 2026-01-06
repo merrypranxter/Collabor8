@@ -745,6 +745,40 @@ export default function Arena() {
                   <span className="hidden sm:inline">Stop Audio</span>
                 </button>
               )}
+              {isAutorunActive && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.1)] text-[#4ADE80]">
+                  <Clock className="w-4 h-4 animate-pulse" />
+                  <span className="text-sm uppercase tracking-wider font-light">
+                    AUTORUN: {Math.floor(autorunTimeLeft / 60)}:{String(autorunTimeLeft % 60).padStart(2, '0')}
+                  </span>
+                  <button
+                    onClick={stopAutorun}
+                    className="ml-2 text-xs hover:text-red-400 transition-colors"
+                  >
+                    Stop
+                  </button>
+                </div>
+              )}
+              {!isAutorunActive && messages.length > 0 && (
+                <>
+                  <button
+                    onClick={() => setShowAutorunModal(true)}
+                    className="text-sm uppercase tracking-wider text-[#4ADE80] hover:text-[#22C55E] font-light transition-colors duration-200 border border-[rgba(34,197,94,0.3)] px-3 py-2 rounded-lg hover:bg-[rgba(34,197,94,0.1)] flex items-center gap-2"
+                    title="Start Autonomous Discussion"
+                  >
+                    <Play className="w-4 h-4" />
+                    <span className="hidden sm:inline">AUTORUN</span>
+                  </button>
+                  <button
+                    onClick={() => setShowExportModal(true)}
+                    className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] px-3 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)] flex items-center gap-2"
+                    title="Export or Share"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Export</span>
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-sm uppercase tracking-wider text-white hover:text-[#E5E5E5] font-light transition-colors duration-200 border border-[rgba(255,255,255,0.15)] p-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)]"
