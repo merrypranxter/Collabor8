@@ -564,6 +564,117 @@ If the user shares links or files, engage with the content meaningfully."""
     
     return {"responses": responses}
 
+@api_router.post("/chat/continue-discussion")
+async def continue_discussion(request: dict):
+    """
+    Continue the discussion - personas respond to each other's ideas
+    This creates a multi-turn conversation between personas
+    """
+    conversation_id = request.get('conversation_id')
+    max_rounds = request.get('max_rounds', 2)  # Limit to prevent infinite loops
+    
+    conv = await db.conversations.find_one({"id": conversation_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    active_persona_ids = conv['active_personas']
+    if not active_persona_ids or len(active_persona_ids) < 2:
+        return {"responses": [], "rounds_completed": 0}
+    
+    personas_data = await db.personas.find({"id": {"$in": active_persona_ids}}, {"_id": 0}).to_list(100)
+    mode = conv['mode']
+    
+    mode_instructions = {
+        "Creativity Collaboration": "Build on others' ideas. Add new angles. Collaborate and synthesize.",
+        "Shoot-the-Shit": "React naturally. Casual banter. Can agree, disagree, or go on tangents.",
+        "Unhinged": "React wildly. Amplify or subvert. Maximum chaos and creativity.",
+        "Socratic Debate": "Challenge each other. Ask questions. Probe assumptions."
+    }
+    
+    all_responses = []
+    
+    for round_num in range(max_rounds):
+        # Get recent conversation context (last 15 messages)
+        all_messages = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(100)
+        recent_context = all_messages[-15:]
+        
+        # Build context string showing the ongoing discussion
+        context_str = "Recent discussion:\n" + "\n".join([
+            f"{msg['persona_name']}: {msg['content'][:200]}..." if len(msg['content']) > 200 else f"{msg['persona_name']}: {msg['content']}"
+            for msg in recent_context
+        ])
+        
+        # Select 2-3 personas to respond in this round (not all at once for natural flow)
+        num_speakers = min(random.randint(2, 3), len(personas_data))
+        round_personas = random.sample(personas_data, num_speakers)
+        
+        round_responses = []
+        
+        for persona in round_personas:
+            # Each persona decides whether to respond based on the discussion
+            system_message = f"""You are {persona['display_name']} in an ongoing discussion.
+Type: {persona['type']}. Role: {persona['role_in_arena']}.
+Bio: {persona['bio']}
+Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
+
+Mode: {mode}
+{mode_instructions.get(mode, '')}
+
+IMPORTANT: You are now responding to what OTHER personas just said, not just the user.
+- React to interesting points made by others
+- Build on ideas you find compelling
+- Challenge assumptions if you disagree
+- Ask follow-up questions
+- Be conversational and engage with specific points
+- Keep responses under 100 words for natural back-and-forth
+- If you have nothing new to add, you can stay silent (return empty response)"""
+            
+            prompt = f"{context_str}\n\nAs {persona['display_name']}, respond to the points raised above. What catches your attention? What do you want to build on or challenge?"
+            
+            api_key = os.environ.get('EMERGENT_LLM_KEY')
+            chat = LlmChat(
+                api_key=api_key,
+                session_id=f"{conversation_id}-{persona['id']}-round{round_num}",
+                system_message=system_message
+            ).with_model("openai", "gpt-5.2")
+            
+            try:
+                response_text = await chat.send_message(UserMessage(text=prompt))
+                
+                # Only add if persona actually has something to say
+                if response_text and len(response_text.strip()) > 10:
+                    msg = Message(
+                        conversation_id=conversation_id,
+                        persona_id=persona['id'],
+                        persona_name=persona['display_name'],
+                        content=response_text,
+                        is_user=False
+                    )
+                    
+                    doc = msg.model_dump()
+                    doc['timestamp'] = doc['timestamp'].isoformat()
+                    await db.messages.insert_one(doc)
+                    
+                    round_responses.append(msg)
+                    all_responses.append(msg)
+            except Exception as e:
+                logging.error(f"Error generating response for {persona['display_name']}: {e}")
+                continue
+        
+        # If no one had anything to say, end the discussion
+        if not round_responses:
+            break
+        
+        # Small delay between rounds for natural pacing
+        await asyncio.sleep(0.5)
+    
+    await db.conversations.update_one(
+        {"id": conversation_id},
+        {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"responses": all_responses, "rounds_completed": len(all_responses) // 2}
+
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     default_personas = [
