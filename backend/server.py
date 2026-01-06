@@ -519,7 +519,14 @@ async def generate_multi_responses(request: ChatGenerateRequest):
             elif att['type'] == 'url':
                 attachment_context += f"\n[User shared a link: {att['url']}]"
             elif att['type'] == 'file':
-                attachment_context += f"\n[User shared a file: {att['name']}]"
+                file_name = att.get('name', 'document')
+                extracted_text = att.get('extractedText', '')
+                
+                if extracted_text:
+                    # Include extracted PDF text in context
+                    attachment_context += f"\n[User shared a PDF: {file_name}]\nExtracted content:\n{extracted_text[:2000]}"  # Limit to 2000 chars
+                else:
+                    attachment_context += f"\n[User shared a file: {file_name}]"
     
     # Add attachment context to the end if there are attachments
     # Don't duplicate the user message - it's already in all_messages
