@@ -10,6 +10,8 @@ import ModeSelector from "../components/ModeSelector";
 import PersonaModal from "../components/PersonaModal";
 import ConversationsMenu from "../components/ConversationsMenu";
 import AuthModal from "../components/AuthModal";
+import ProfileModal from "../components/ProfileModal";
+import SettingsModal from "../components/SettingsModal";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 
