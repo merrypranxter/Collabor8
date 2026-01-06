@@ -18,7 +18,7 @@ const API = `${BACKEND_URL}/api`;
 const modes = [
   { id: "Creativity Collaboration", name: "Creativity", icon: Sparkles },
   { id: "Shoot-the-Shit", name: "Casual", icon: MessageSquare },
-  { id: "Unhinged", name: "Unhinged", icon: "🌀" },
+  { id: "Unhinged", name: "Unhinged", icon: Loader2 },
   { id: "Socratic Debate", name: "Debate", icon: Users },
 ];
 
