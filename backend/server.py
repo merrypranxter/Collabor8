@@ -47,6 +47,8 @@ class PersonaBase(BaseModel):
     quirks: List[str]
     voice: Voice
     color: Optional[str] = "#A855F7"  # Default purple
+    tags: List[str] = []  # Tags for filtering/grouping
+    sort_order: int = 0  # For custom ordering
 
 class PersonaCreate(BaseModel):
     display_name: str
@@ -57,6 +59,8 @@ class PersonaCreate(BaseModel):
     generate_avatar: bool = False
     color: Optional[str] = "#A855F7"
     avatar_base64: Optional[str] = None
+    tags: Optional[List[str]] = None
+    sort_order: Optional[int] = 0
 
 class Persona(PersonaBase):
     model_config = ConfigDict(extra="ignore")
