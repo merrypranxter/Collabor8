@@ -636,14 +636,31 @@ export default function Arena() {
   };
 
   const sendMessage = async () => {
-    if (!userInput.trim() || !conversation) return;
+    if (!userInput.trim()) return;
     
     // Stop any ongoing discussion when user sends new message
     setStopDiscussion(true);
     
     setIsLoading(true);
     try {
-      const userMessage = await axios.post(`${API}/conversations/${conversation.id}/messages`, {
+      let currentConversation = conversation;
+      
+      // Create a new conversation if this is the first message
+      if (!currentConversation) {
+        console.log("Creating new conversation...");
+        const convResponse = await axios.post(`${API}/conversations`, {
+          mode,
+          topic: null,
+          active_personas: activePersonas,
+          user_id: user?.id
+        });
+        currentConversation = convResponse.data;
+        setConversation(currentConversation);
+        console.log("✅ New conversation created:", currentConversation.id);
+      }
+      
+      // Save the user message
+      const userMessage = await axios.post(`${API}/conversations/${currentConversation.id}/messages`, {
         content: userInput,
         is_user: true
       });
@@ -651,6 +668,7 @@ export default function Arena() {
       setMessages(prev => [...prev, userMessage.data]);
       const messageContent = userInput;
       const messageAttachments = attachments;
+      const isFirstMessage = messages.length === 0;
       setUserInput("");
       setAttachments([]);
       
@@ -658,7 +676,7 @@ export default function Arena() {
       
       // Get initial responses from all personas
       const response = await axios.post(`${API}/chat/generate-multi`, {
-        conversation_id: conversation.id,
+        conversation_id: currentConversation.id,
         user_message: messageContent,
         attachments: messageAttachments
       });
@@ -666,16 +684,43 @@ export default function Arena() {
       setMessages(prev => [...prev, ...response.data.responses]);
       setIsGenerating(false);
       
-      // Auto-save conversation after message
-      setTimeout(() => saveConversation(), 1000);
+      // Generate AI title immediately if this is the first message
+      if (isFirstMessage) {
+        console.log("Generating AI title for first message...");
+        try {
+          const titleResponse = await axios.post(`${API}/chat/generate-title`, {
+            conversation_id: currentConversation.id,
+            first_message: messageContent
+          });
+          
+          const aiTitle = titleResponse.data.title;
+          console.log("✅ AI title generated:", aiTitle);
+          
+          // Update conversation with AI-generated title
+          await axios.put(`${API}/conversations/${currentConversation.id}`, {
+            title: aiTitle
+          });
+          
+          setConversation(prev => ({ ...prev, title: aiTitle }));
+          
+          // Reload conversations to show in history with new title
+          await loadConversations(user?.id);
+          
+          toast.success(`Conversation saved: "${aiTitle}"`);
+        } catch (titleError) {
+          console.error("Failed to generate title:", titleError);
+          // Continue even if title generation fails
+        }
+      } else {
+        // For subsequent messages, just reload conversations to update timestamp
+        await loadConversations(user?.id);
+      }
       
       // Now continue the discussion - personas respond to each other
       setDiscussionActive(true);
       setStopDiscussion(false);
       
-      continueDiscussion(conversation.id);
-      
-      await loadConversations(user?.id);
+      continueDiscussion(currentConversation.id);
       
     } catch (error) {
       console.error("Failed to send message:", error);
