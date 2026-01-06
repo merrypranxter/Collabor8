@@ -244,6 +244,115 @@ export default function Arena() {
     }
   };
 
+  // AUTORUN Mode Functions
+  const startAutorun = async (durationMinutes) => {
+    if (!conversation?.id) {
+      toast.error("Create a conversation first");
+      return;
+    }
+
+    const durationSeconds = durationMinutes * 60;
+    setIsAutorunActive(true);
+    setAutorunTimeLeft(durationSeconds);
+    setAutorunTotalTime(durationSeconds);
+    setShowAutorunModal(false);
+    
+    toast.success(`AUTORUN started for ${durationMinutes} minutes`);
+
+    // Start countdown timer
+    autorunTimerRef.current = setInterval(() => {
+      setAutorunTimeLeft(prev => {
+        if (prev <= 1) {
+          stopAutorun();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Start autonomous discussion on backend
+    try {
+      await axios.post(`${API}/chat/autorun`, {
+        conversation_id: conversation.id,
+        duration_seconds: durationSeconds
+      });
+    } catch (error) {
+      console.error("Autorun failed:", error);
+      toast.error("Autorun failed to start");
+      stopAutorun();
+    }
+  };
+
+  const stopAutorun = () => {
+    setIsAutorunActive(false);
+    setAutorunTimeLeft(0);
+    if (autorunTimerRef.current) {
+      clearInterval(autorunTimerRef.current);
+      autorunTimerRef.current = null;
+    }
+    
+    // Reload messages to get all the new discussion
+    if (conversation?.id) {
+      loadConversation(conversation.id);
+    }
+    
+    toast.info("AUTORUN stopped");
+  };
+
+  // Export Functions
+  const exportAsText = () => {
+    const text = messages.map(m => 
+      `${m.persona_name} (${new Date(m.timestamp).toLocaleString()}):\n${m.content}\n\n`
+    ).join('');
+    
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `collabor8-${conversation?.title || 'conversation'}-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success("Exported as TXT");
+  };
+
+  const exportAsPDF = async () => {
+    try {
+      const response = await axios.post(`${API}/export/pdf`, {
+        conversation_id: conversation?.id,
+        messages: messages
+      }, {
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `collabor8-${conversation?.title || 'conversation'}-${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success("Exported as PDF");
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      toast.error("PDF export failed");
+    }
+  };
+
+  const shareConversation = async () => {
+    try {
+      const response = await axios.post(`${API}/conversations/${conversation?.id}/share`);
+      const shareUrl = `${window.location.origin}/shared/${response.data.share_id}`;
+      
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Share link copied to clipboard!");
+    } catch (error) {
+      console.error("Share failed:", error);
+      toast.error("Failed to create share link");
+    }
+  };
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
