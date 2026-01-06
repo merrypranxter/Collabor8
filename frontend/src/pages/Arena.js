@@ -498,6 +498,20 @@ export default function Arena() {
                         </span>
                       </motion.div>
                     )}
+                    {discussionActive && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center text-[#A1A1A1] mt-2"
+                      >
+                        <div className="w-1 h-1 rounded-full bg-[#3B82F6] animate-pulse" />
+                        <div className="w-1 h-1 rounded-full bg-[#3B82F6] animate-pulse ml-1" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-1 h-1 rounded-full bg-[#3B82F6] animate-pulse ml-1" style={{ animationDelay: '0.4s' }} />
+                        <span className="text-sm font-light ml-2 text-[#3B82F6]">
+                          Personas discussing...
+                        </span>
+                      </motion.div>
+                    )}
                   </div>
                 )}
               </AnimatePresence>
