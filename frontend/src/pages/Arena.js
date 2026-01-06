@@ -715,11 +715,10 @@ export default function Arena() {
       
       if (conversation?.id === conversationId) {
         setMessages([]);
-        const response = await axios.post(`${API}/conversations`, {
+        const response = await axios.post(`${API}/conversations?user_id=${user?.id}`, {
           mode,
           topic: null,
-          active_personas: activePersonas,
-          user_id: user?.id
+          active_personas: activePersonas
         });
         setConversation(response.data);
       }
