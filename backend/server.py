@@ -94,6 +94,7 @@ class Message(BaseModel):
     persona_id: Optional[str] = None
     persona_name: str
     persona_color: Optional[str] = None
+    persona_avatar: Optional[str] = None
     content: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     is_user: bool = False
