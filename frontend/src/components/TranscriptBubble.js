@@ -38,61 +38,9 @@ export default function TranscriptBubble({ message, index, onPlay, isPlaying, on
       text: personaColor,
       avatar: hexToRgba(personaColor, 0.2)
     };
-      },
-      "Jesus": {
-        bg: 'rgba(251, 191, 36, 0.12)',
-        border: 'rgba(251, 191, 36, 0.3)',
-        text: '#FCD34D',
-        avatar: 'rgba(251, 191, 36, 0.2)'
-      },
-      "Buddha": {
-        bg: 'rgba(34, 197, 94, 0.12)',
-        border: 'rgba(34, 197, 94, 0.3)',
-        text: '#4ADE80',
-        avatar: 'rgba(34, 197, 94, 0.2)'
-      },
-      "Carl Jung": {
-        bg: 'rgba(239, 68, 68, 0.12)',
-        border: 'rgba(239, 68, 68, 0.3)',
-        text: '#F87171',
-        avatar: 'rgba(239, 68, 68, 0.2)'
-      },
-      "Albert Einstein": {
-        bg: 'rgba(236, 72, 153, 0.12)',
-        border: 'rgba(236, 72, 153, 0.3)',
-        text: '#F472B6',
-        avatar: 'rgba(236, 72, 153, 0.2)'
-      },
-      "Helena Blavatsky": {
-        bg: 'rgba(147, 51, 234, 0.12)',
-        border: 'rgba(147, 51, 234, 0.3)',
-        text: '#A855F7',
-        avatar: 'rgba(147, 51, 234, 0.2)'
-      },
-      "J Robert Oppenheimer": {
-        bg: 'rgba(234, 88, 12, 0.12)',
-        border: 'rgba(234, 88, 12, 0.3)',
-        text: '#FB923C',
-        avatar: 'rgba(234, 88, 12, 0.2)'
-      },
-      "Marie Curie": {
-        bg: 'rgba(6, 182, 212, 0.12)',
-        border: 'rgba(6, 182, 212, 0.3)',
-        text: '#22D3EE',
-        avatar: 'rgba(6, 182, 212, 0.2)'
-      },
-    };
-
-    // Default color for unknown personas
-    return colorMap[personaName] || {
-      bg: 'rgba(156, 163, 175, 0.12)',
-      border: 'rgba(156, 163, 175, 0.3)',
-      text: '#9CA3AF',
-      avatar: 'rgba(156, 163, 175, 0.2)'
-    };
   };
 
-  const colors = getPersonaColor(message.persona_name, message.is_user);
+  const colors = getPersonaColor(message);
 
   return (
     <motion.div
