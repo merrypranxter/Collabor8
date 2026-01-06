@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Upload, Image as ImageIcon } from "lucide-react";
 import { Button } from "./ui/button";
@@ -27,7 +27,7 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   // Update form when editing persona changes
-  useState(() => {
+  useEffect(() => {
     if (editingPersona) {
       setName(editingPersona.display_name || "");
       setType(editingPersona.type || "historical");
