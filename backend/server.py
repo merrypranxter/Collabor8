@@ -556,6 +556,7 @@ If the user shares links or files, engage with the content meaningfully."""
             conversation_id=request.conversation_id,
             persona_id=persona['id'],
             persona_name=persona['display_name'],
+            persona_color=persona.get('color', '#A855F7'),
             content=response_text,
             is_user=False
         )
