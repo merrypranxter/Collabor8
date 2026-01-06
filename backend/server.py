@@ -423,6 +423,7 @@ async def update_conversation(conversation_id: str, update_data: dict):
 
 @api_router.post("/chat/generate-multi")
 async def generate_multi_responses(request: ChatGenerateRequest):
+    """Generate initial responses from all active personas to user message"""
     conv = await db.conversations.find_one({"id": request.conversation_id}, {"_id": 0})
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found")
