@@ -553,22 +553,13 @@ export default function Arena() {
       console.log("Setting active personas:", defaultActive);
       setActivePersonas(defaultActive);
       
-      const convResponse = await axios.post(`${API}/conversations`, {
-        mode: "Creativity Collaboration",
-        topic: null,
-        active_personas: defaultActive,
-        user_id: userData?.id
-      });
-      console.log("Conversation created:", convResponse.data);
-      setConversation(convResponse.data);
-      
+      // Load existing conversations but don't create a new one yet
       await loadConversations(userData?.id);
       
       toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
       console.error("Failed to initialize:", error);
       console.error("Error details:", error.response?.data);
-      toast.error(`Failed to initialize: ${error.message}`);
     }
   };
 
