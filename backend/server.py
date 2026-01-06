@@ -737,13 +737,13 @@ async def generate_speech(request: dict):
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     default_personas = [
-        {"display_name": "Terence McKenna", "type": "historical", "role_in_arena": "mystic"},
-        {"display_name": "Jesus", "type": "historical", "role_in_arena": "spiritual_leader"},
-        {"display_name": "Buddha", "type": "historical", "role_in_arena": "philosopher"},
-        {"display_name": "J. Robert Oppenheimer", "type": "historical", "role_in_arena": "scientist"},
-        {"display_name": "Carl Jung", "type": "historical", "role_in_arena": "psychologist"},
-        {"display_name": "Albert Einstein", "type": "historical", "role_in_arena": "scientist"},
-        {"display_name": "Helena Blavatsky", "type": "historical", "role_in_arena": "mystic"}
+        {"display_name": "Terence McKenna", "type": "historical", "color": "#A855F7"},
+        {"display_name": "Jesus", "type": "historical", "color": "#FCD34D"},
+        {"display_name": "Buddha", "type": "historical", "color": "#4ADE80"},
+        {"display_name": "J. Robert Oppenheimer", "type": "historical", "color": "#FB923C"},
+        {"display_name": "Carl Jung", "type": "historical", "color": "#F87171"},
+        {"display_name": "Albert Einstein", "type": "historical", "color": "#F472B6"},
+        {"display_name": "Helena Blavatsky", "type": "historical", "color": "#9333EA"}
     ]
     
     existing_count = await db.personas.count_documents({})
