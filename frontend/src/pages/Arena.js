@@ -98,39 +98,43 @@ export default function Arena() {
     return voiceMap[personaName] || { pitch: 1.0, rate: 1.0, voiceIndex: 0 };
   };
 
-  // Text-to-Speech function
-  const speakMessage = (messageId, text, personaName) => {
-    // Stop any currently playing speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voiceConfig = getVoiceConfig(personaName);
-    
-    utterance.pitch = voiceConfig.pitch;
-    utterance.rate = voiceConfig.rate;
-    utterance.volume = 1.0;
-    
-    // Try to use different voices if available
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      const voiceIndex = voiceConfig.voiceIndex % voices.length;
-      utterance.voice = voices[voiceIndex];
+  // Text-to-Speech function using high-quality OpenAI TTS
+  const speakMessage = async (messageId, text, personaName) => {
+    try {
+      // Stop any currently playing speech
+      stopAudio();
+      
+      setPlayingMessageId(messageId);
+      toast.success(`Playing ${personaName}'s message...`);
+      
+      // Call backend TTS endpoint
+      const response = await axios.post(`${API}/tts/generate`, {
+        text: text,
+        persona_name: personaName
+      });
+      
+      // Create audio element from base64
+      const audio = new Audio(`data:audio/mp3;base64,${response.data.audio}`);
+      
+      audio.onended = () => {
+        setPlayingMessageId(null);
+        // Auto-play next message if in queue
+        playNextInQueue(messageId);
+      };
+      
+      audio.onerror = (error) => {
+        console.error('Audio playback error:', error);
+        setPlayingMessageId(null);
+        toast.error("Failed to play audio");
+      };
+      
+      audio.play();
+      
+    } catch (error) {
+      console.error('TTS generation failed:', error);
+      setPlayingMessageId(null);
+      toast.error("Failed to generate speech");
     }
-    
-    setPlayingMessageId(messageId);
-    
-    utterance.onend = () => {
-      setPlayingMessageId(null);
-      // Auto-play next message if in queue
-      playNextInQueue(messageId);
-    };
-    
-    utterance.onerror = () => {
-      setPlayingMessageId(null);
-      toast.error("Failed to play audio");
-    };
-    
-    window.speechSynthesis.speak(utterance);
   };
 
   // Play next message in auto-play queue
