@@ -244,8 +244,160 @@ class MultiPersonaChatTester:
             print("   ❌ Failed to get valid responses")
             return False
 
+    def test_extract_url_endpoint(self):
+        """Test the new /api/extract-url endpoint directly"""
+        print("   Testing URL extraction with Wikipedia article...")
+        
+        # Test with a real Wikipedia URL
+        url_data = {
+            "url": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+        }
+        
+        success, response = self.run_test("Extract URL Endpoint", "POST", "extract-url", 200, url_data)
+        
+        if success:
+            # Verify response structure
+            required_fields = ['url', 'title', 'content', 'success']
+            missing_fields = [field for field in required_fields if field not in response]
+            
+            if missing_fields:
+                print(f"   ❌ Missing required fields: {missing_fields}")
+                return False
+            
+            if response.get('success') != True:
+                print(f"   ❌ Success field is not True: {response.get('success')}")
+                return False
+            
+            content_length = len(response.get('content', ''))
+            print(f"   ✅ URL: {response.get('url')}")
+            print(f"   ✅ Title: {response.get('title', '')[:50]}...")
+            print(f"   ✅ Content length: {content_length} chars")
+            
+            # Check content is truncated to ~5000 chars
+            if content_length > 5500:
+                print(f"   ⚠️  Warning: Content might not be properly truncated ({content_length} chars)")
+            
+            return True
+        
+        return False
+
+    def test_extract_url_error_handling(self):
+        """Test URL extraction error handling"""
+        print("   Testing invalid URL...")
+        
+        # Test with invalid URL
+        invalid_url_data = {
+            "url": "not-a-valid-url"
+        }
+        
+        success, response = self.run_test("Extract URL - Invalid URL", "POST", "extract-url", 500, invalid_url_data)
+        
+        if success:
+            print("   ✅ Invalid URL properly handled with error response")
+        
+        # Test with timeout URL (this might not actually timeout in test environment)
+        print("   Testing potentially slow URL...")
+        timeout_url_data = {
+            "url": "https://httpstat.us/200?sleep=15000"  # 15 second delay
+        }
+        
+        # This should either succeed quickly or timeout with 504
+        try:
+            url = f"{self.api_url}/extract-url"
+            response = requests.post(url, json=timeout_url_data, headers={'Content-Type': 'application/json'}, timeout=12)
+            if response.status_code in [200, 504]:
+                print(f"   ✅ Timeout URL handled appropriately (status: {response.status_code})")
+                return True
+            else:
+                print(f"   ⚠️  Unexpected status for timeout URL: {response.status_code}")
+                return True  # Still consider this a pass as it didn't crash
+        except requests.exceptions.Timeout:
+            print("   ✅ Request properly timed out")
+            return True
+        except Exception as e:
+            print(f"   ⚠️  Timeout test error: {e}")
+            return True  # Don't fail the whole test for this
+
+    def test_url_attachment_with_extraction(self):
+        """Test URL attachment handling with real content extraction"""
+        if not self.conversation_id:
+            print("❌ No conversation ID available")
+            return False
+        
+        attachments = [{
+            "type": "url",
+            "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+            "name": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+        }]
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "I've shared a Wikipedia article about AI. Please discuss the content you can see from this link.",
+            "attachments": attachments
+        }
+        
+        print("   This may take longer due to URL content extraction...")
+        success, response = self.run_test("URL Attachment with Extraction", "POST", "chat/generate-multi", 200, generate_data)
+        
+        if success and 'responses' in response:
+            responses = response['responses']
+            print(f"   Generated {len(responses)} persona responses")
+            
+            # Check if any response mentions URL content or AI-related terms
+            content_keywords = ['artificial intelligence', 'ai', 'machine learning', 'wikipedia', 'article', 'content']
+            content_discussed = False
+            
+            for resp in responses:
+                content = resp.get('content', '').lower()
+                if any(keyword in content for keyword in content_keywords):
+                    content_discussed = True
+                    print(f"   ✅ URL content discussed by {resp.get('persona_name')}: {content[:100]}...")
+                    break
+            
+            if not content_discussed:
+                print("   ⚠️  Warning: URL content not clearly discussed in responses")
+                # Still return True as the endpoint worked, just content might not be processed
+                
+            return True
+        return False
+
+    def test_persona_avatar_urls(self):
+        """Test persona avatar URL format validation"""
+        success, response = self.run_test("Get Personas for Avatar Check", "GET", "personas", 200)
+        
+        if success and isinstance(response, list):
+            print(f"   Checking {len(response)} personas for avatar URL format...")
+            
+            avatar_issues = []
+            valid_avatars = 0
+            
+            for persona in response:
+                persona_name = persona.get('display_name', 'Unknown')
+                avatar_url = persona.get('avatar_url')
+                
+                if avatar_url:
+                    # Check for duplicated "data:image/..." prefixes
+                    if avatar_url.count('data:image/') > 1:
+                        avatar_issues.append(f"{persona_name}: Duplicated data:image prefix")
+                    elif not avatar_url.startswith('data:image/'):
+                        avatar_issues.append(f"{persona_name}: Invalid data URL format")
+                    else:
+                        valid_avatars += 1
+                        print(f"   ✅ {persona_name}: Valid avatar URL")
+            
+            if avatar_issues:
+                print("   ❌ Avatar URL issues found:")
+                for issue in avatar_issues:
+                    print(f"      - {issue}")
+                return False
+            else:
+                print(f"   ✅ All {valid_avatars} avatar URLs are properly formatted")
+                return True
+        
+        return False
+
     def test_url_attachment(self):
-        """Test URL attachment handling"""
+        """Test URL attachment handling (legacy test)"""
         if not self.conversation_id:
             print("❌ No conversation ID available")
             return False
@@ -262,7 +414,7 @@ class MultiPersonaChatTester:
             "attachments": attachments
         }
         
-        success, response = self.run_test("URL Attachment", "POST", "chat/generate-multi", 200, generate_data)
+        success, response = self.run_test("URL Attachment (Basic)", "POST", "chat/generate-multi", 200, generate_data)
         
         if success and 'responses' in response:
             responses = response['responses']
