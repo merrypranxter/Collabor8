@@ -774,8 +774,30 @@ export default function Arena() {
               Close
             </button>
           </div>
+          
+          {/* Tag filter in expanded view */}
+          {personas.some(p => p.tags && p.tags.length > 0) && (
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Filter by tag (e.g., philosophy, science)..."
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                className="max-w-md bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-lg px-4 py-2 text-[#F5F5F5] placeholder:text-[#666] focus:outline-none focus:border-white"
+              />
+              {tagFilter && (
+                <button
+                  onClick={() => setTagFilter('')}
+                  className="ml-2 text-xs text-[#A1A1A1] hover:text-[#F5F5F5]"
+                >
+                  Clear filter
+                </button>
+              )}
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-[calc(100vh-200px)] scroll-area">
-            {personas.map(persona => (
+            {filteredPersonas.map(persona => (
               <motion.div
                 key={persona.id}
                 initial={{ opacity: 0, scale: 0.9 }}
