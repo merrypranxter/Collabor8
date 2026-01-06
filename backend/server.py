@@ -677,6 +677,56 @@ IMPORTANT: You are now responding to what OTHER personas just said, not just the
     
     return {"responses": all_responses, "rounds_completed": len(all_responses) // 2}
 
+@api_router.post("/tts/generate")
+async def generate_speech(request: dict):
+    """
+    Generate high-quality speech from text using OpenAI TTS
+    """
+    text = request.get('text', '')
+    persona_name = request.get('persona_name', '')
+    
+    if not text:
+        raise HTTPException(status_code=400, detail="Text is required")
+    
+    # Limit text length to avoid exceeding OpenAI limits
+    if len(text) > 4096:
+        text = text[:4096]
+    
+    # Map personas to appropriate OpenAI voices
+    voice_map = {
+        "Terence McKenna": "onyx",  # Deep, authoritative
+        "Jesus": "fable",  # Expressive, storytelling
+        "Buddha": "sage",  # Wise, measured
+        "Carl Jung": "echo",  # Smooth, calm
+        "Albert Einstein": "alloy",  # Neutral, balanced
+        "Helena Blavatsky": "shimmer",  # Bright, ethereal
+        "J Robert Oppenheimer": "onyx",  # Deep, serious
+        "Marie Curie": "nova",  # Energetic, upbeat
+    }
+    
+    voice = voice_map.get(persona_name, "alloy")
+    
+    try:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        tts = OpenAITextToSpeech(api_key=api_key)
+        
+        # Generate speech as base64 (easier to send over API)
+        audio_base64 = await tts.generate_speech_base64(
+            text=text,
+            model="tts-1",  # Standard quality for speed
+            voice=voice
+        )
+        
+        return {
+            "audio": audio_base64,
+            "voice": voice,
+            "format": "mp3"
+        }
+        
+    except Exception as e:
+        logging.error(f"TTS generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate speech: {str(e)}")
+
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     default_personas = [
