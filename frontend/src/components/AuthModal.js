@@ -31,7 +31,9 @@ export default function AuthModal({ open, onClose, onAuth }) {
       await onAuth("login", { username: loginUsername, password: loginPassword });
       onClose();
     } catch (err) {
-      setError(err.message || "Login failed");
+      console.error("Login error:", err);
+      const errorMessage = err.response?.data?.detail || err.message || "Login failed. Please check your credentials.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +52,9 @@ export default function AuthModal({ open, onClose, onAuth }) {
       });
       onClose();
     } catch (err) {
-      setError(err.message || "Registration failed");
+      console.error("Register error:", err);
+      const errorMessage = err.response?.data?.detail || err.message || "Registration failed. Username may already exist.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
