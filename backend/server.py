@@ -270,6 +270,14 @@ async def get_personas():
     for persona in personas:
         if isinstance(persona['created_at'], str):
             persona['created_at'] = datetime.fromisoformat(persona['created_at'])
+        # Add default values for new fields if they don't exist
+        if 'tags' not in persona:
+            persona['tags'] = []
+        if 'sort_order' not in persona:
+            persona['sort_order'] = 0
+    
+    # Sort by sort_order
+    personas.sort(key=lambda p: p.get('sort_order', 0))
     
     return personas
 
