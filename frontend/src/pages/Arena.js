@@ -675,6 +675,9 @@ export default function Arena() {
       setMessages(prev => [...prev, ...response.data.responses]);
       setIsGenerating(false);
       
+      // Auto-save conversation after message
+      setTimeout(() => saveConversation(), 1000);
+      
       // Now continue the discussion - personas respond to each other
       setDiscussionActive(true);
       setStopDiscussion(false);
