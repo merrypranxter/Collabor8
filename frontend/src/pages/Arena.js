@@ -104,9 +104,12 @@ export default function Arena() {
       setPlayingMessageId(messageId);
       toast.success(`Playing ${personaName}'s message...`);
       
+      // Prepend persona name announcement
+      const textWithIntro = `${personaName} says: ${text}`;
+      
       // Call backend TTS endpoint
       const response = await axios.post(`${API}/tts/generate`, {
-        text: text,
+        text: textWithIntro,
         persona_name: personaName
       });
       
