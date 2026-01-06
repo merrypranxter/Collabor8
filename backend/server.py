@@ -84,6 +84,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     display_name: str
+    avatar_base64: Optional[str] = None
 
 class UserLogin(BaseModel):
     username: str
