@@ -1060,7 +1060,7 @@ export default function Arena() {
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
-                        toast.info("Profile settings coming soon!");
+                        setShowProfileModal(true);
                       }}
                       className="w-full px-4 py-3 text-left text-sm text-[#F5F5F5] hover:bg-[rgba(255,255,255,0.05)] transition-colors flex items-center gap-3"
                     >
@@ -1070,7 +1070,7 @@ export default function Arena() {
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
-                        toast.info("Settings coming soon!");
+                        setShowSettingsModal(true);
                       }}
                       className="w-full px-4 py-3 text-left text-sm text-[#F5F5F5] hover:bg-[rgba(255,255,255,0.05)] transition-colors flex items-center gap-3"
                     >
