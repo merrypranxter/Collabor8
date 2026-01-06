@@ -294,10 +294,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Backend URL extraction API endpoint"
-    - "Persona avatar URL format fix"
-  stuck_tasks:
-    - "Persona avatar URL format fix"
+    - "Drag-Drop Persona Reordering (Both Views)"
+    - "Auto-Save with AI-Generated Titles"
+    - "Login Functionality (Registration and Authentication)"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
