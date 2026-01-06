@@ -152,6 +152,33 @@ backend:
       - working: true
         agent: "testing"
         comment: "TESTED: URL attachments work correctly. URLs are included in attachment context and personas acknowledge and respond to shared links appropriately."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE URL TESTING COMPLETE ✅: /api/extract-url endpoint working correctly - extracts content from Wikipedia URLs with proper response structure (url, title, content, success=true). Content properly truncated to ~5000 chars. URL extraction in chat flow working - personas acknowledge and discuss URL content meaningfully. Basic URL attachment handling confirmed working."
+
+  - task: "Backend URL extraction API endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "TESTED: /api/extract-url endpoint working correctly. Successfully extracts content from real URLs (tested with Wikipedia AI article). Returns proper response structure with url, title, content, and success=true. Content properly truncated to ~5000 chars. Error handling works but returns 500 status instead of expected format - still provides proper error messages. Core functionality operational."
+
+  - task: "Persona avatar URL format fix"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE FOUND: Avatar URLs have duplicated 'data:image/' prefixes in 7 personas (Terence McKenna, Hunter S Thompson, A guy on a permeant dmt drip but is still lucid and coherent in conversation, A Schizophrenic Person, an Oracle of Delphi, terence mckenna, Terence McKenna). This causes invalid data URL format. Needs immediate fix to prevent avatar display issues."
 
   - task: "Multi-file upload support"
     implemented: true
