@@ -557,7 +557,20 @@ async def generate_multi_responses(request: ChatGenerateRequest):
                 image_contents.append(image_content)
                 attachment_context += f"\n[User shared an image: {att.get('description', 'visual content')}]"
             elif att['type'] == 'url':
-                attachment_context += f"\n[User shared a link: {att['url']}]"
+                # Fetch and extract URL content
+                url_text = att.get('url', '')
+                try:
+                    url_response = requests.get(f"{os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')}/api/extract-url", 
+                                               json={"url": url_text}, 
+                                               timeout=10)
+                    if url_response.status_code == 200:
+                        url_data = url_response.json()
+                        attachment_context += f"\n[User shared a web link: {url_data['title']}]\nURL: {url_data['url']}\nContent summary:\n{url_data['content'][:1500]}"
+                    else:
+                        attachment_context += f"\n[User shared a link: {url_text}]"
+                except Exception as e:
+                    logging.warning(f"Failed to fetch URL content: {e}")
+                    attachment_context += f"\n[User shared a link: {url_text}]"
             elif att['type'] == 'file':
                 file_name = att.get('name', 'document')
                 extracted_text = att.get('extractedText', '')
