@@ -78,10 +78,10 @@ export default function PersonaModal({ open, onClose, onSubmit, editingPersona }
       <DialogContent className="sm:max-w-[500px] bg-[#141414] border border-[rgba(255,255,255,0.08)]" data-testid="persona-modal">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl font-normal text-[#F5F5F5]">
-            Summon a Persona
+            {editingPersona ? "Edit Persona" : "Summon a Persona"}
           </DialogTitle>
           <DialogDescription className="text-[#A1A1A1] font-light">
-            Enter a name. The archive will provide their essence.
+            {editingPersona ? "Update the persona's appearance and details." : "Enter a name. The archive will provide their essence."}
           </DialogDescription>
         </DialogHeader>
         
