@@ -560,14 +560,37 @@ async def generate_multi_responses(request: ChatGenerateRequest):
                 # Fetch and extract URL content
                 url_text = att.get('url', '')
                 try:
-                    url_response = requests.get(f"{os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')}/api/extract-url", 
-                                               json={"url": url_text}, 
-                                               timeout=10)
-                    if url_response.status_code == 200:
-                        url_data = url_response.json()
-                        attachment_context += f"\n[User shared a web link: {url_data['title']}]\nURL: {url_data['url']}\nContent summary:\n{url_data['content'][:1500]}"
-                    else:
-                        attachment_context += f"\n[User shared a link: {url_text}]"
+                    # Fetch the URL with timeout
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                    response = requests.get(url_text, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    
+                    # Parse HTML
+                    soup = BeautifulSoup(response.content, 'html.parser')
+                    
+                    # Remove script and style elements
+                    for script in soup(["script", "style", "nav", "footer", "header"]):
+                        script.decompose()
+                    
+                    # Get text content
+                    text = soup.get_text()
+                    
+                    # Clean up text
+                    lines = (line.strip() for line in text.splitlines())
+                    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                    text_content = '\n'.join(chunk for chunk in chunks if chunk)
+                    
+                    # Get title
+                    title = soup.find('title')
+                    title_text = title.string if title else url_text
+                    
+                    # Limit text length
+                    if len(text_content) > 1500:
+                        text_content = text_content[:1500]
+                    
+                    attachment_context += f"\n[User shared a web link: {title_text}]\nURL: {url_text}\nContent summary:\n{text_content}"
                 except Exception as e:
                     logging.warning(f"Failed to fetch URL content: {e}")
                     attachment_context += f"\n[User shared a link: {url_text}]"
