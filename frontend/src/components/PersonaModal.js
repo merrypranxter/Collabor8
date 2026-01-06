@@ -19,12 +19,28 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function PersonaModal({ open, onClose, onSubmit }) {
+export default function PersonaModal({ open, onClose, onSubmit, editingPersona }) {
   const [name, setName] = useState("");
   const [type, setType] = useState("historical");
   const [color, setColor] = useState("#A855F7"); // Default purple
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+
+  // Update form when editing persona changes
+  useState(() => {
+    if (editingPersona) {
+      setName(editingPersona.display_name || "");
+      setType(editingPersona.type || "historical");
+      setColor(editingPersona.color || "#A855F7");
+      setAvatarPreview(editingPersona.avatar_url || editingPersona.avatar_base64 || null);
+    } else {
+      setName("");
+      setType("historical");
+      setColor("#A855F7");
+      setAvatarFile(null);
+      setAvatarPreview(null);
+    }
+  }, [editingPersona]);
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
