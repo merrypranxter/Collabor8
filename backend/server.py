@@ -864,6 +864,41 @@ async def generate_speech(request: dict):
         logging.error(f"TTS generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate speech: {str(e)}")
 
+@api_router.post("/extract-pdf")
+async def extract_pdf_text(request: dict):
+    """
+    Extract text from PDF file
+    """
+    pdf_base64 = request.get('pdf_data', '')
+    
+    if not pdf_base64:
+        raise HTTPException(status_code=400, detail="No PDF data provided")
+    
+    try:
+        # Remove data URL prefix if present
+        if 'base64,' in pdf_base64:
+            pdf_base64 = pdf_base64.split('base64,')[1]
+        
+        # Decode base64
+        pdf_bytes = base64.b64decode(pdf_base64)
+        
+        # Extract text from PDF
+        pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_bytes))
+        text_content = ""
+        
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text_content += page.extract_text() + "\n\n"
+        
+        return {
+            "text": text_content.strip(),
+            "pages": len(pdf_reader.pages)
+        }
+        
+    except Exception as e:
+        logging.error(f"PDF extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to extract PDF text: {str(e)}")
+
 @api_router.post("/export/pdf")
 async def export_pdf(request: dict):
     """
