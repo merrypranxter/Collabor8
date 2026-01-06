@@ -744,6 +744,17 @@ export default function Arena() {
                 >
                   <LinkIcon className="w-5 h-5" />
                 </button>
+                <button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`px-3 h-24 rounded-lg transition-all ${
+                    isRecording 
+                      ? 'bg-[rgba(239,68,68,0.2)] border border-[rgba(239,68,68,0.4)] text-[#EF4444] animate-pulse' 
+                      : 'bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.05)]'
+                  }`}
+                  title={isRecording ? "Stop recording" : "Voice input"}
+                >
+                  {isRecording ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
                 <textarea
                   placeholder="Address the symposium..."
                   value={userInput}
