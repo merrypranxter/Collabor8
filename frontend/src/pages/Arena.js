@@ -115,9 +115,11 @@ export default function Arena() {
       
       // Create audio element from base64
       const audio = new Audio(`data:audio/mp3;base64,${response.data.audio}`);
+      setCurrentAudio(audio);
       
       audio.onended = () => {
         setPlayingMessageId(null);
+        setCurrentAudio(null);
         // Auto-play next message if in queue
         playNextInQueue(messageId);
       };
@@ -125,6 +127,7 @@ export default function Arena() {
       audio.onerror = (error) => {
         console.error('Audio playback error:', error);
         setPlayingMessageId(null);
+        setCurrentAudio(null);
         toast.error("Failed to play audio");
       };
       
@@ -133,6 +136,7 @@ export default function Arena() {
     } catch (error) {
       console.error('TTS generation failed:', error);
       setPlayingMessageId(null);
+      setCurrentAudio(null);
       toast.error("Failed to generate speech");
     }
   };
@@ -147,7 +151,7 @@ export default function Arena() {
         if (nextMessage) {
           setTimeout(() => {
             speakMessage(nextMessage.id, nextMessage.content, nextMessage.persona_name);
-          }, 500); // Small pause between messages
+          }, 800); // Small pause between messages
         }
       } else {
         // Reached end of queue
@@ -177,8 +181,12 @@ export default function Arena() {
 
   // Stop all audio playback
   const stopAudio = () => {
-    window.speechSynthesis.cancel();
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
     setPlayingMessageId(null);
+    setCurrentAudio(null);
     setAutoPlayQueue([]);
   };
 
