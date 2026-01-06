@@ -304,6 +304,8 @@ async def update_persona(persona_id: str, persona_update: PersonaCreate):
         color=persona_update.color or existing.get('color', '#A855F7'),
         avatar_base64=avatar_base64,
         avatar_url=avatar_url,
+        tags=persona_update.tags or existing.get('tags', []),
+        sort_order=persona_update.sort_order if persona_update.sort_order is not None else existing.get('sort_order', 0),
         created_at=datetime.fromisoformat(existing['created_at']) if isinstance(existing['created_at'], str) else existing['created_at']
     )
     
@@ -312,6 +314,21 @@ async def update_persona(persona_id: str, persona_update: PersonaCreate):
     
     await db.personas.update_one({"id": persona_id}, {"$set": doc})
     return updated_persona
+
+@api_router.post("/personas/reorder")
+async def reorder_personas(request: dict):
+    """
+    Bulk update persona sort order after drag-drop
+    """
+    persona_orders = request.get('orders', [])  # [{"id": "...", "sort_order": 0}, ...]
+    
+    for item in persona_orders:
+        await db.personas.update_one(
+            {"id": item['id']},
+            {"$set": {"sort_order": item['sort_order']}}
+        )
+    
+    return {"success": True, "updated": len(persona_orders)}
 
 @api_router.delete("/personas/{persona_id}")
 async def delete_persona(persona_id: str):
