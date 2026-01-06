@@ -163,9 +163,10 @@ async def get_guest_session():
 
 @api_router.post("/personas", response_model=Persona)
 async def create_persona(persona: PersonaCreate):
-    avatar_base64 = None
+    # Use provided avatar or generate if requested
+    avatar_base64 = persona.avatar_base64
     
-    if persona.generate_avatar:
+    if persona.generate_avatar and not avatar_base64:
         try:
             api_key = os.environ.get('EMERGENT_LLM_KEY')
             image_gen = OpenAIImageGeneration(api_key=api_key)
@@ -237,7 +238,8 @@ async def create_persona(persona: PersonaCreate):
         bio=persona.bio,
         quirks=persona.quirks,
         voice=persona.voice,
-        role_in_arena=persona.role_in_arena,
+        color=persona.color or "#A855F7",
+        avatar_base64=avatar_base64,
         avatar_url=f"data:image/png;base64,{avatar_base64}" if avatar_base64 else None
     )
     
