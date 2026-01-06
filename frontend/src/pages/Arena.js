@@ -753,7 +753,12 @@ export default function Arena() {
     }
   };
 
-  const activePersonaObjects = personas.filter(p => activePersonas.includes(p.id));
+  // Filter personas by tag
+  const filteredPersonas = tagFilter 
+    ? personas.filter(p => p.tags && p.tags.some(tag => tag.includes(tagFilter.toLowerCase())))
+    : personas;
+
+  const activePersonaObjects = filteredPersonas.filter(p => activePersonas.includes(p.id));
 
   return (
     <div className="min-h-screen relative z-10" data-testid="arena-container">
