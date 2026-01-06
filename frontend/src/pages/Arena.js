@@ -455,21 +455,38 @@ export default function Arena() {
     }
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const files = Array.from(event.target.files);
-    files.forEach(file => {
+    
+    for (const file of files) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const attachment = {
+      reader.onload = async (e) => {
+        let attachment = {
           type: file.type.startsWith('image/') ? 'image' : 'file',
           name: file.name,
           data: e.target.result,
           description: file.name
         };
+        
+        // If it's a PDF, extract text
+        if (file.type === 'application/pdf') {
+          try {
+            const response = await axios.post(`${API}/extract-pdf`, {
+              pdf_data: e.target.result
+            });
+            attachment.extractedText = response.data.text;
+            attachment.description = `PDF: ${file.name} (${response.data.pages} pages)`;
+            toast.success(`PDF text extracted: ${response.data.pages} pages`);
+          } catch (error) {
+            console.error('PDF extraction failed:', error);
+            toast.error('Could not extract PDF text, but file is attached');
+          }
+        }
+        
         setAttachments(prev => [...prev, attachment]);
       };
       reader.readAsDataURL(file);
-    });
+    }
   };
 
   const handleUrlAttachment = () => {
