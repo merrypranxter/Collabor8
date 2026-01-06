@@ -862,81 +862,104 @@ export default function Arena() {
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-[calc(100vh-200px)] scroll-area">
-            {filteredPersonas.map(persona => (
-              <motion.div
-                key={persona.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={`
-                  card-subtle p-6 cursor-pointer hover:bg-[rgba(255,255,255,0.04)] transition-all relative group
-                  ${activePersonas.includes(persona.id) ? 'ring-1 ring-white' : ''}
-                `}
-                onClick={() => togglePersona(persona.id)}
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditingPersona(persona);
-                    setShowPersonaModal(true);
-                  }}
-                  className="absolute top-3 right-14 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(59,130,246,0.2)] border border-[rgba(59,130,246,0.3)]"
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="personas-expanded">
+              {(provided) => (
+                <div 
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-[calc(100vh-200px)] scroll-area"
                 >
-                  <Edit className="w-3.5 h-3.5 text-[#3B82F6]" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm(`Remove ${persona.display_name} from the arena?`)) {
-                      deletePersona(persona.id);
-                    }
-                  }}
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(220,38,38,0.2)] border border-[rgba(220,38,38,0.3)]"
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" />
-                </button>
-                <div className="flex items-start gap-4 mb-4">
-                  <div 
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.15)] shrink-0 overflow-hidden"
-                    style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                  {filteredPersonas.map((persona, index) => (
+                    <Draggable key={persona.id} draggableId={persona.id} index={index}>
+                      {(provided, snapshot) => (
+                        <motion.div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={`
+                            card-subtle p-6 cursor-pointer hover:bg-[rgba(255,255,255,0.04)] transition-all relative group
+                            ${activePersonas.includes(persona.id) ? 'ring-1 ring-white' : ''}
+                            ${snapshot.isDragging ? 'opacity-50 ring-2 ring-blue-500' : ''}
+                          `}
+                          onClick={() => togglePersona(persona.id)}
+                        >
+                          <div 
+                            {...provided.dragHandleProps}
+                            className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+                          >
+                            <GripVertical className="w-5 h-5 text-[#666]" />
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPersona(persona);
+                              setShowPersonaModal(true);
+                            }}
+                            className="absolute top-3 right-14 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(59,130,246,0.2)] border border-[rgba(59,130,246,0.3)]"
+                          >
+                            <Edit className="w-3.5 h-3.5 text-[#3B82F6]" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(`Remove ${persona.display_name} from the arena?`)) {
+                                deletePersona(persona.id);
+                              }
+                            }}
+                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-[rgba(0,0,0,0.8)] hover:bg-[rgba(220,38,38,0.2)] border border-[rgba(220,38,38,0.3)]"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-[#DC2626]" />
+                          </button>
+                          <div className="flex items-start gap-4 mb-4">
+                            <div 
+                              className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-light border border-[rgba(255,255,255,0.15)] shrink-0 overflow-hidden"
+                              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                            >
+                              {persona.avatar_url || persona.avatar_base64 ? (
+                                <img 
+                                  src={persona.avatar_url || persona.avatar_base64} 
+                                  alt={persona.display_name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-[#F5F5F5]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-display text-xl font-normal text-[#F5F5F5] mb-1">{persona.display_name}</h3>
+                              <p className="text-xs uppercase tracking-wider text-white">{persona.role_in_arena}</p>
+                            </div>
+                            {activePersonas.includes(persona.id) && (
+                              <div className="persona-status-active" />
+                            )}
+                          </div>
+                          <p className="text-sm text-[#A1A1A1] font-light leading-relaxed mb-3">{persona.bio}</p>
+                          <div className="text-xs text-[#A1A1A1] font-light">
+                            <span className="uppercase tracking-wider">Quirks:</span>
+                            <div className="mt-1 space-y-1">
+                              {persona.quirks.map((quirk, i) => (
+                                <div key={i} className="pl-3">• {quirk}</div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                  <button
+                    onClick={() => setShowPersonaModal(true)}
+                    className="card-subtle p-6 flex flex-col items-center justify-center gap-3 hover:bg-[rgba(255,255,255,0.05)] transition-all border-dashed border-[rgba(255,255,255,0.2)]"
                   >
-                    {persona.avatar_url || persona.avatar_base64 ? (
-                      <img 
-                        src={persona.avatar_url || persona.avatar_base64} 
-                        alt={persona.display_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-[#F5F5F5]">{persona.display_name.split(' ').map(n => n[0]).join('').slice(0,2)}</span>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-display text-xl font-normal text-[#F5F5F5] mb-1">{persona.display_name}</h3>
-                    <p className="text-xs uppercase tracking-wider text-white">{persona.role_in_arena}</p>
-                  </div>
-                  {activePersonas.includes(persona.id) && (
-                    <div className="persona-status-active" />
-                  )}
+                    <Plus className="w-8 h-8 text-white" />
+                    <span className="text-sm uppercase tracking-wider text-white font-light">Summon New Persona</span>
+                  </button>
                 </div>
-                <p className="text-sm text-[#A1A1A1] font-light leading-relaxed mb-3">{persona.bio}</p>
-                <div className="text-xs text-[#A1A1A1] font-light">
-                  <span className="uppercase tracking-wider">Quirks:</span>
-                  <div className="mt-1 space-y-1">
-                    {persona.quirks.map((quirk, i) => (
-                      <div key={i} className="pl-3">• {quirk}</div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-            <button
-              onClick={() => setShowPersonaModal(true)}
-              className="card-subtle p-6 flex flex-col items-center justify-center gap-3 hover:bg-[rgba(255,255,255,0.05)] transition-all border-dashed border-[rgba(255,255,255,0.2)]"
-            >
-              <Plus className="w-8 h-8 text-white" />
-              <span className="text-sm uppercase tracking-wider text-white font-light">Summon New Persona</span>
-            </button>
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       ) : (
       <div className={`grid grid-cols-1 gap-8 h-screen p-8 overflow-hidden transition-all duration-300 ${isExpanded ? "lg:grid-cols-1" : "lg:grid-cols-12"}`}>
