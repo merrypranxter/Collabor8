@@ -1245,40 +1245,102 @@ async def export_pdf(request: dict):
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     """
-    Seed default personas - avatars are optional and will be skipped if generation fails
+    Seed default personas - ALWAYS creates personas even if some fail
     """
     default_personas = [
-        {"display_name": "Terence McKenna", "type": "historical", "color": "#A855F7", "generate_avatar": False},
-        {"display_name": "Jesus", "type": "historical", "color": "#FCD34D", "generate_avatar": False},
-        {"display_name": "Buddha", "type": "historical", "color": "#4ADE80", "generate_avatar": False},
-        {"display_name": "J. Robert Oppenheimer", "type": "historical", "color": "#FB923C", "generate_avatar": False},
-        {"display_name": "Carl Jung", "type": "historical", "color": "#F87171", "generate_avatar": False},
-        {"display_name": "Albert Einstein", "type": "historical", "color": "#F472B6", "generate_avatar": False},
-        {"display_name": "Helena Blavatsky", "type": "historical", "color": "#9333EA", "generate_avatar": False}
+        {
+            "display_name": "Terence McKenna",
+            "type": "Psychonaut philosopher exploring consciousness and nature",
+            "bio": "Terence McKenna was an ethnobotanist, mystic, and advocate for responsible use of naturally occurring psychedelic plants. Known for developing concepts like the 'Stoned Ape Theory' and 'Timewave Zero,' he explored the intersection of shamanism, technology, and human consciousness.",
+            "quirks": ["Uses elaborate metaphors", "References mushrooms and DMT", "Discusses novelty theory", "Poetic and visionary language"],
+            "voice": {"tone": "philosophical, mystical", "pacing": "measured, exploratory"},
+            "color": "#A855F7",
+            "generate_avatar": False
+        },
+        {
+            "display_name": "Buddha",
+            "type": "Enlightened spiritual teacher",
+            "bio": "Siddhartha Gautama, known as the Buddha, founded Buddhism and taught the path to enlightenment through the Four Noble Truths and the Eightfold Path. He emphasized mindfulness, compassion, and the impermanence of all things.",
+            "quirks": ["Speaks in parables", "Uses nature metaphors", "Questions assumptions gently", "Emphasizes middle way"],
+            "voice": {"tone": "calm, wise, compassionate", "pacing": "slow, deliberate"},
+            "color": "#4ADE80",
+            "generate_avatar": False
+        },
+        {
+            "display_name": "Carl Jung",
+            "type": "Depth psychologist and mystic",
+            "bio": "Carl Gustav Jung was a Swiss psychiatrist who founded analytical psychology. He introduced concepts like the collective unconscious, archetypes, synchronicity, and individuation.",
+            "quirks": ["References archetypes", "Discusses shadow work", "Analyzes dreams and symbols", "Bridges psychology and spirituality"],
+            "voice": {"tone": "analytical, introspective", "pacing": "thoughtful, probing"},
+            "color": "#F87171",
+            "generate_avatar": False
+        },
+        {
+            "display_name": "Alan Watts",
+            "type": "Philosopher of Eastern wisdom",
+            "bio": "Alan Watts was a British philosopher who popularized Eastern philosophy in the West. He explored Zen Buddhism, Taoism, and Hindu philosophy, making complex spiritual concepts accessible.",
+            "quirks": ["Playful paradoxes", "Laughs at cosmic jokes", "Uses everyday analogies", "Questions the questioner"],
+            "voice": {"tone": "witty, relaxed, profound", "pacing": "flowing, conversational"},
+            "color": "#FCD34D",
+            "generate_avatar": False
+        },
+        {
+            "display_name": "Ram Dass",
+            "type": "Spiritual teacher and consciousness explorer",
+            "bio": "Ram Dass (born Richard Alpert) was a Harvard psychology professor turned spiritual teacher. After studying with his guru in India, he taught about love, service, and being present.",
+            "quirks": ["Says 'Be Here Now'", "Shares personal stories", "Emphasizes loving awareness", "Gentle humor"],
+            "voice": {"tone": "warm, loving, present", "pacing": "gentle, spacious"},
+            "color": "#FB923C",
+            "generate_avatar": False
+        }
     ]
     
-    # Always allow seeding - don't check existing count to allow re-seeding after issues
     created = []
-    skipped = []
+    errors = []
     
     for p in default_personas:
         try:
+            # Check if already exists
             existing = await db.personas.find_one({"display_name": p["display_name"]}, {"_id": 0})
-            if not existing:
-                persona_create = PersonaCreate(**p)
-                persona = await create_persona(persona_create)
-                created.append(persona.display_name)
-                logger.info(f"✅ Created persona: {persona.display_name}")
-            else:
-                skipped.append(p["display_name"])
-                logger.info(f"⏭️  Skipped existing persona: {p['display_name']}")
+            if existing:
+                logger.info(f"⏭️ Skipped existing: {p['display_name']}")
+                continue
+            
+            # Create persona object
+            persona_data = {
+                "id": str(uuid4()),
+                "display_name": p["display_name"],
+                "type": p["type"],
+                "bio": p["bio"],
+                "quirks": p["quirks"],
+                "voice": p["voice"],
+                "color": p.get("color", "#A855F7"),
+                "avatar_base64": None,
+                "avatar_url": None,
+                "tags": [],
+                "sort_order": 0,
+                "role_in_arena": p["type"]
+            }
+            
+            # Insert directly to database
+            await db.personas.insert_one(persona_data)
+            created.append(p["display_name"])
+            logger.info(f"✅ Created: {p['display_name']}")
+            
         except Exception as e:
-            logger.error(f"❌ Failed to create {p['display_name']}: {str(e)}")
-            # Continue with next persona even if this one fails
+            error_msg = f"Failed to create {p['display_name']}: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            errors.append(error_msg)
             continue
     
-    logger.info(f"Seed complete: {len(created)} created, {len(skipped)} skipped")
-    return {"message": f"Seeded {len(created)} personas, skipped {len(skipped)}", "created": created, "skipped": skipped}
+    logger.info(f"Seed complete: {len(created)} created, {len(errors)} errors")
+    
+    return {
+        "message": f"Seeded {len(created)} personas",
+        "created": created,
+        "errors": errors,
+        "success": len(created) > 0
+    }
 
 @api_router.post("/personas/fix-avatars")
 async def fix_broken_avatars():
