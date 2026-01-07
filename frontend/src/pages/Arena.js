@@ -508,7 +508,14 @@ export default function Arena() {
       setUser(userData);
       localStorage.setItem('collabor8_user', JSON.stringify(userData));
       
-      await initializeArena(userData);
+      // Only initialize if not already done
+      if (!isInitializedRef.current) {
+        await initializeArena(userData);
+        isInitializedRef.current = true;
+      } else {
+        await loadConversations(userData?.id);
+      }
+      
       toast.success(`Welcome, ${userData.display_name}!`);
     } catch (error) {
       console.error("Auth failed:", error);
