@@ -198,7 +198,9 @@ async def create_persona(persona: PersonaCreate):
             if images and len(images) > 0:
                 avatar_base64 = base64.b64encode(images[0]).decode('utf-8')
         except Exception as e:
-            logger.error(f"Failed to generate avatar: {str(e)}")
+            logger.warning(f"Avatar generation failed for {persona.display_name}: {str(e)} - Creating persona without avatar")
+            # Continue creating persona even if avatar generation fails
+            avatar_base64 = None
     
     if persona.bio is None:
         api_key = os.environ.get('EMERGENT_LLM_KEY')
