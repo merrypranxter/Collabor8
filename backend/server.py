@@ -1354,7 +1354,50 @@ async def seed_default_personas():
         "success": len(created) > 0
     }
 
-@api_router.post("/personas/fix-avatars")
+@api_router.post("/personas/force-create")
+async def force_create_personas():
+    """
+    NUCLEAR OPTION - Delete everything and force create fresh personas
+    """
+    try:
+        # DELETE ALL PERSONAS
+        delete_result = await db.personas.delete_many({})
+        logger.info(f"🗑️ Deleted {delete_result.deleted_count} existing personas")
+        
+        # CREATE FRESH PERSONAS - NO CHECKS, JUST CREATE
+        personas = [
+            {"id": str(uuid4()), "display_name": "Terence McKenna", "type": "Philosopher", "bio": "Psychonaut exploring consciousness", "quirks": ["Uses metaphors", "References mushrooms"], "voice": {"tone": "philosophical", "pacing": "measured"}, "color": "#A855F7", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 0, "role_in_arena": "Philosopher"},
+            {"id": str(uuid4()), "display_name": "Buddha", "type": "Teacher", "bio": "Founder of Buddhism", "quirks": ["Speaks in parables", "Uses nature metaphors"], "voice": {"tone": "calm", "pacing": "slow"}, "color": "#4ADE80", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 1, "role_in_arena": "Teacher"},
+            {"id": str(uuid4()), "display_name": "Carl Jung", "type": "Psychologist", "bio": "Explorer of the unconscious", "quirks": ["References archetypes", "Discusses shadow"], "voice": {"tone": "analytical", "pacing": "thoughtful"}, "color": "#F87171", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 2, "role_in_arena": "Psychologist"},
+            {"id": str(uuid4()), "display_name": "Alan Watts", "type": "Philosopher", "bio": "Bridge between East and West", "quirks": ["Playful paradoxes", "Cosmic humor"], "voice": {"tone": "witty", "pacing": "flowing"}, "color": "#FCD34D", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 3, "role_in_arena": "Philosopher"},
+            {"id": str(uuid4()), "display_name": "Ram Dass", "type": "Teacher", "bio": "Guide to presence and love", "quirks": ["Says Be Here Now", "Gentle humor"], "voice": {"tone": "warm", "pacing": "gentle"}, "color": "#FB923C", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 4, "role_in_arena": "Teacher"}
+        ]
+        
+        # INSERT ALL AT ONCE
+        insert_result = await db.personas.insert_many(personas)
+        logger.info(f"✅ Inserted {len(insert_result.inserted_ids)} personas")
+        
+        # VERIFY
+        count = await db.personas.count_documents({})
+        logger.info(f"📊 Final count: {count}")
+        
+        # GET ALL AND RETURN
+        all_personas = await db.personas.find({}, {"_id": 0}).to_list(100)
+        
+        return {
+            "success": True,
+            "deleted": delete_result.deleted_count,
+            "created": len(insert_result.inserted_ids),
+            "final_count": count,
+            "personas": all_personas
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ FORCE CREATE FAILED: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
 async def fix_broken_avatars():
     """
     Emergency endpoint to fix broken avatar URLs in production database
