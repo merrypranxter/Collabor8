@@ -248,6 +248,17 @@ async def create_persona(persona: PersonaCreate):
             taboos=[t.strip() for t in taboos_part.split(',')] if taboos_part else []
         )
     
+    # Create avatar_url, handling cases where avatar_base64 might already include data URL prefix
+    avatar_url = None
+    if avatar_base64:
+        # Strip any existing data URL prefix to avoid duplication
+        if avatar_base64.startswith('data:image'):
+            # Already has full data URL
+            avatar_url = avatar_base64
+        else:
+            # Just base64 data, add prefix
+            avatar_url = f"data:image/png;base64,{avatar_base64}"
+    
     persona_obj = Persona(
         display_name=persona.display_name,
         type=persona.type,
@@ -256,7 +267,7 @@ async def create_persona(persona: PersonaCreate):
         voice=persona.voice,
         color=persona.color or "#A855F7",
         avatar_base64=avatar_base64,
-        avatar_url=f"data:image/png;base64,{avatar_base64}" if avatar_base64 else None,
+        avatar_url=avatar_url,
         tags=persona.tags or [],
         sort_order=persona.sort_order or 0
     )
