@@ -1354,6 +1354,7 @@ async def seed_default_personas():
         "success": len(created) > 0
     }
 
+@api_router.get("/personas/force-create-now")
 @api_router.post("/personas/force-create")
 async def force_create_personas():
     """
@@ -1366,11 +1367,11 @@ async def force_create_personas():
         
         # CREATE FRESH PERSONAS - NO CHECKS, JUST CREATE
         personas = [
-            {"id": str(uuid4()), "display_name": "Terence McKenna", "type": "Philosopher", "bio": "Psychonaut exploring consciousness", "quirks": ["Uses metaphors", "References mushrooms"], "voice": {"tone": "philosophical", "pacing": "measured"}, "color": "#A855F7", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 0, "role_in_arena": "Philosopher"},
-            {"id": str(uuid4()), "display_name": "Buddha", "type": "Teacher", "bio": "Founder of Buddhism", "quirks": ["Speaks in parables", "Uses nature metaphors"], "voice": {"tone": "calm", "pacing": "slow"}, "color": "#4ADE80", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 1, "role_in_arena": "Teacher"},
-            {"id": str(uuid4()), "display_name": "Carl Jung", "type": "Psychologist", "bio": "Explorer of the unconscious", "quirks": ["References archetypes", "Discusses shadow"], "voice": {"tone": "analytical", "pacing": "thoughtful"}, "color": "#F87171", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 2, "role_in_arena": "Psychologist"},
-            {"id": str(uuid4()), "display_name": "Alan Watts", "type": "Philosopher", "bio": "Bridge between East and West", "quirks": ["Playful paradoxes", "Cosmic humor"], "voice": {"tone": "witty", "pacing": "flowing"}, "color": "#FCD34D", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 3, "role_in_arena": "Philosopher"},
-            {"id": str(uuid4()), "display_name": "Ram Dass", "type": "Teacher", "bio": "Guide to presence and love", "quirks": ["Says Be Here Now", "Gentle humor"], "voice": {"tone": "warm", "pacing": "gentle"}, "color": "#FB923C", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 4, "role_in_arena": "Teacher"}
+            {"id": str(uuid.uuid4()), "display_name": "Terence McKenna", "type": "Philosopher", "bio": "Psychonaut exploring consciousness", "quirks": ["Uses metaphors", "References mushrooms"], "voice": {"tone": "philosophical", "pacing": "measured"}, "color": "#A855F7", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 0, "role_in_arena": "Philosopher"},
+            {"id": str(uuid.uuid4()), "display_name": "Buddha", "type": "Teacher", "bio": "Founder of Buddhism", "quirks": ["Speaks in parables", "Uses nature metaphors"], "voice": {"tone": "calm", "pacing": "slow"}, "color": "#4ADE80", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 1, "role_in_arena": "Teacher"},
+            {"id": str(uuid.uuid4()), "display_name": "Carl Jung", "type": "Psychologist", "bio": "Explorer of the unconscious", "quirks": ["References archetypes", "Discusses shadow"], "voice": {"tone": "analytical", "pacing": "thoughtful"}, "color": "#F87171", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 2, "role_in_arena": "Psychologist"},
+            {"id": str(uuid.uuid4()), "display_name": "Alan Watts", "type": "Philosopher", "bio": "Bridge between East and West", "quirks": ["Playful paradoxes", "Cosmic humor"], "voice": {"tone": "witty", "pacing": "flowing"}, "color": "#FCD34D", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 3, "role_in_arena": "Philosopher"},
+            {"id": str(uuid.uuid4()), "display_name": "Ram Dass", "type": "Teacher", "bio": "Guide to presence and love", "quirks": ["Says Be Here Now", "Gentle humor"], "voice": {"tone": "warm", "pacing": "gentle"}, "color": "#FB923C", "avatar_base64": None, "avatar_url": None, "tags": [], "sort_order": 4, "role_in_arena": "Teacher"}
         ]
         
         # INSERT ALL AT ONCE
@@ -1389,7 +1390,8 @@ async def force_create_personas():
             "deleted": delete_result.deleted_count,
             "created": len(insert_result.inserted_ids),
             "final_count": count,
-            "personas": all_personas
+            "message": "✅ PERSONAS CREATED! Go refresh your app now!",
+            "personas": [p["display_name"] for p in all_personas]
         }
         
     except Exception as e:

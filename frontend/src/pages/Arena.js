@@ -538,22 +538,72 @@ export default function Arena() {
     try {
       console.log("🚀 INITIALIZING ARENA...");
       
-      // FORCE seed - call it first
-      console.log("📡 Calling seed endpoint...");
-      const seedResponse = await axios.post(`${API}/personas/seed`);
-      console.log("✅ Seed response:", seedResponse.data);
-      
-      // Get personas - RETRY if empty
+      // Try to get existing personas
       console.log("📡 Fetching personas...");
       let response = await axios.get(`${API}/personas`);
-      console.log("📦 Initial personas count:", response.data.length);
+      console.log("📦 Personas count:", response.data.length);
       
-      // If empty, wait and try again
+      // IF EMPTY, CREATE THEM DIRECTLY
       if (response.data.length === 0) {
-        console.log("⚠️ No personas found, retrying in 2 seconds...");
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        response = await axios.get(`${API}/personas`);
-        console.log("📦 Retry personas count:", response.data.length);
+        console.log("⚠️ NO PERSONAS FOUND - CREATING NOW...");
+        
+        const defaultPersonas = [
+          {
+            display_name: "Terence McKenna",
+            type: "Psychonaut philosopher",
+            bio: "Ethnobotanist and mystic exploring consciousness",
+            quirks: ["Uses elaborate metaphors", "References mushrooms"],
+            voice: { tone: "philosophical", pacing: "measured" },
+            color: "#A855F7"
+          },
+          {
+            display_name: "Buddha",
+            type: "Enlightened teacher",
+            bio: "Founder of Buddhism teaching the path to enlightenment",
+            quirks: ["Speaks in parables", "Uses nature metaphors"],
+            voice: { tone: "calm, wise", pacing: "slow" },
+            color: "#4ADE80"
+          },
+          {
+            display_name: "Carl Jung",
+            type: "Depth psychologist",
+            bio: "Swiss psychiatrist exploring the unconscious",
+            quirks: ["References archetypes", "Discusses shadow"],
+            voice: { tone: "analytical", pacing: "thoughtful" },
+            color: "#F87171"
+          },
+          {
+            display_name: "Alan Watts",
+            type: "Philosopher",
+            bio: "British philosopher popularizing Eastern wisdom",
+            quirks: ["Playful paradoxes", "Cosmic humor"],
+            voice: { tone: "witty, relaxed", pacing: "flowing" },
+            color: "#FCD34D"
+          },
+          {
+            display_name: "Ram Dass",
+            type: "Spiritual teacher",
+            bio: "Harvard professor turned spiritual guide",
+            quirks: ["Says Be Here Now", "Gentle humor"],
+            voice: { tone: "warm, loving", pacing: "gentle" },
+            color: "#FB923C"
+          }
+        ];
+        
+        // CREATE EACH PERSONA
+        const created = [];
+        for (const p of defaultPersonas) {
+          try {
+            const createResponse = await axios.post(`${API}/personas`, p);
+            created.push(createResponse.data);
+            console.log("✅ Created:", p.display_name);
+          } catch (err) {
+            console.error("❌ Failed to create:", p.display_name, err);
+          }
+        }
+        
+        response.data = created;
+        toast.success(`Created ${created.length} default personas!`);
       }
       
       setPersonas(response.data);
@@ -563,14 +613,12 @@ export default function Arena() {
       setActivePersonas(defaultActive);
       console.log("✅ Active personas set:", defaultActive.length);
       
-      // Load existing conversations but don't create a new one yet
       await loadConversations(userData?.id);
       
       toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
       console.error("❌ INITIALIZATION FAILED:", error);
-      console.error("Error details:", error.response?.data);
-      toast.error("Failed to initialize. Please refresh.");
+      toast.error("Failed to initialize. Check console (F12)");
     }
   };
 
