@@ -1545,6 +1545,15 @@ export default function Arena() {
         />
       )}
 
+
+      {/* Podcast Player */}
+      {showPodcastPlayer && (
+        <PodcastPlayer
+          messages={messages}
+          onClose={() => setShowPodcastPlayer(false)}
+        />
+      )}
+
       {/* Profile Modal */}
       <ProfileModal
         open={showProfileModal}
