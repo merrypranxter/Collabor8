@@ -1274,6 +1274,80 @@ async def seed_default_personas():
     
     return {"message": f"Seeded {len(created)} personas, skipped {len(skipped)}", "created": created, "skipped": skipped}
 
+@api_router.post("/personas/fix-avatars")
+async def fix_broken_avatars():
+    """
+    Emergency endpoint to fix broken avatar URLs in production database
+    Fixes duplicate prefixes and generates missing avatars
+    """
+    fixed = []
+    generated = []
+    
+    # Get all personas
+    all_personas = await db.personas.find({}, {"_id": 0}).to_list(1000)
+    
+    for persona in all_personas:
+        persona_id = persona['id']
+        needs_update = False
+        update_data = {}
+        
+        # Fix duplicate prefix if exists
+        avatar_url = persona.get('avatar_url')
+        if avatar_url and avatar_url.count('data:image') > 1:
+            # Extract base64 data after last 'base64,'
+            parts = avatar_url.split('base64,')
+            if len(parts) > 1:
+                base64_data = parts[-1]
+                # Determine image type
+                if 'image/jpeg' in avatar_url or 'image/jpg' in avatar_url:
+                    fixed_url = f'data:image/jpeg;base64,{base64_data}'
+                elif 'image/png' in avatar_url:
+                    fixed_url = f'data:image/png;base64,{base64_data}'
+                else:
+                    fixed_url = f'data:image/png;base64,{base64_data}'
+                
+                update_data['avatar_url'] = fixed_url
+                needs_update = True
+                fixed.append(persona['display_name'])
+        
+        # Generate avatar if missing
+        elif not avatar_url or not persona.get('avatar_base64'):
+            try:
+                api_key = os.environ.get('EMERGENT_LLM_KEY')
+                image_gen = OpenAIImageGeneration(api_key=api_key)
+                
+                prompt = f"A minimalist, elegant portrait icon of {persona['display_name']}. Artistic, symbolic representation with warm muted colors on dark background. Style: refined, intellectual, timeless."
+                
+                images = await image_gen.generate_images(
+                    prompt=prompt,
+                    model="gpt-image-1",
+                    number_of_images=1
+                )
+                
+                if images and len(images) > 0:
+                    avatar_base64 = base64.b64encode(images[0]).decode('utf-8')
+                    update_data['avatar_base64'] = avatar_base64
+                    update_data['avatar_url'] = f"data:image/png;base64,{avatar_base64}"
+                    needs_update = True
+                    generated.append(persona['display_name'])
+            except Exception as e:
+                logger.error(f"Failed to generate avatar for {persona['display_name']}: {e}")
+        
+        # Update if needed
+        if needs_update:
+            await db.personas.update_one(
+                {"id": persona_id},
+                {"$set": update_data}
+            )
+    
+    return {
+        "message": "Avatar fix complete",
+        "fixed_duplicates": fixed,
+        "generated_missing": generated,
+        "total_fixed": len(fixed),
+        "total_generated": len(generated)
+    }
+
 # Health check endpoints for Kubernetes deployment
 @app.get("/health")
 async def health_check():
