@@ -321,7 +321,17 @@ async def update_persona(persona_id: str, persona_update: PersonaCreate):
     
     # Update avatar if provided
     avatar_base64 = persona_update.avatar_base64 or existing.get('avatar_base64')
-    avatar_url = f"data:image/png;base64,{avatar_base64}" if avatar_base64 else existing.get('avatar_url')
+    
+    # Handle avatar_url creation, avoiding duplicate prefixes
+    avatar_url = existing.get('avatar_url')
+    if avatar_base64:
+        # Strip any existing data URL prefix to avoid duplication
+        if avatar_base64.startswith('data:image'):
+            # Already has full data URL
+            avatar_url = avatar_base64
+        else:
+            # Just base64 data, add prefix
+            avatar_url = f"data:image/png;base64,{avatar_base64}"
     
     updated_persona = Persona(
         id=persona_id,
