@@ -169,10 +169,10 @@ backend:
         comment: "TESTED: /api/extract-url endpoint working correctly. Successfully extracts content from real URLs (tested with Wikipedia AI article). Returns proper response structure with url, title, content, and success=true. Content properly truncated to ~5000 chars. Error handling works but returns 500 status instead of expected format - still provides proper error messages. Core functionality operational."
 
   - task: "Persona avatar URL format fix"
-    implemented: false
-    working: "partial"
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
@@ -182,6 +182,9 @@ backend:
       - working: "partial"
         agent: "testing"
         comment: "FINAL TEST: Avatar display is working partially. In personas gallery, 7 personas show avatar images correctly. In chat messages, some personas (like Terence McKenna) display avatars correctly while others (Buddha, Thoth/Hermes) show initials as fallback. The system gracefully handles missing/broken avatars by showing initials. While the duplicated prefix issue exists in backend data, the frontend handles it reasonably well. Not critical for production launch but should be fixed for consistency."
+      - working: true
+        agent: "testing"
+        comment: "AVATAR FIX VERIFICATION COMPLETE ✅: The duplicate prefix bug has been successfully fixed! Backend API verification shows: ✅ All avatar URLs now have proper single 'data:image/' prefixes (no duplicates found). ✅ 5 personas currently have avatar images with correct URL format. ✅ Terence McKenna, Hunter S Thompson, A guy on a permeant dmt drip, A Schizophrenic Person, and an Oracle of Delphi all have properly formatted avatar URLs. ✅ No 'data:image/data:image/' duplicate prefixes detected in any persona. ✅ Avatar display system is now working correctly with proper URL formatting. The fix has resolved the critical avatar URL format issue that was causing display problems."
 
   - task: "Multi-file upload support"
     implemented: true
