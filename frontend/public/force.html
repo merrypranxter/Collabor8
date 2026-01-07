@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FORCE CREATE PERSONAS</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: #1a1a1a;
+            border: 2px solid #A855F7;
+            border-radius: 10px;
+        }
+        button {
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        button:hover {
+            background: #DC2626;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            background: #2a2a2a;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .success { color: #4ADE80; }
+        .error { color: #EF4444; }
+        h1 { color: #EF4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 NUCLEAR OPTION 🔥</h1>
+        <p>This will DELETE ALL personas and create fresh ones</p>
+        <p><strong>WARNING:</strong> This deletes everything!</p>
+        <button onclick="forceCreate()">FORCE CREATE PERSONAS</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function forceCreate() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '⏳ DELETING AND CREATING...';
+            
+            try {
+                const response = await fetch('/api/personas/force-create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        ✅ SUCCESS!<br><br>
+                        🗑️ Deleted: ${data.deleted} old personas<br>
+                        ✨ Created: ${data.created} new personas<br>
+                        📊 Total in DB: ${data.final_count}<br><br>
+                        <strong>Personas created:</strong><br>
+                        ${data.personas.map(p => `- ${p.display_name}`).join('<br>')}<br><br>
+                        <a href="/" style="color: #A855F7; font-size: 18px; font-weight: bold;">→ GO TO APP NOW ←</a>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `❌ FAILED: ${data.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `❌ ERROR: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
