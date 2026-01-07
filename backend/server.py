@@ -1243,13 +1243,13 @@ async def export_pdf(request: dict):
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     default_personas = [
-        {"display_name": "Terence McKenna", "type": "historical", "color": "#A855F7"},
-        {"display_name": "Jesus", "type": "historical", "color": "#FCD34D"},
-        {"display_name": "Buddha", "type": "historical", "color": "#4ADE80"},
-        {"display_name": "J. Robert Oppenheimer", "type": "historical", "color": "#FB923C"},
-        {"display_name": "Carl Jung", "type": "historical", "color": "#F87171"},
-        {"display_name": "Albert Einstein", "type": "historical", "color": "#F472B6"},
-        {"display_name": "Helena Blavatsky", "type": "historical", "color": "#9333EA"}
+        {"display_name": "Terence McKenna", "type": "historical", "color": "#A855F7", "generate_avatar": True},
+        {"display_name": "Jesus", "type": "historical", "color": "#FCD34D", "generate_avatar": True},
+        {"display_name": "Buddha", "type": "historical", "color": "#4ADE80", "generate_avatar": True},
+        {"display_name": "J. Robert Oppenheimer", "type": "historical", "color": "#FB923C", "generate_avatar": True},
+        {"display_name": "Carl Jung", "type": "historical", "color": "#F87171", "generate_avatar": True},
+        {"display_name": "Albert Einstein", "type": "historical", "color": "#F472B6", "generate_avatar": True},
+        {"display_name": "Helena Blavatsky", "type": "historical", "color": "#9333EA", "generate_avatar": True}
     ]
     
     existing_count = await db.personas.count_documents({})
