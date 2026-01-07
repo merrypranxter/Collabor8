@@ -1161,6 +1161,45 @@ async def extract_url_content(request: dict):
         logging.error(f"URL extraction failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to extract URL content: {str(e)}")
 
+@api_router.post("/tts/generate")
+async def generate_tts(request: dict):
+    """
+    Generate text-to-speech audio using OpenAI TTS
+    """
+    text = request.get('text', '')
+    voice = request.get('voice', 'alloy')
+    
+    if not text:
+        raise HTTPException(status_code=400, detail="No text provided")
+    
+    try:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="TTS API key not configured")
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+        
+        # Generate speech
+        response = client.audio.speech.create(
+            model="tts-1",
+            voice=voice,
+            input=text[:4096]  # OpenAI limit
+        )
+        
+        # Convert to base64
+        audio_bytes = response.content
+        audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+        
+        return {
+            "audio": f"data:audio/mpeg;base64,{audio_base64}",
+            "success": True
+        }
+        
+    except Exception as e:
+        logger.error(f"TTS generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"TTS failed: {str(e)}")
+
 @api_router.post("/export/pdf")
 async def export_pdf(request: dict):
     """
