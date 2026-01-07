@@ -536,25 +536,41 @@ export default function Arena() {
 
   const initializeArena = async (userData) => {
     try {
-      console.log("Initializing arena...");
-      const seedResponse = await axios.post(`${API}/personas/seed`);
-      console.log("Seed response:", seedResponse.data);
+      console.log("🚀 INITIALIZING ARENA...");
       
-      const response = await axios.get(`${API}/personas`);
-      console.log("Personas fetched:", response.data.length);
+      // FORCE seed - call it first
+      console.log("📡 Calling seed endpoint...");
+      const seedResponse = await axios.post(`${API}/personas/seed`);
+      console.log("✅ Seed response:", seedResponse.data);
+      
+      // Get personas - RETRY if empty
+      console.log("📡 Fetching personas...");
+      let response = await axios.get(`${API}/personas`);
+      console.log("📦 Initial personas count:", response.data.length);
+      
+      // If empty, wait and try again
+      if (response.data.length === 0) {
+        console.log("⚠️ No personas found, retrying in 2 seconds...");
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        response = await axios.get(`${API}/personas`);
+        console.log("📦 Retry personas count:", response.data.length);
+      }
+      
       setPersonas(response.data);
+      console.log("✅ Personas set in state:", response.data.length);
       
       const defaultActive = response.data.slice(0, 3).map(p => p.id);
-      console.log("Setting active personas:", defaultActive);
       setActivePersonas(defaultActive);
+      console.log("✅ Active personas set:", defaultActive.length);
       
       // Load existing conversations but don't create a new one yet
       await loadConversations(userData?.id);
       
       toast.success(`Arena initialized! ${response.data.length} personas ready.`);
     } catch (error) {
-      console.error("Failed to initialize:", error);
+      console.error("❌ INITIALIZATION FAILED:", error);
       console.error("Error details:", error.response?.data);
+      toast.error("Failed to initialize. Please refresh.");
     }
   };
 

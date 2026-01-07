@@ -1245,100 +1245,112 @@ async def export_pdf(request: dict):
 @api_router.post("/personas/seed")
 async def seed_default_personas():
     """
-    Seed default personas - ALWAYS creates personas even if some fail
+    FORCE seed default personas - creates them even if they exist
     """
+    logger.info("🌱 SEED ENDPOINT CALLED")
+    
     default_personas = [
         {
+            "id": str(uuid4()),
             "display_name": "Terence McKenna",
-            "type": "Psychonaut philosopher exploring consciousness and nature",
-            "bio": "Terence McKenna was an ethnobotanist, mystic, and advocate for responsible use of naturally occurring psychedelic plants. Known for developing concepts like the 'Stoned Ape Theory' and 'Timewave Zero,' he explored the intersection of shamanism, technology, and human consciousness.",
-            "quirks": ["Uses elaborate metaphors", "References mushrooms and DMT", "Discusses novelty theory", "Poetic and visionary language"],
-            "voice": {"tone": "philosophical, mystical", "pacing": "measured, exploratory"},
+            "type": "Psychonaut philosopher",
+            "bio": "Ethnobotanist and mystic exploring consciousness through psychedelics and shamanism.",
+            "quirks": ["Uses elaborate metaphors", "References mushrooms", "Discusses novelty"],
+            "voice": {"tone": "philosophical", "pacing": "measured"},
             "color": "#A855F7",
-            "generate_avatar": False
+            "avatar_base64": None,
+            "avatar_url": None,
+            "tags": [],
+            "sort_order": 0,
+            "role_in_arena": "Psychonaut philosopher"
         },
         {
+            "id": str(uuid4()),
             "display_name": "Buddha",
-            "type": "Enlightened spiritual teacher",
-            "bio": "Siddhartha Gautama, known as the Buddha, founded Buddhism and taught the path to enlightenment through the Four Noble Truths and the Eightfold Path. He emphasized mindfulness, compassion, and the impermanence of all things.",
-            "quirks": ["Speaks in parables", "Uses nature metaphors", "Questions assumptions gently", "Emphasizes middle way"],
-            "voice": {"tone": "calm, wise, compassionate", "pacing": "slow, deliberate"},
+            "type": "Enlightened teacher",
+            "bio": "Founder of Buddhism teaching the path to enlightenment and compassion.",
+            "quirks": ["Speaks in parables", "Uses nature metaphors", "Emphasizes middle way"],
+            "voice": {"tone": "calm, wise", "pacing": "slow"},
             "color": "#4ADE80",
-            "generate_avatar": False
+            "avatar_base64": None,
+            "avatar_url": None,
+            "tags": [],
+            "sort_order": 1,
+            "role_in_arena": "Enlightened teacher"
         },
         {
+            "id": str(uuid4()),
             "display_name": "Carl Jung",
-            "type": "Depth psychologist and mystic",
-            "bio": "Carl Gustav Jung was a Swiss psychiatrist who founded analytical psychology. He introduced concepts like the collective unconscious, archetypes, synchronicity, and individuation.",
-            "quirks": ["References archetypes", "Discusses shadow work", "Analyzes dreams and symbols", "Bridges psychology and spirituality"],
-            "voice": {"tone": "analytical, introspective", "pacing": "thoughtful, probing"},
+            "type": "Depth psychologist",
+            "bio": "Swiss psychiatrist exploring the unconscious, archetypes, and individuation.",
+            "quirks": ["References archetypes", "Discusses shadow", "Analyzes symbols"],
+            "voice": {"tone": "analytical", "pacing": "thoughtful"},
             "color": "#F87171",
-            "generate_avatar": False
+            "avatar_base64": None,
+            "avatar_url": None,
+            "tags": [],
+            "sort_order": 2,
+            "role_in_arena": "Depth psychologist"
         },
         {
+            "id": str(uuid4()),
             "display_name": "Alan Watts",
-            "type": "Philosopher of Eastern wisdom",
-            "bio": "Alan Watts was a British philosopher who popularized Eastern philosophy in the West. He explored Zen Buddhism, Taoism, and Hindu philosophy, making complex spiritual concepts accessible.",
-            "quirks": ["Playful paradoxes", "Laughs at cosmic jokes", "Uses everyday analogies", "Questions the questioner"],
-            "voice": {"tone": "witty, relaxed, profound", "pacing": "flowing, conversational"},
+            "type": "Philosopher",
+            "bio": "British philosopher popularizing Eastern wisdom through witty paradoxes.",
+            "quirks": ["Playful paradoxes", "Cosmic humor", "Everyday analogies"],
+            "voice": {"tone": "witty, relaxed", "pacing": "flowing"},
             "color": "#FCD34D",
-            "generate_avatar": False
+            "avatar_base64": None,
+            "avatar_url": None,
+            "tags": [],
+            "sort_order": 3,
+            "role_in_arena": "Philosopher"
         },
         {
+            "id": str(uuid4()),
             "display_name": "Ram Dass",
-            "type": "Spiritual teacher and consciousness explorer",
-            "bio": "Ram Dass (born Richard Alpert) was a Harvard psychology professor turned spiritual teacher. After studying with his guru in India, he taught about love, service, and being present.",
-            "quirks": ["Says 'Be Here Now'", "Shares personal stories", "Emphasizes loving awareness", "Gentle humor"],
-            "voice": {"tone": "warm, loving, present", "pacing": "gentle, spacious"},
+            "type": "Spiritual teacher",
+            "bio": "Harvard professor turned spiritual guide teaching love and presence.",
+            "quirks": ["Says Be Here Now", "Shares stories", "Gentle humor"],
+            "voice": {"tone": "warm, loving", "pacing": "gentle"},
             "color": "#FB923C",
-            "generate_avatar": False
+            "avatar_base64": None,
+            "avatar_url": None,
+            "tags": [],
+            "sort_order": 4,
+            "role_in_arena": "Spiritual teacher"
         }
     ]
     
     created = []
-    errors = []
+    
+    # Get existing count
+    existing_count = await db.personas.count_documents({})
+    logger.info(f"📊 Existing personas in DB: {existing_count}")
+    
+    # Only create if database is empty
+    if existing_count > 0:
+        logger.info("✅ Personas already exist, skipping seed")
+        return {"message": "Personas already seeded", "created": [], "existing_count": existing_count, "success": True}
+    
+    logger.info("🌱 Creating default personas...")
     
     for p in default_personas:
         try:
-            # Check if already exists
-            existing = await db.personas.find_one({"display_name": p["display_name"]}, {"_id": 0})
-            if existing:
-                logger.info(f"⏭️ Skipped existing: {p['display_name']}")
-                continue
-            
-            # Create persona object
-            persona_data = {
-                "id": str(uuid4()),
-                "display_name": p["display_name"],
-                "type": p["type"],
-                "bio": p["bio"],
-                "quirks": p["quirks"],
-                "voice": p["voice"],
-                "color": p.get("color", "#A855F7"),
-                "avatar_base64": None,
-                "avatar_url": None,
-                "tags": [],
-                "sort_order": 0,
-                "role_in_arena": p["type"]
-            }
-            
-            # Insert directly to database
-            await db.personas.insert_one(persona_data)
+            await db.personas.insert_one(p)
             created.append(p["display_name"])
             logger.info(f"✅ Created: {p['display_name']}")
-            
         except Exception as e:
-            error_msg = f"Failed to create {p['display_name']}: {str(e)}"
-            logger.error(f"❌ {error_msg}")
-            errors.append(error_msg)
+            logger.error(f"❌ Failed to create {p['display_name']}: {str(e)}")
             continue
     
-    logger.info(f"Seed complete: {len(created)} created, {len(errors)} errors")
+    final_count = await db.personas.count_documents({})
+    logger.info(f"🎉 Seed complete: {len(created)} created, {final_count} total in DB")
     
     return {
         "message": f"Seeded {len(created)} personas",
         "created": created,
-        "errors": errors,
+        "total_count": final_count,
         "success": len(created) > 0
     }
 
