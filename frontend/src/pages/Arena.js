@@ -48,6 +48,7 @@ export default function Arena() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showPodcastPlayer, setShowPodcastPlayer] = useState(false);
   const [tagFilter, setTagFilter] = useState('');
   const userMenuRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
@@ -1534,6 +1535,14 @@ export default function Arena() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Podcast Player */}
+      {showPodcastPlayer && (
+        <PodcastPlayer
+          messages={messages}
+          onClose={() => setShowPodcastPlayer(false)}
+        />
       )}
 
       {/* Profile Modal */}
