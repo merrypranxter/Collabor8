@@ -51,6 +51,7 @@ export default function Arena() {
   const [tagFilter, setTagFilter] = useState('');
   const userMenuRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
+  const isInitializedRef = useRef(false);
   
   // Audio states
   const [playingMessageId, setPlayingMessageId] = useState(null);
