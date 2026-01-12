@@ -13,7 +13,7 @@ import time
 
 class VisionTester:
     def __init__(self):
-        self.base_url = "https://thinkroom.preview.emergentagent.com"
+        self.base_url = "https://creative-voices-4.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.conversation_id = None
         self.test_results = []
