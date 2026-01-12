@@ -285,8 +285,13 @@ async def get_personas():
     personas = await db.personas.find({}, {"_id": 0}).to_list(100)
     
     for persona in personas:
-        if isinstance(persona['created_at'], str):
-            persona['created_at'] = datetime.fromisoformat(persona['created_at'])
+        # Only process created_at if it exists
+        if 'created_at' in persona and persona['created_at'] and isinstance(persona['created_at'], str):
+            try:
+                persona['created_at'] = datetime.fromisoformat(persona['created_at'])
+            except:
+                pass  # If parsing fails, skip it
+        
         # Add default values for new fields if they don't exist
         if 'tags' not in persona:
             persona['tags'] = []
