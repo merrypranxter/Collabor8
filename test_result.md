@@ -330,6 +330,19 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Microphone/Speech-to-Text (STT) Functionality"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/Arena.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ MICROPHONE/STT FUNCTIONALITY FAILING: Comprehensive testing reveals critical issues with speech-to-text implementation. DETAILED FINDINGS: ✅ Microphone button present with correct title and icon. ✅ SpeechRecognition API available in browser (webkitSpeechRecognition: true, SpeechRecognition: true). ✅ Text input field functional and can accept text. ❌ CRITICAL FAILURES: 1) Button click does not trigger recording state - button title remains 'Voice input' instead of changing to 'Stop recording'. 2) No 'Listening...' toast notification appears when clicking microphone button. 3) Button styling does not change to red pulsing animation during recording. 4) SpeechRecognition.start() not being called - direct API test shows no events fired. 5) Microphone permission state is 'prompt' but browser permission request not triggered. ROOT CAUSE: React onClick event handler for microphone button is not executing the startRecording function properly. The button has onclick handler but clicking produces no console logs or state changes. This suggests either event handler binding issue or JavaScript execution problem in the React component."
+
+backend:
   - task: "Character containment and knowledge boundary enforcement"
     implemented: true
     working: false
