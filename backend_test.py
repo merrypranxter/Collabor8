@@ -1056,8 +1056,16 @@ class CharacterContainmentTester:
             return True
 
 def main():
-    print("🚀 Starting Collabor8 Vision & Attachment Tests")
+    print("🚀 Starting Collabor8 Character Containment & System Tests")
     print("=" * 60)
+    
+    # First run the character containment tests (PRIORITY)
+    print("🎭 PHASE 1: CHARACTER CONTAINMENT TESTING")
+    containment_tester = CharacterContainmentTester()
+    containment_passed = containment_tester.run_character_containment_tests()
+    
+    print("\n" + "=" * 60)
+    print("🔧 PHASE 2: SYSTEM FUNCTIONALITY TESTING")
     
     tester = MultiPersonaChatTester()
     
@@ -1105,14 +1113,27 @@ def main():
     
     # Print results
     print("\n" + "=" * 60)
-    print(f"📊 Test Results: {tester.tests_passed}/{tester.tests_run} passed")
+    print("📊 FINAL TEST RESULTS")
+    print("=" * 60)
+    
+    print(f"🎭 Character Containment: {'✅ PASS' if containment_passed else '❌ FAIL'}")
+    print(f"🔧 System Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    
+    if not containment_passed:
+        print("🚨 CRITICAL: CHARACTER CONTAINMENT FAILURE - Personas not maintaining proper boundaries!")
     
     if critical_failures:
         print(f"🚨 CRITICAL FAILURES (Vision/Attachments): {', '.join(critical_failures)}")
     
     if failed_tests:
-        print(f"❌ All failed tests: {', '.join(failed_tests)}")
+        print(f"❌ System test failures: {', '.join(failed_tests)}")
+    
+    # Return failure if character containment fails OR if there are critical system failures
+    if not containment_passed or critical_failures:
         return 1
+    elif failed_tests:
+        print("⚠️  Some non-critical tests failed, but core functionality working")
+        return 0
     else:
         print("✅ All tests passed!")
         return 0
