@@ -63,8 +63,8 @@ async def retry_db_operation(operation, max_retries=3, initial_delay=1.0):
             logging.warning(f"Database operation failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s: {str(e)}")
             await asyncio.sleep(delay)
 
-# Health check endpoint (doesn't require DB)
-@app.get("/health")
+# Health check endpoint (doesn't require DB) - on API router for proper routing
+@api_router.get("/health")
 async def health_check():
     """Health check endpoint for Kubernetes liveness/readiness probes"""
     return {
@@ -73,16 +73,23 @@ async def health_check():
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
-# Database health check endpoint
-@app.get("/health/db")
+# Database health check endpoint - on API router
+@api_router.get("/health/db")
 async def db_health_check():
     """Database connectivity check"""
     try:
-        # Quick ping to check MongoDB connectivity
-        await client.admin.command('ping')
+        # Quick ping to check MongoDB connectivity with timeout
+        await asyncio.wait_for(client.admin.command('ping'), timeout=5.0)
         return {
             "status": "healthy",
             "database": "connected",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except asyncio.TimeoutError:
+        return {
+            "status": "unhealthy",
+            "database": "timeout",
+            "error": "Database ping timed out after 5 seconds",
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
     except Exception as e:
