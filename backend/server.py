@@ -47,6 +47,52 @@ db = client[os.environ['DB_NAME']]
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+# Add retry wrapper for database operations
+async def retry_db_operation(operation, max_retries=3, initial_delay=1.0):
+    """
+    Retry wrapper for database operations with exponential backoff.
+    Helps handle transient network issues during Atlas MongoDB connections.
+    """
+    for attempt in range(max_retries):
+        try:
+            return await operation()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            delay = initial_delay * (2 ** attempt)
+            logging.warning(f"Database operation failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s: {str(e)}")
+            await asyncio.sleep(delay)
+
+# Health check endpoint (doesn't require DB)
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes liveness/readiness probes"""
+    return {
+        "status": "healthy",
+        "service": "collabor8-api",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+# Database health check endpoint
+@app.get("/health/db")
+async def db_health_check():
+    """Database connectivity check"""
+    try:
+        # Quick ping to check MongoDB connectivity
+        await client.admin.command('ping')
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
 class VoiceMeta(BaseModel):
     """TTS-specific voice parameters for audio generation"""
     pitch_range: str = "medium"  # low, medium, high
