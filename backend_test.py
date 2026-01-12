@@ -701,13 +701,29 @@ class CharacterContainmentTester:
         """Test 1: Complex Topic Introduction - Stoned Ape Theory"""
         print("\n🧪 TEST 1: Complex Topic Introduction - Stoned Ape Theory")
         
-        generate_data = {
-            "conversation_id": self.conversation_id,
-            "user_message": "Hey everyone, what do you think about the stoned ape theory of human evolution?",
-            "attachments": []
-        }
+        # First send the user message to the conversation
+        user_message = "Hey everyone, what do you think about the stoned ape theory of human evolution?"
         
         try:
+            # Send user message first
+            message_data = {
+                "content": user_message,
+                "is_user": True
+            }
+            
+            message_response = requests.post(f"{self.api_url}/conversations/{self.conversation_id}/messages", 
+                                           json=message_data, timeout=30)
+            if message_response.status_code != 200:
+                print(f"   ❌ Failed to send user message: {message_response.status_code}")
+                return False
+            
+            # Now generate persona responses
+            generate_data = {
+                "conversation_id": self.conversation_id,
+                "user_message": user_message,
+                "attachments": []
+            }
+            
             response = requests.post(f"{self.api_url}/chat/generate-multi", 
                                    json=generate_data, timeout=60)
             if response.status_code == 200:
@@ -739,14 +755,19 @@ class CharacterContainmentTester:
                     
                     # Check if Beavis shows confusion/mockery instead of expertise
                     content = beavis_response['content'].lower()
-                    confusion_indicators = ['huh', 'what', 'don\'t know', 'confused', 'made-up', 'crap', 'dumb']
+                    confusion_indicators = ['huh', 'what', 'don\'t know', 'confused', 'made-up', 'crap', 'dumb', 'sounds like']
                     shows_confusion = any(indicator in content for indicator in confusion_indicators)
                     
-                    test_result['beavis_pass'] = vocab_analysis['appropriate_vocabulary'] and shows_confusion
+                    # Check for inappropriate expertise
+                    expertise_indicators = ['evolution', 'consciousness', 'theory', 'development', 'anthropological']
+                    shows_expertise = any(indicator in content for indicator in expertise_indicators)
+                    
+                    test_result['beavis_pass'] = vocab_analysis['appropriate_vocabulary'] and shows_confusion and not shows_expertise
                     
                     print(f"   Beavis response: {beavis_response['content']}")
                     print(f"   Vocabulary appropriate: {vocab_analysis['appropriate_vocabulary']}")
                     print(f"   Shows confusion: {shows_confusion}")
+                    print(f"   Shows expertise: {shows_expertise}")
                     if vocab_analysis['failure_words']:
                         print(f"   ❌ FAILURE WORDS USED: {vocab_analysis['failure_words']}")
                 else:
@@ -755,7 +776,7 @@ class CharacterContainmentTester:
                 if expert_response:
                     # Expert should provide articulate explanation
                     content = expert_response['content'].lower()
-                    expert_indicators = ['evolution', 'consciousness', 'theory', 'human', 'development']
+                    expert_indicators = ['evolution', 'consciousness', 'theory', 'human', 'development', 'stoned ape']
                     shows_expertise = any(indicator in content for indicator in expert_indicators)
                     test_result['expert_pass'] = shows_expertise
                     
