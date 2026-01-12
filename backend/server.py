@@ -1164,7 +1164,7 @@ async def extract_url_content(request: dict):
 @api_router.post("/tts/generate")
 async def generate_tts(request: dict):
     """
-    Generate text-to-speech audio using OpenAI TTS
+    Generate text-to-speech audio using OpenAI TTS via Emergent integrations
     """
     text = request.get('text', '')
     voice = request.get('voice', 'alloy')
@@ -1177,18 +1177,19 @@ async def generate_tts(request: dict):
         if not api_key:
             raise HTTPException(status_code=500, detail="TTS API key not configured")
         
-        from openai import OpenAI
-        client = OpenAI(api_key=api_key)
+        # Use emergentintegrations for TTS
+        from emergentintegrations.tts import OpenAITTS
+        
+        tts = OpenAITTS(api_key=api_key)
         
         # Generate speech
-        response = client.audio.speech.create(
-            model="tts-1",
+        audio_bytes = await tts.generate_speech(
+            text=text[:4096],  # OpenAI limit
             voice=voice,
-            input=text[:4096]  # OpenAI limit
+            model="tts-1"
         )
         
         # Convert to base64
-        audio_bytes = response.content
         audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
         
         return {
