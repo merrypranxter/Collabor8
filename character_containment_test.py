@@ -131,6 +131,18 @@ class CharacterContainmentTester:
         """Test 1: Complex Topic Introduction - Stoned Ape Theory"""
         print("\n🧠 Test 1: Complex Topic Introduction...")
         
+        # First, send the user message to establish context
+        user_message_data = {
+            "content": "Hey everyone, what do you think about the stoned ape theory of human evolution?",
+            "is_user": True
+        }
+        
+        success, _ = self.make_request('POST', f'conversations/{self.conversation_id}/messages', user_message_data)
+        if not success:
+            self.log_result("Complex Topic Test", False, "Failed to send user message")
+            return False
+        
+        # Now generate persona responses
         generate_data = {
             "conversation_id": self.conversation_id,
             "user_message": "Hey everyone, what do you think about the stoned ape theory of human evolution?",
