@@ -36,11 +36,35 @@ db = client[os.environ['DB_NAME']]
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+class VoiceMeta(BaseModel):
+    """TTS-specific voice parameters for audio generation"""
+    pitch_range: str = "medium"  # low, medium, high
+    speed: float = 1.0  # 0.5 to 2.0
+    intensity: str = "moderate"  # soft, moderate, strong
+    accent: Optional[str] = None  # e.g., "Irish", "Southern US", "RP British"
+    rasp_nasality: str = "clear"  # clear, nasal, raspy, breathy
+    articulation: str = "precise"  # mumbled, casual, precise, theatrical
+    emotional_default: str = "neutral"  # calm, excited, contemplative, manic, etc.
+    age_range: str = "adult"  # young, adult, middle-aged, elderly
+    gender_hint: str = "neutral"  # male, female, neutral, androgynous
+
 class Voice(BaseModel):
-    tone: str
-    pacing: str
-    signature_moves: List[str] = []
-    taboos: List[str] = []
+    tone: str  # e.g., "thoughtful, philosophical, meandering"
+    pacing: str  # e.g., "slow and hypnotic"
+    signature_moves: List[str] = []  # verbal tics, catchphrases
+    taboos: List[str] = []  # topics to avoid
+    voice_meta: Optional[VoiceMeta] = None  # TTS parameters
+    voice_description: Optional[str] = None  # Natural language description for TTS services
+
+class IntelligenceProfile(BaseModel):
+    """Defines cognitive capabilities and limitations"""
+    reasoning_depth: str = "average"  # low, below-average, average, above-average, genius
+    vocabulary_ceiling: str = "high-school"  # elementary, high-school, college, academic, sophisticated
+    abstraction_tolerance: str = "moderate"  # low, moderate, high
+    working_memory_turns: int = 5  # How many conversation turns they can recall accurately
+    attention_span: str = "normal"  # short, normal, long, obsessive
+    curiosity_level: str = "moderate"  # none, low, moderate, high
+    allows_incorrect_learning: bool = True  # Can they learn things wrong and persist?
 
 class PersonaBase(BaseModel):
     display_name: str
