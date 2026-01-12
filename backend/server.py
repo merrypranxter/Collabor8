@@ -72,9 +72,12 @@ class PersonaBase(BaseModel):
     bio: str
     quirks: List[str]
     voice: Voice
+    intelligence_profile: Optional[IntelligenceProfile] = None  # NEW: Cognitive boundaries
     color: Optional[str] = "#A855F7"  # Default purple
     tags: List[str] = []  # Tags for filtering/grouping
     sort_order: int = 0  # For custom ordering
+    era_context: Optional[str] = None  # e.g., "1990s MTV culture", "Ancient Greece"
+    knowledge_scope: Optional[str] = None  # What they know vs don't know
 
 class PersonaCreate(BaseModel):
     display_name: str
