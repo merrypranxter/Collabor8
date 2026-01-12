@@ -330,6 +330,18 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Character containment and knowledge boundary enforcement"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL CHARACTER CONTAINMENT FAILURE: Comprehensive testing reveals personas are NOT maintaining proper character boundaries. SPECIFIC FAILURES: 1) Beavis (limited intelligence persona) uses complex vocabulary like 'consciousness' when explaining concepts. 2) When asked to explain McKenna's theories, Beavis provides sophisticated explanations with proper understanding of evolutionary concepts, consciousness theory, and scientific reasoning. 3) In persona-to-persona discussions, Beavis breaks character and becomes articulate. 4) Vocabulary violations: Beavis uses forbidden complex terms multiple times. EXPECTED: Beavis should respond with confusion ('huh huh, what?'), dismissal ('sounds dumb'), or oversimplification. ACTUAL: Beavis accurately paraphrases complex theories and uses academic vocabulary. The aggressive character containment prompts are NOT working effectively. This is a critical failure of the core persona system."
+
 agent_communication:
   - agent: "main"
     message: "I've completed the vision implementation. The system now switches to GPT-4o when images are uploaded and passes base64 image data to the vision API. The frontend UI is working and shows attachment previews. Please test: 1) Upload an image and ask personas to describe it, 2) Upload a URL and verify it's included in context, 3) Upload a regular file and check handling. Basic chat is already confirmed working."
@@ -357,3 +369,5 @@ agent_communication:
     message: "✅ PROFILE & SETTINGS TESTING COMPLETE: Fixed critical backend issue causing auth modal to be stuck. Root cause was NameError: name 'Depends' is not defined in server.py line 940. FIXES APPLIED: 1) Added missing 'Depends' import to FastAPI imports, 2) Commented out incomplete authentication endpoints (/users/profile, /users/password, /users/me) that referenced undefined get_current_user function. COMPREHENSIVE TESTING RESULTS: ✅ Auth modal now closes properly after 'Continue as Guest' - CRITICAL FIX VERIFIED. ✅ Profile modal correctly shows 'Guest users cannot edit profiles. Register an account to customize your profile.' for guest users. ✅ Settings modal opens with all expected elements: Audio Settings toggles, Default Conversation Mode dropdown (Creativity Collaboration, Shoot-the-Shit, Unhinged, Socratic Debate), Auto-Scroll toggle. ✅ Settings save functionality working - 'Settings saved!' toast notification appears. ✅ Guest authentication working correctly. ✅ App is now fully accessible and functional. Profile and Settings modals are working as expected for the current implementation."
   - agent: "testing"
     message: "AVATAR FIX VERIFICATION COMPLETE ✅: Successfully verified that the duplicate prefix bug has been fixed! Backend API testing confirms: ✅ All avatar URLs now have proper single 'data:image/' prefixes with no duplicates. ✅ 5 personas currently have avatar images with correct URL format (Terence McKenna, Hunter S Thompson, A guy on a permeant dmt drip, A Schizophrenic Person, an Oracle of Delphi). ✅ Zero instances of 'data:image/data:image/' duplicate prefixes found in the database. ✅ Avatar display system is now working correctly with proper URL formatting. The critical avatar URL format issue that was causing display problems has been successfully resolved. Avatars should now display correctly in both the persona gallery and chat messages without any URL format errors."
+  - agent: "testing"
+    message: "❌ CRITICAL CHARACTER CONTAINMENT FAILURE DETECTED: Executed comprehensive character containment testing as requested. The aggressive character containment prompt system is NOT working effectively. SPECIFIC TEST RESULTS: ✅ Initial responses work (McKenna shows expertise, Beavis stays simple). ❌ Persona-to-persona discussion: Beavis breaks character and becomes articulate. ❌ Direct questioning: When asked to explain McKenna's theories, Beavis provides sophisticated explanations using complex vocabulary like 'consciousness', 'evolutionary', 'cognitive'. ❌ Vocabulary violations: Beavis repeatedly uses forbidden academic terms. CRITICAL ISSUE: The 'dumb' persona (Beavis) is not maintaining his limited intelligence boundaries and is demonstrating knowledge/vocabulary he should not possess. This represents a fundamental failure of the character containment system that needs immediate attention."
