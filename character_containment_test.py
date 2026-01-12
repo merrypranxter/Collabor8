@@ -263,6 +263,18 @@ class CharacterContainmentTester:
         """Test 3: Ask Beavis directly to explain what McKenna said"""
         print("\n❓ Test 3: Direct Question to Beavis...")
         
+        # First, send the user message
+        user_message_data = {
+            "content": "@Beavis, can you explain what Terence just said about consciousness and evolution?",
+            "is_user": True
+        }
+        
+        success, _ = self.make_request('POST', f'conversations/{self.conversation_id}/messages', user_message_data)
+        if not success:
+            self.log_result("Direct Question Test", False, "Failed to send user message")
+            return False
+        
+        # Generate persona responses
         generate_data = {
             "conversation_id": self.conversation_id,
             "user_message": "@Beavis, can you explain what Terence just said about consciousness and evolution?",
