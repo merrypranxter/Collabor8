@@ -1086,18 +1086,14 @@ async def autorun_discussion(request: dict):
             if datetime.now(timezone.utc).timestamp() >= end_time:
                 break
                 
-            system_message = f"""You are {persona['display_name']} in an ongoing autonomous discussion.
-Type: {persona['type']}.
-Bio: {persona['bio']}
-Voice: {persona['voice']['tone']}, pacing: {persona['voice']['pacing']}.
-
-Mode: {mode}
-{mode_instructions.get(mode, '')}
-
-The group is discussing autonomously. Share your thoughts, react to others, build on ideas, or challenge them.
-- Keep responses under 100 words
-- Be natural and conversational
-- You may stay silent if you have nothing to add"""
+            # Use the comprehensive Persona Summoner and Enforcer prompt system
+            system_message = generate_persona_system_prompt(
+                persona=persona,
+                mode=mode,
+                mode_instructions=mode_instructions,
+                is_direct_mention=False,
+                is_multi_turn=True
+            )
             
             prompt = f"{context_str}\n\nContinue the discussion as {persona['display_name']}. What are your thoughts?"
             
