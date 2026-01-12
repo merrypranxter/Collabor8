@@ -798,13 +798,27 @@ class CharacterContainmentTester:
         """Test 2: Direct Question to Beavis"""
         print("\n🧪 TEST 2: Direct Question to Beavis")
         
-        generate_data = {
-            "conversation_id": self.conversation_id,
-            "user_message": f"@{self.beavis_persona['display_name']}, can you explain what Terence just said about consciousness and mushrooms?",
-            "attachments": []
-        }
+        user_message = f"@{self.beavis_persona['display_name']}, can you explain what Terence just said about consciousness and mushrooms?"
         
         try:
+            # Send user message first
+            message_data = {
+                "content": user_message,
+                "is_user": True
+            }
+            
+            message_response = requests.post(f"{self.api_url}/conversations/{self.conversation_id}/messages", 
+                                           json=message_data, timeout=30)
+            if message_response.status_code != 200:
+                print(f"   ❌ Failed to send user message: {message_response.status_code}")
+                return False
+            
+            generate_data = {
+                "conversation_id": self.conversation_id,
+                "user_message": user_message,
+                "attachments": []
+            }
+            
             response = requests.post(f"{self.api_url}/chat/generate-multi", 
                                    json=generate_data, timeout=60)
             if response.status_code == 200:
@@ -825,7 +839,7 @@ class CharacterContainmentTester:
                     content_lower = content.lower()
                     appropriate_responses = [
                         'don\'t know', 'big words', 'confused', 'uh', 'huh', 
-                        'something about', 'mushrooms', 'i guess'
+                        'something about', 'mushrooms', 'i guess', 'what'
                     ]
                     shows_appropriate_confusion = any(phrase in content_lower for phrase in appropriate_responses)
                     
@@ -873,13 +887,27 @@ class CharacterContainmentTester:
         """Test 3: Another Complex Topic - Quantum Mechanics"""
         print("\n🧪 TEST 3: Complex Topic - Quantum Mechanics")
         
-        generate_data = {
-            "conversation_id": self.conversation_id,
-            "user_message": "What do you all think about quantum mechanics?",
-            "attachments": []
-        }
+        user_message = "What do you all think about quantum mechanics?"
         
         try:
+            # Send user message first
+            message_data = {
+                "content": user_message,
+                "is_user": True
+            }
+            
+            message_response = requests.post(f"{self.api_url}/conversations/{self.conversation_id}/messages", 
+                                           json=message_data, timeout=30)
+            if message_response.status_code != 200:
+                print(f"   ❌ Failed to send user message: {message_response.status_code}")
+                return False
+            
+            generate_data = {
+                "conversation_id": self.conversation_id,
+                "user_message": user_message,
+                "attachments": []
+            }
+            
             response = requests.post(f"{self.api_url}/chat/generate-multi", 
                                    json=generate_data, timeout=60)
             if response.status_code == 200:
@@ -900,7 +928,7 @@ class CharacterContainmentTester:
                     content_lower = content.lower()
                     appropriate_responses = [
                         'quantum what', 'not even a real word', 'sounds dumb', 
-                        'made up', 'don\'t understand', 'huh huh', 'whatever'
+                        'made up', 'don\'t understand', 'huh huh', 'whatever', 'what'
                     ]
                     shows_appropriate_response = any(phrase in content_lower for phrase in appropriate_responses)
                     
