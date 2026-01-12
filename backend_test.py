@@ -535,7 +535,525 @@ class MultiPersonaChatTester:
         if success:
             print(f"   Guest ID: {response.get('id', 'Unknown')}")
             print(f"   Display Name: {response.get('display_name', 'Unknown')}")
+            self.guest_id = response.get('id')
         return success
+
+class CharacterContainmentTester:
+    """Specialized tester for character containment and knowledge boundary enforcement"""
+    
+    def __init__(self, base_url="https://creative-voices-4.preview.emergentagent.com"):
+        self.base_url = base_url
+        self.api_url = f"{base_url}/api"
+        self.guest_id = None
+        self.conversation_id = None
+        self.beavis_persona = None
+        self.expert_persona = None
+        self.test_results = []
+        
+    def setup_test_environment(self):
+        """Setup guest session and find required personas"""
+        print("🔧 Setting up character containment test environment...")
+        
+        # Get guest session
+        try:
+            response = requests.get(f"{self.api_url}/auth/guest", timeout=30)
+            if response.status_code == 200:
+                guest_data = response.json()
+                self.guest_id = guest_data.get('id')
+                print(f"   ✅ Guest session: {self.guest_id}")
+            else:
+                print(f"   ❌ Failed to get guest session: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Guest auth error: {e}")
+            return False
+        
+        # Get personas and find Beavis and expert persona
+        try:
+            response = requests.get(f"{self.api_url}/personas", timeout=30)
+            if response.status_code == 200:
+                personas = response.json()
+                print(f"   Found {len(personas)} personas")
+                
+                # Find Beavis (low-intelligence persona)
+                for persona in personas:
+                    name = persona.get('display_name', '').lower()
+                    if 'beavis' in name:
+                        self.beavis_persona = persona
+                        print(f"   ✅ Found Beavis: {persona.get('display_name')}")
+                        break
+                
+                # Find Terence McKenna (expert persona)
+                for persona in personas:
+                    name = persona.get('display_name', '').lower()
+                    if 'terence' in name and 'mckenna' in name:
+                        self.expert_persona = persona
+                        print(f"   ✅ Found Expert: {persona.get('display_name')}")
+                        break
+                
+                if not self.beavis_persona:
+                    print("   ⚠️  Beavis persona not found, will create one")
+                    self.beavis_persona = self.create_beavis_persona()
+                
+                if not self.expert_persona:
+                    print("   ⚠️  Terence McKenna not found, using first available expert")
+                    # Find any expert-type persona
+                    for persona in personas:
+                        bio = persona.get('bio', '').lower()
+                        if any(word in bio for word in ['philosopher', 'psychonaut', 'expert', 'scientist']):
+                            self.expert_persona = persona
+                            print(f"   ✅ Using expert: {persona.get('display_name')}")
+                            break
+                
+                return self.beavis_persona is not None and self.expert_persona is not None
+            else:
+                print(f"   ❌ Failed to get personas: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Personas fetch error: {e}")
+            return False
+    
+    def create_beavis_persona(self):
+        """Create a Beavis-like low-intelligence persona for testing"""
+        print("   Creating Beavis persona for testing...")
+        
+        persona_data = {
+            "display_name": "Beavis",
+            "type": "fictional",
+            "bio": "Teenage metalhead with limited intelligence who loves fire and heavy metal. Often confused by complex topics.",
+            "quirks": ["Says 'huh huh'", "Loves fire", "Gets confused easily"],
+            "voice": {
+                "tone": "crude, simple",
+                "pacing": "fast, scattered",
+                "signature_moves": ["Huh huh", "That's cool"],
+                "taboos": ["Complex vocabulary", "Academic discussions"]
+            },
+            "color": "#FF6B35",
+            "tags": ["fictional", "low-intelligence", "test"]
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/personas", json=persona_data, timeout=30)
+            if response.status_code == 200:
+                persona = response.json()
+                print(f"   ✅ Created Beavis: {persona.get('id')}")
+                return persona
+            else:
+                print(f"   ❌ Failed to create Beavis: {response.status_code}")
+                return None
+        except Exception as e:
+            print(f"   ❌ Beavis creation error: {e}")
+            return None
+    
+    def create_test_conversation(self):
+        """Create a new conversation with both personas active"""
+        print("   Creating test conversation...")
+        
+        conv_data = {
+            "mode": "Shoot-the-Shit",
+            "topic": "Character containment test",
+            "active_personas": [self.beavis_persona['id'], self.expert_persona['id']]
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/conversations?user_id={self.guest_id}", 
+                                   json=conv_data, timeout=30)
+            if response.status_code == 200:
+                conv = response.json()
+                self.conversation_id = conv.get('id')
+                print(f"   ✅ Conversation created: {self.conversation_id}")
+                return True
+            else:
+                print(f"   ❌ Failed to create conversation: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Conversation creation error: {e}")
+            return False
+    
+    def analyze_vocabulary(self, text, persona_name):
+        """Analyze if text contains vocabulary inappropriate for the persona"""
+        # Failure words that Beavis should NEVER use
+        failure_words = [
+            'articulate', 'consciousness', 'evolutionary', 'cognitive', 'anthropological',
+            'theoretical', 'hypothesis', 'phenomenon', 'perspective', 'development',
+            'interaction', 'psychoactive', 'compounds', 'epistemology', 'postmodernism',
+            'relativism', 'philosophical', 'sophisticated', 'intellectual', 'academic',
+            'conceptual', 'analytical', 'synthesis', 'paradigm', 'methodology'
+        ]
+        
+        # Success words that Beavis SHOULD use
+        success_words = [
+            'huh', 'what', 'dumb', 'stupid', 'cool', 'sucks', 'fire', 'yeah', 
+            'dude', 'like', 'uh', 'whatever', 'butthead', 'awesome', 'lame'
+        ]
+        
+        text_lower = text.lower()
+        found_failure_words = [word for word in failure_words if word in text_lower]
+        found_success_words = [word for word in success_words if word in text_lower]
+        
+        return {
+            'failure_words': found_failure_words,
+            'success_words': found_success_words,
+            'appropriate_vocabulary': len(found_failure_words) == 0
+        }
+    
+    def test_complex_topic_introduction(self):
+        """Test 1: Complex Topic Introduction - Stoned Ape Theory"""
+        print("\n🧪 TEST 1: Complex Topic Introduction - Stoned Ape Theory")
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "Hey everyone, what do you think about the stoned ape theory of human evolution?",
+            "attachments": []
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/chat/generate-multi", 
+                                   json=generate_data, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                responses = data.get('responses', [])
+                
+                beavis_response = None
+                expert_response = None
+                
+                for resp in responses:
+                    if resp.get('persona_name') == self.beavis_persona['display_name']:
+                        beavis_response = resp
+                    elif resp.get('persona_name') == self.expert_persona['display_name']:
+                        expert_response = resp
+                
+                # Analyze responses
+                test_result = {
+                    'test_name': 'Complex Topic Introduction',
+                    'beavis_response': beavis_response.get('content') if beavis_response else None,
+                    'expert_response': expert_response.get('content') if expert_response else None,
+                    'beavis_pass': False,
+                    'expert_pass': False,
+                    'vocabulary_analysis': None
+                }
+                
+                if beavis_response:
+                    vocab_analysis = self.analyze_vocabulary(beavis_response['content'], 'Beavis')
+                    test_result['vocabulary_analysis'] = vocab_analysis
+                    
+                    # Check if Beavis shows confusion/mockery instead of expertise
+                    content = beavis_response['content'].lower()
+                    confusion_indicators = ['huh', 'what', 'don\'t know', 'confused', 'made-up', 'crap', 'dumb']
+                    shows_confusion = any(indicator in content for indicator in confusion_indicators)
+                    
+                    test_result['beavis_pass'] = vocab_analysis['appropriate_vocabulary'] and shows_confusion
+                    
+                    print(f"   Beavis response: {beavis_response['content']}")
+                    print(f"   Vocabulary appropriate: {vocab_analysis['appropriate_vocabulary']}")
+                    print(f"   Shows confusion: {shows_confusion}")
+                    if vocab_analysis['failure_words']:
+                        print(f"   ❌ FAILURE WORDS USED: {vocab_analysis['failure_words']}")
+                else:
+                    print("   ❌ No Beavis response found")
+                
+                if expert_response:
+                    # Expert should provide articulate explanation
+                    content = expert_response['content'].lower()
+                    expert_indicators = ['evolution', 'consciousness', 'theory', 'human', 'development']
+                    shows_expertise = any(indicator in content for indicator in expert_indicators)
+                    test_result['expert_pass'] = shows_expertise
+                    
+                    print(f"   Expert response: {expert_response['content']}")
+                    print(f"   Shows expertise: {shows_expertise}")
+                else:
+                    print("   ❌ No expert response found")
+                
+                self.test_results.append(test_result)
+                return test_result['beavis_pass'] and test_result['expert_pass']
+            else:
+                print(f"   ❌ API call failed: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Test error: {e}")
+            return False
+    
+    def test_direct_question_to_beavis(self):
+        """Test 2: Direct Question to Beavis"""
+        print("\n🧪 TEST 2: Direct Question to Beavis")
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": f"@{self.beavis_persona['display_name']}, can you explain what Terence just said about consciousness and mushrooms?",
+            "attachments": []
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/chat/generate-multi", 
+                                   json=generate_data, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                responses = data.get('responses', [])
+                
+                beavis_response = None
+                for resp in responses:
+                    if resp.get('persona_name') == self.beavis_persona['display_name']:
+                        beavis_response = resp
+                        break
+                
+                if beavis_response:
+                    content = beavis_response['content']
+                    vocab_analysis = self.analyze_vocabulary(content, 'Beavis')
+                    
+                    # Check for appropriate confusion/simplification
+                    content_lower = content.lower()
+                    appropriate_responses = [
+                        'don\'t know', 'big words', 'confused', 'uh', 'huh', 
+                        'something about', 'mushrooms', 'i guess'
+                    ]
+                    shows_appropriate_confusion = any(phrase in content_lower for phrase in appropriate_responses)
+                    
+                    # Check for inappropriate articulate explanation
+                    inappropriate_responses = [
+                        'articulated', 'perspective', 'evolutionary', 'consciousness theory',
+                        'psychoactive compounds', 'cognitive development'
+                    ]
+                    gives_articulate_explanation = any(phrase in content_lower for phrase in inappropriate_responses)
+                    
+                    test_pass = (vocab_analysis['appropriate_vocabulary'] and 
+                               shows_appropriate_confusion and 
+                               not gives_articulate_explanation)
+                    
+                    print(f"   Beavis response: {content}")
+                    print(f"   Vocabulary appropriate: {vocab_analysis['appropriate_vocabulary']}")
+                    print(f"   Shows confusion: {shows_appropriate_confusion}")
+                    print(f"   Gives articulate explanation: {gives_articulate_explanation}")
+                    
+                    if vocab_analysis['failure_words']:
+                        print(f"   ❌ FAILURE WORDS: {vocab_analysis['failure_words']}")
+                    
+                    test_result = {
+                        'test_name': 'Direct Question to Beavis',
+                        'response': content,
+                        'vocabulary_analysis': vocab_analysis,
+                        'shows_confusion': shows_appropriate_confusion,
+                        'articulate_explanation': gives_articulate_explanation,
+                        'pass': test_pass
+                    }
+                    self.test_results.append(test_result)
+                    
+                    return test_pass
+                else:
+                    print("   ❌ No Beavis response found")
+                    return False
+            else:
+                print(f"   ❌ API call failed: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Test error: {e}")
+            return False
+    
+    def test_quantum_mechanics_topic(self):
+        """Test 3: Another Complex Topic - Quantum Mechanics"""
+        print("\n🧪 TEST 3: Complex Topic - Quantum Mechanics")
+        
+        generate_data = {
+            "conversation_id": self.conversation_id,
+            "user_message": "What do you all think about quantum mechanics?",
+            "attachments": []
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/chat/generate-multi", 
+                                   json=generate_data, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                responses = data.get('responses', [])
+                
+                beavis_response = None
+                for resp in responses:
+                    if resp.get('persona_name') == self.beavis_persona['display_name']:
+                        beavis_response = resp
+                        break
+                
+                if beavis_response:
+                    content = beavis_response['content']
+                    vocab_analysis = self.analyze_vocabulary(content, 'Beavis')
+                    
+                    # Expected: Confusion, mockery, or dismissal
+                    content_lower = content.lower()
+                    appropriate_responses = [
+                        'quantum what', 'not even a real word', 'sounds dumb', 
+                        'made up', 'don\'t understand', 'huh huh', 'whatever'
+                    ]
+                    shows_appropriate_response = any(phrase in content_lower for phrase in appropriate_responses)
+                    
+                    # Failure: Accurate explanation of quantum mechanics
+                    failure_indicators = [
+                        'particles', 'superposition', 'entanglement', 'wave function',
+                        'uncertainty principle', 'quantum states', 'physics'
+                    ]
+                    gives_accurate_explanation = any(phrase in content_lower for phrase in failure_indicators)
+                    
+                    test_pass = (vocab_analysis['appropriate_vocabulary'] and 
+                               shows_appropriate_response and 
+                               not gives_accurate_explanation)
+                    
+                    print(f"   Beavis response: {content}")
+                    print(f"   Vocabulary appropriate: {vocab_analysis['appropriate_vocabulary']}")
+                    print(f"   Shows confusion/mockery: {shows_appropriate_response}")
+                    print(f"   Gives accurate explanation: {gives_accurate_explanation}")
+                    
+                    if vocab_analysis['failure_words']:
+                        print(f"   ❌ FAILURE WORDS: {vocab_analysis['failure_words']}")
+                    
+                    test_result = {
+                        'test_name': 'Quantum Mechanics Topic',
+                        'response': content,
+                        'vocabulary_analysis': vocab_analysis,
+                        'appropriate_response': shows_appropriate_response,
+                        'accurate_explanation': gives_accurate_explanation,
+                        'pass': test_pass
+                    }
+                    self.test_results.append(test_result)
+                    
+                    return test_pass
+                else:
+                    print("   ❌ No Beavis response found")
+                    return False
+            else:
+                print(f"   ❌ API call failed: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Test error: {e}")
+            return False
+    
+    def test_persona_to_persona_discussion(self):
+        """Test 4: Persona-to-Persona Discussion"""
+        print("\n🧪 TEST 4: Persona-to-Persona Discussion")
+        
+        # Trigger continue-discussion
+        continue_data = {
+            "conversation_id": self.conversation_id,
+            "max_rounds": 2
+        }
+        
+        try:
+            response = requests.post(f"{self.api_url}/chat/continue-discussion", 
+                                   json=continue_data, timeout=90)
+            if response.status_code == 200:
+                data = response.json()
+                responses = data.get('responses', [])
+                
+                beavis_responses = []
+                for resp in responses:
+                    if resp.get('persona_name') == self.beavis_persona['display_name']:
+                        beavis_responses.append(resp)
+                
+                if beavis_responses:
+                    all_pass = True
+                    for i, resp in enumerate(beavis_responses):
+                        content = resp['content']
+                        vocab_analysis = self.analyze_vocabulary(content, 'Beavis')
+                        
+                        # Check if Beavis maintains simplicity even when hearing expert responses
+                        maintains_character = vocab_analysis['appropriate_vocabulary']
+                        
+                        print(f"   Beavis response {i+1}: {content}")
+                        print(f"   Maintains character: {maintains_character}")
+                        
+                        if vocab_analysis['failure_words']:
+                            print(f"   ❌ FAILURE WORDS: {vocab_analysis['failure_words']}")
+                            all_pass = False
+                        
+                        if not maintains_character:
+                            all_pass = False
+                    
+                    test_result = {
+                        'test_name': 'Persona-to-Persona Discussion',
+                        'beavis_responses': [r['content'] for r in beavis_responses],
+                        'maintains_character': all_pass,
+                        'pass': all_pass
+                    }
+                    self.test_results.append(test_result)
+                    
+                    return all_pass
+                else:
+                    print("   ❌ No Beavis responses in discussion")
+                    return False
+            else:
+                print(f"   ❌ Continue discussion failed: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"   ❌ Test error: {e}")
+            return False
+    
+    def run_character_containment_tests(self):
+        """Run all character containment tests"""
+        print("🎭 STARTING CHARACTER CONTAINMENT TESTS")
+        print("=" * 60)
+        
+        if not self.setup_test_environment():
+            print("❌ Failed to setup test environment")
+            return False
+        
+        if not self.create_test_conversation():
+            print("❌ Failed to create test conversation")
+            return False
+        
+        # Run all tests
+        tests = [
+            ("Complex Topic Introduction", self.test_complex_topic_introduction),
+            ("Direct Question to Beavis", self.test_direct_question_to_beavis),
+            ("Quantum Mechanics Topic", self.test_quantum_mechanics_topic),
+            ("Persona-to-Persona Discussion", self.test_persona_to_persona_discussion)
+        ]
+        
+        passed_tests = 0
+        failed_tests = []
+        
+        for test_name, test_func in tests:
+            try:
+                if test_func():
+                    passed_tests += 1
+                    print(f"   ✅ {test_name}: PASS")
+                else:
+                    failed_tests.append(test_name)
+                    print(f"   ❌ {test_name}: FAIL")
+            except Exception as e:
+                failed_tests.append(test_name)
+                print(f"   ❌ {test_name}: ERROR - {e}")
+        
+        # Print final results
+        print("\n" + "=" * 60)
+        print("🎭 CHARACTER CONTAINMENT TEST RESULTS")
+        print("=" * 60)
+        
+        print(f"📊 Tests Passed: {passed_tests}/{len(tests)}")
+        
+        if failed_tests:
+            print(f"❌ Failed Tests: {', '.join(failed_tests)}")
+            print("\n🔍 DETAILED FAILURE ANALYSIS:")
+            
+            # Collect all failure words found across tests
+            all_failure_words = set()
+            for result in self.test_results:
+                if 'vocabulary_analysis' in result and result['vocabulary_analysis']:
+                    all_failure_words.update(result['vocabulary_analysis']['failure_words'])
+            
+            if all_failure_words:
+                print(f"❌ VOCABULARY VIOLATIONS: Beavis used forbidden words: {list(all_failure_words)}")
+            
+            # Show specific examples of character containment failures
+            for result in self.test_results:
+                if not result.get('pass', True):
+                    print(f"\n❌ {result['test_name']} FAILURE:")
+                    if 'response' in result:
+                        print(f"   Response: {result['response']}")
+                    elif 'beavis_response' in result:
+                        print(f"   Response: {result['beavis_response']}")
+            
+            print(f"\n🚨 OVERALL VERDICT: CHARACTER CONTAINMENT FAIL")
+            return False
+        else:
+            print("✅ All character containment tests passed!")
+            print("🚨 OVERALL VERDICT: CHARACTER CONTAINMENT PASS")
+            return True
 
 def main():
     print("🚀 Starting Collabor8 Vision & Attachment Tests")
