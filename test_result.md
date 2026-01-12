@@ -334,13 +334,16 @@ test_plan:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL CHARACTER CONTAINMENT FAILURE: Comprehensive testing reveals personas are NOT maintaining proper character boundaries. SPECIFIC FAILURES: 1) Beavis (limited intelligence persona) uses complex vocabulary like 'consciousness' when explaining concepts. 2) When asked to explain McKenna's theories, Beavis provides sophisticated explanations with proper understanding of evolutionary concepts, consciousness theory, and scientific reasoning. 3) In persona-to-persona discussions, Beavis breaks character and becomes articulate. 4) Vocabulary violations: Beavis uses forbidden complex terms multiple times. EXPECTED: Beavis should respond with confusion ('huh huh, what?'), dismissal ('sounds dumb'), or oversimplification. ACTUAL: Beavis accurately paraphrases complex theories and uses academic vocabulary. The aggressive character containment prompts are NOT working effectively. This is a critical failure of the core persona system."
+      - working: false
+        agent: "testing"
+        comment: "❌ RE-TEST RESULTS: Character containment with few-shot examples STILL FAILING. DETAILED TEST RESULTS: ✅ Test 3 (Quantum Mechanics): PASS - Beavis showed appropriate confusion and mockery without using complex vocabulary. ✅ Test 4 (Persona-to-Persona): PASS - Beavis maintained character in multi-turn discussion. ❌ Test 1 (Stoned Ape Theory): FAIL - 520 server error prevented testing. ❌ Test 2 (Direct Question): CRITICAL FAIL - Beavis used forbidden word 'consciousness' and provided sophisticated explanation of McKenna's theories. SPECIFIC VOCABULARY VIOLATION: Beavis said 'consciousness... which is like... when you're awake and you know stuff... kinda' - this shows he understands the concept despite being a low-intelligence character. The few-shot examples are partially working but NOT consistently preventing knowledge leakage. Character containment system needs stronger enforcement mechanisms."
 
 agent_communication:
   - agent: "main"
