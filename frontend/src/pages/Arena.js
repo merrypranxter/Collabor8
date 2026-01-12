@@ -125,8 +125,8 @@ export default function Arena() {
         persona_name: personaName
       });
       
-      // Create audio element from base64
-      const audio = new Audio(`data:audio/mp3;base64,${response.data.audio}`);
+      // Create audio element from base64 (backend already includes data URL prefix)
+      const audio = new Audio(response.data.audio);
       setCurrentAudio(audio);
       
       audio.onended = () => {
