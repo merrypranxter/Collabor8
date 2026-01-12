@@ -30,7 +30,18 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+# Configure MongoDB client with proper timeouts for Atlas deployment
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=5000,  # 5 seconds to select server
+    connectTimeoutMS=10000,  # 10 seconds to establish connection
+    socketTimeoutMS=45000,  # 45 seconds for socket operations
+    maxPoolSize=10,  # Maximum connection pool size
+    minPoolSize=1,  # Minimum connection pool size
+    retryWrites=True,  # Enable retryable writes
+    retryReads=True,  # Enable retryable reads
+    w='majority',  # Write concern
+)
 db = client[os.environ['DB_NAME']]
 
 app = FastAPI()
